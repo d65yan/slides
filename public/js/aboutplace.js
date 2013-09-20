@@ -757,7 +757,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
          
          $scope.prioritiesFull=SelectionService.priorities.length==(((36/9)/2)+1);
          $scope.msas=GeograficService.regions;
-         if($scope.msas)
+         if($scope.msas && $scope.msas.length)
              SelectCity(0,0);
           $scope.$parent.footerState='0%';
           $scope.expandedFooter=false;
