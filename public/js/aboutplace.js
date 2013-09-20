@@ -973,7 +973,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
        
        $scope.$on('regionsLoaded',function(){
                 $scope.msas=GeograficService.regions;
-                SelectCiy(0,0);
+                SelectCity(0,0);
                
                 $scope.$apply();
                 /*$timeout(function(){
@@ -1070,9 +1070,10 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
             $scope.$apply();
         })
          
-      if($scope.lifestyles)
+      if($scope.lifestyles){
            $scope.SelectLifeStyle(GetLifeStyleIdxById(lfid)-1);
             $scope.GetNhbds();
+      }
     }
      nhbdCtrl.$inject=['$scope','$window','$timeout','SelectionService','SystemsFilters','CompareService','$rootScope','$routeParams','GeograficService'];
      
