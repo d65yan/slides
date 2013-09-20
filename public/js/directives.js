@@ -775,7 +775,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
                 //var mapserver='http://geo.urban4m.com/heat';
-                var mapserver='http://demo-maps.aboutplace.co';
+                var mapserver='http://demo-maps.aboutplace.co/heat';
                 var strTFS,prtTFS=null;
                 var url='';
                 var TMSLayer=GeoLayer=null;
