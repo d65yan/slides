@@ -944,12 +944,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
              $scope.GetNhbds();
          });
          
-         $scope.$on('updateQuery',function(){
-             $scope.partial_query=SelectionService.partial_query;
-             $scope.UpdateUrl($scope.partial_query);
-         })
-         
-         $scope.$on('systemsLoaded',function(){
+            $scope.$on('systemsLoaded',function(){
              $scope.systemsSet=SelectionService.SystemsSet;
              $scope.UpdateUrl($scope.partial_query);
          })
