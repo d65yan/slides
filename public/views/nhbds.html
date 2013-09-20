@@ -1,0 +1,880 @@
+<style>
+
+    footer{
+        position:fixed;
+        bottom:0;
+        right:0;
+        overflow:hidden;
+    }
+    
+   /* .footer-toggler{
+        position:fixed;
+        bottom:0;
+        right:0;
+        z-index:6000;
+        opacity:0.5;
+        transition:opacity 0.4s;
+    }
+    
+    .footer-toggler:hover{
+        opacity:1;
+    }
+    
+    .local_footer{
+        width:100%;
+        z-index:6001;
+        height:30px;
+        background-color:rgba(0,0,0,0.25);
+        position:fixed;
+        bottom:0;
+        right:0;
+        transition:width 0.5s;
+        overflow:hidden;
+    }
+    
+    .local_footer.ng-enter{
+        width:0;
+    }
+    
+    .local_footer.ng-enter-active{
+        width:100%;
+    }
+    .local_footer.ng-leave{
+        width:100%;
+    }
+    
+    .local_footer.ng-leave-active{
+        width:0;
+    }
+    .local_footer .footer-toggler{
+        float:right
+    }*/
+    
+    #menu_state_switch{
+        cursor:pointer;
+        margin-top:5px;
+        margin-bottom:10px;
+        color:white;
+        font-weight:bold;
+        text-shadow: 1px 1px 5px #666;
+        display:inline-block;
+        overflow:hidden;
+        padding-right: 30px;
+    }
+    
+    #menu_state_switch i{
+        margin-top:-1px;
+        margin-right:2px;
+    }
+    div.olControlZoom a{
+        color:black !important;
+        background-color:white;
+        width:26px !important;
+        padding-top:2px;
+     }
+     
+    div.olControlZoom{
+        background-color:#e3e3e3;
+        padding:0;
+        box-shadow: #e3e3e3 1px 1px 10px 1px;
+        
+     }
+     
+     div.olControlZoom a:hover{
+         background-color:white;
+        color:#ccc !important;
+     }
+     
+     div.olControlZoom a:active{
+        background-color:white;
+        color:black !important;
+     }
+
+    
+    
+    .hotspot{
+        /* IE10 Consumer Preview */ 
+        background-image: -ms-linear-gradient(top, #E5DFC7 0%, #DAD1B1 100%);
+
+        /* Mozilla Firefox */ 
+        background-image: -moz-linear-gradient(top, #E5DFC7 0%, #DAD1B1 100%);
+
+        /* Opera */ 
+        background-image: -o-linear-gradient(top, #E5DFC7 0%, #DAD1B1 100%);
+
+        /* Webkit (Safari/Chrome 10) */ 
+        background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #E5DFC7), color-stop(1, #DAD1B1));
+
+        /* Webkit (Chrome 11+) */ 
+        background-image: -webkit-linear-gradient(top, #E5DFC7 0%, #DAD1B1 100%);
+
+        /* W3C Markup, IE10 Release Preview */ 
+        background-image: linear-gradient(to bottom, #E5DFC7 0%, #DAD1B1 100%);
+        
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#E5DFC7', endColorstr='#DAD1B1',GradientType=0 );
+        
+        margin-top:5px;
+        margin-bottom:5px;
+        padding:3px;
+        padding-left:2px;
+        padding-right:2px;
+        line-height:normal;
+    }
+    
+    .hotspot .pulse_indicator{
+        background-color: #ede8d8;
+        height:100%;
+        position:relative;
+        display:inline;
+        font-size:1.7em;
+        padding-left:0.2em;
+        padding-right:0.1em;
+        font-weight:bold;
+        color:white;
+        text-shadow: 2px 2px #dcdcdc;
+        padding-bottom:0.04em;
+    }
+    
+    .hotspot .pulse_indicator .arrow{
+        width:0;
+        height:0;
+        border:solid 0.63em transparent;
+        position:absolute;
+        left:100%;
+        top:0;
+        border-right-width:0;
+        border-left-color:#ede8d8;
+        
+
+        
+    }
+    
+    .hotspot .conteined_nhbds{
+        margin-left:2em;
+        text-shadow: 1px 1px 1px rgba(255,255,255,0.65);
+    }
+    
+    .hotspot .conteined_nhbds span{
+       font-size:0.8em;
+       font-weight:bold;
+       text-shadow: 2px 2px #e3e3e3;
+    }
+    
+    .hotspot i.spot-expander{
+        float:right;
+        margin-right:5px;
+        margin-top:0.5em;
+        cursor: pointer;
+    }
+    
+    .hotspot div.hidden-content{
+        clear:both;
+        float:none;
+        
+    }
+    
+    .hot-spot-stats{
+        float:left;
+        width:33%;
+        height:70px;
+        margin-top:5px;
+        
+        text-align:left;
+        color:white;
+    }
+    
+    .hot-spot-stats p, .hot-spot-stats h4{
+        margin-left:5px;
+        margin-bottom:0px;
+        font-size:11px;
+    }
+    
+    .hot-spot-stats h4{
+        margin-left:5px;
+        margin-bottom:0px;
+        font-size:12px;
+    }
+    
+    .hot-spot-stats.demographic{
+        background-color:#f26e76;
+    }
+    
+    .hot-spot-stats.housing{
+        background-color:#badebc;
+    }
+    
+        .hot-spot-stats.conveniance{
+        background-color:#f3f7d9;
+        color:#81a283;
+    }
+    
+    
+    .legal-links{
+        position:fixed;
+        bottom:2px;
+        right:15px;
+        background-color:white;
+        opacity:0.5;
+        z-index:7000;
+        color:black;
+        font-size:12px;
+    }
+    
+    .legal-links a{
+        color:black;
+    }
+    
+    .legal-links a:last-child:before{
+        content:'|';
+        margin-right:6px;
+        margin-left:2px;
+    }
+    
+    .legal-links a:hover:before{
+       text-decoration:none !important;
+    }
+    
+    
+    #main-view{
+        height:auto !important;
+    }
+    
+    #nhbd_page{
+        position:relative;
+        overflow:hidden;
+        
+        
+        
+        
+        
+    }
+    
+    #nhbd_page .ps-scrollbar-y{
+        z-index:4000 !important;
+    }
+    
+    #nhbd_page .ucon_system{
+        float:right;
+    }
+
+    
+    
+    .nbds_leftbar{
+        position:absolute;
+        left:0px;
+        top:0px;
+        width:310px;
+        background-image:url('img/list_back.png');
+        background-repeat: repeat-y;
+        background-position:top left;
+        padding-left:10px;
+        z-index:3000;
+        
+        padding-right:10px;
+
+        
+    }
+    
+    .nbds_leftbar.short{
+        height:6.5em;
+        overflow:hidden;
+    }
+    
+    .shadowtop{
+        -moz-box-shadow: #5a5a5a 1px 5px 20px -5px;;
+        -webkit-box-shadow:  #5a5a5a 1px 5px 20px -5px;;
+        box-shadow: #5a5a5a 1px 5px 20px -5px;;
+        z-index:4000;
+        position:absolute;
+        top:0;
+        left:0;
+        width:100%
+        
+    }
+    
+    
+    .nbds_leftbar .main_container{
+        border:solid #f9f8f4 5px;
+        border-top:none;
+        background-color:#d4dcd1;
+        padding-top:10px;
+        padding-bottom:10px;
+        padding-left:10px;
+        padding-right:10px;
+        border-radius:0 0 3px 3px;
+        box-shadow: #5a5a5a 1px 1px 10px -2px;
+        font-size:1em;
+
+    }
+    
+    .nbds_leftbar .main_container.short{
+        height:3em;
+        overflow:hidden;
+     }
+    .nbds_leftbar .main_container h3{
+        color:white;
+        font-size:0.8em;
+        line-height:1em;
+        margin-left:10px;
+        display:inline;
+        text-shadow: -1px -1px 1px rgba(0,0,0,0.15);
+        
+    }
+    
+    .nbds_leftbar .main_container h2{
+        margin-left:10px;
+        margin-top:3px;
+        line-height:1em;
+        font-size:1.6em;
+        text-shadow: 1px 1px 1px rgba(255,255,255,0.65);
+        
+    }
+    
+    .nbds_leftbar .main_container hr{
+        background-color:transparent;
+        margin:auto;
+        margin-top:10px;
+        margin-bottom:10px;
+    }
+    
+        .nbds_leftbar .main_container div.dropdown{
+           display:inline-block;
+           
+    }
+    
+    .nbds_leftbar .main_container div.dropdown div.dropdown-button{
+        margin-left:5px;
+        margin-right:10px;
+        font-size:1.3em;
+        text-shadow: 1px 1px 1px rgba(255,255,255,0.65);
+    }
+    
+    .nbds_leftbar .main_container .dropdown ul.dropdown-menu{
+        background-color:#d4dcd1 !important;
+        padding:0 !important;
+        border-radius:0 0 0 0 !important;
+        border:none !important;
+        width:100%;
+        /*border-radius:0 0 3px 3px;
+        box-shadow: #5a5a5a 1px 1px 10px -2px*/
+    }
+    
+    .nbds_leftbar .main_container .dropdown ul.dropdown-menu li{
+        padding-left:10px;
+        padding-right:5px;
+        padding-top:2px;
+        cursor:pointer;
+        position:relative;
+    }
+    
+    .nbds_leftbar .main_container .dropdown ul.dropdown-menu li hr{
+            
+        border-top: solid #e6e9e0 1px;
+        border-bottom: solid #b0c3c1 1px;
+        position:absolute;
+        top:100%;
+        width:90%;
+        margin:0;
+        }
+           
+        .nbds_leftbar .main_container .dropdown ul.dropdown-menu li:last-child hr{
+            display:none;
+        }
+    
+        .nbds_leftbar .main_container .dropdown ul.dropdown-menu li:hover,.nbds_leftbar .main_container .dropdown ul.dropdown-menu li:focus,.nbds_leftbar .main_container .dropdown ul.dropdown-menu li:active{
+        background-color:#7d8b7e;
+        color:white;
+    }
+    
+   .nbds_leftbar .main_container .dropdown ul.dropdown-menu li:active{
+        background-color:#ecede7;
+        color:black;
+    }
+    
+    
+   .nbds_leftbar .main_container .btn{
+        font-size:0.8em;
+        margin-right:10px;
+        margin-top:10px;
+        line-height:1.1em;
+        width:135px;
+        text-align:left;
+
+    }
+    
+       .nbds_leftbar .main_container .btn.even{
+        margin-right:0;
+
+    }
+    
+    .nbds_leftbar .main_container .btn.color-coded{
+        padding-left:17px;
+        padding-right:0px;
+        position:relative;
+    }
+    
+   
+    .nbds_leftbar .main_container .btn.color-coded .code{
+    background-color: #f8973e;
+    border-radius: 3px 0 0 3px;
+    left: 0.05em;
+    position: absolute;
+    display:block;
+    width:12px;
+    text-align:center;
+    top: 1px;
+    height:18px;
+    color:white
+    }
+    
+
+    
+    .nbds_leftbar .main_container .btn.color-coded .code.disabled{
+    background-color: #AAA;
+    }
+    
+    
+    .filters-bar{
+        height:50px;
+        background-color:white;
+        right:0px;
+        top:0px;
+        z-index:2999;
+        -moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
+        -webkit-box-shadow:  #5a5a5a 1px 1px 10px -2px;
+        box-shadow: #5a5a5a 1px 1px 10px -2px;
+    }
+    .static_element{
+        position:absolute;
+    }
+    
+    .main_map{
+        width:100%;
+        height:100%;
+        left:0px;
+        top:0px;
+    }
+    
+    
+    .main_map div.olControlZoom{
+        left:330px;
+        top:50px;
+    }
+    
+#main-map img{
+   max-width:none;
+}
+
+.lifestyles.dropdown-button{
+    display:inline-block;
+    cursor:pointer;
+}
+
+
+.lf_group{
+    margin-top:5px;
+    position:relative;
+}
+
+.lf_group .upopover{
+    width:auto;
+    min-width:40px;
+    left:3px !important;
+    margin-left:0 !important;
+    height:auto !important;
+    max-height:none !important;
+    top:100%;
+    
+}
+
+.lf_group .upopover .arrow{
+    margin-left:0 !important;
+    left:10px !important;
+    border-bottom-color:white !important;
+}
+
+.lf_group .upopover .popover-content ul li{
+     white-space: pre;
+     cursor:pointer;
+     margin-bottom:3px;
+}
+
+.results-block{
+    background-color:#f9f8f4;
+    border-radius:5px 5px 5px 5px;
+    -moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
+    -webkit-box-shadow:  #5a5a5a 1px 1px 10px -2px;
+    box-shadow: #5a5a5a 1px 1px 10px -2px;
+    padding:10px;
+    margin-bottom:20px;
+    position:relative;
+    overflow:visible;
+    
+    
+}
+
+.results-block.active_false{
+    overflow:hidden;
+    height:1em;
+}
+
+
+    .results-block.active_true{
+        padding-top:2em;
+        margin-top:2em;
+    }
+
+    .results-block .block-tag{
+       font-size:14px; 
+       font-weight:bold;
+    }
+    
+    
+    .active_true .block-tag{
+        position:absolute;
+        top:-0.9em;
+        
+        border-radius:4px 4px 4px 4px;
+        border:solid #f9f8f4 3px;
+        border-radius:5px 5px 5px 5px;
+        -moz-box-shadow: #5a5a5a 0px -4px 8px -2px;
+        -webkit-box-shadow:  #5a5a5a 0px -4px 8px -2px;
+        box-shadow: #5a5a5a 0px -4px 8px -2px;
+        line-height:normal;
+        padding:0.4em;
+        font-weight:bold;
+        color:white;
+    }
+    
+    .active_false .block-tag .badge{
+        line-height: 1em;
+    }
+    
+    #places_block.active_true .block-tag{
+        background-color:#f8973e;
+    }
+    
+    #compare_block.active_true .block-tag{
+        background-color:#999;
+    }
+    
+    #cities_block.active_true .block-tag{
+        background-color:#36b2de;
+    }
+   
+    
+
+.hotspot .hidden-content{
+    padding-left:5px;
+    padding-right:5px;
+    background-color:white;
+    padding-bottom:5px;
+}
+
+.hotspot .hidden-content hr{
+    height:1px;
+    margin:0;
+    margin-top:10px;
+    margin-bottom:5px;
+}
+
+.hotspot .hidden-content .upgrade-message{
+    color:#bbb;
+    width:60%;
+    margin-top:5px;
+    margin-bottom:2px;
+}
+
+.hs-geographies-list{
+    color:#c8c9c6
+}
+
+.mapicon_active_system{
+   background-position: -20px 0px; 
+   margin-right:2px;
+}
+
+
+
+.mapicon_inactive_system{
+   background-position: -60px 0px;
+   margin-right:2px;
+}
+
+
+.mapicon_arrow_down{
+   background-position: -20px -120px; 
+   height: 15px;
+margin-top: 2px;
+}
+
+.mapicon_dark_arrow_down{
+   background-position: -20px -80px; 
+}
+
+.mapicon_dark_arrow_right{
+   background-position: -60px -80px; 
+}
+
+.mapicon_view_compare{
+   background-position: -180px -160px; 
+}
+
+.mapicon_expand_down{
+   background-position: -20px -160px; 
+
+}
+
+.mapicon_expand_up{
+   background-position: -100px -160px; 
+
+}
+
+
+.mapicon_dark_close{
+   background-position: -100px 0px; 
+}
+
+.mapicon_star_true{
+    background-position: -260px -160px; 
+}
+
+.mapicon_star_false{
+    background-position: -300px -160px; 
+}
+
+.mapicon_star_false.disabled{
+    opacity:0.4; 
+}
+
+.modal{
+    z-index: 6001 !important;
+}
+
+.modal-backdrop{
+    z-index: 6000 !important;
+}
+
+.popover-content li:hover .mapicon_inactive_system{
+   background-position: -220px 0px; 
+}
+
+.popover-content li:hover .mapicon_active_system{
+   background-position: -180px 0px; 
+}
+
+.prio_breadcrom{
+    font-size:12px;
+    display:inline;
+    position:relative;
+}
+
+.prio_breadcrom:hover{
+    text-decoration: underline;
+    color:#005580;
+}
+
+.prio_breadcrom:before{
+    content:"|";
+        position:absolute;
+        left:-2px;
+        font-size:1.2em;
+        top:-1px;
+        
+        
+}
+
+
+.prio_breadcrom:first-child:before{
+    content:"";
+       
+}
+   /* .prioritized{
+        background-color:#b94a48 !important;
+    }
+    
+    .prioritized button{
+        color:white !important;
+        font-weight: bold !important;
+    }*/
+
+.system-selection-button{
+  margin-right:50px;  
+}
+
+.system-list-elem{
+    position:relative;
+}
+
+.system-priority-button{
+    position:absolute;
+    right:0;
+    top:0;
+}
+
+.view_more{
+    float:right;
+    position:relative;
+    color:#f60;
+    font-size:0.9em;
+    font-weight: bold;
+    display:inline-block;
+    margin-right:0.5em;
+    padding-left:0.6em;
+    padding-right:1em;
+    border:none;
+    line-height:1.65em;
+    font-size:12px;
+    cursor:pointer;
+    margin-top:-0.1em;
+    background-image:url('img/view_more.png');
+    background-size:100% 100%;
+}
+
+.view_more:hover{
+    background-image:url('img/view_more_hover.png');
+}
+
+.view_more .view_more_arrow{
+         width:0;
+        height:0;
+        border:solid 0.88em transparent;
+        position:absolute;
+        right:-0.9em;
+        top:-0.09em;
+        border-right-width:0;
+        border-left-color:#ececec;
+        cursor:pointer;
+}
+
+
+
+
+
+.view_more_arrow:after{
+    border-width: 0.83em;
+content: "";
+    
+top: -0.8em;
+
+border-right-width: 0;
+    position: absolute;
+display: block;
+width: 0;
+height: 0;
+border-color: transparent;
+border-style: solid;
+border-left-color: #ffffff;
+left: -0.9em;
+
+}
+
+.nbhds_label{
+    display:inline;
+}
+
+.block-action-footer{
+    margin-top:5px;
+    text-align:center;
+    
+}
+
+.upgrade-button{
+    position:relative;
+    color:white;
+    font-size:0.9em;
+    font-weight: bold;
+    display:inline-block;
+    padding-left:0.6em;
+    padding-right:1em;
+    border:none;
+    line-height:1.65em;
+    font-size:18px;
+    cursor:pointer;
+    background-image:url('img/upgrade.png');
+    background-size:100% 100%;
+}
+</style>
+<!-- with animation skips dimentioning whrn rendered<section  id="nhbd_page" class="content-section scrollable resizeable" global="1" auto="self" height-adjust="header" skip-render="true" style="width:100%; height:600px;">-->
+<div  id="nhbd_page" class="content-section scrollable resizeable" global="1" auto="self" height-adjust="header" style="width:100%; height:600px;" update="{/{updateMapSpace}/}">
+  <div class="shadowtop static_element"></div>
+    <div class="nbds_leftbar {/{menu_state}/} mobile-touch" ng-click="CollapseAll()">
+        <div class="main_container {/{menu_state}/}">
+            
+            <h3>MY CITY</h3>
+            <h2><div style="height:1em;">{/{area.name}/}</div></h2>
+            <hr/>
+            <h3>MY LIFESTYLE</h3>
+            <div class="dropdown">
+                <div class="dropdown-button lifestyles">{/{$parent.lifeStyle.name}/} <i class="mapicon_arrow_down"></i></div>
+                <ul class="dropdown-menu">
+                    <li ng-repeat="lf in $parent.ddLifeStyles" ng-click="$parent.$parent.SelectLifeStyle($index)">{/{lf.name}/}<hr/></li>
+                </ul>
+            </div>
+            <br>
+            <div class="groups_cont">
+                <button class="transparent prio_breadcrom mobile-touch" ng-click=" Remove($event)" ng-repeat="p in priorities">{/{$parent.lifeStyle.systems[p].mapname}/} <i class="icon-remove"></i></button>
+                <p style="background-color:#e6ece1; text-align:center" ng-if="!priorities.length">Prioritize up to 3 amenities by clicking on the <i class="mapicon_star_false"></i>  on the right of each amenity</p>
+                <div class="separator"></div>
+                <lf_group ng-repeat="g in menu" class="updateScrolls" node-id="nhbd_page"></lf_group>
+            </div>
+        </div>
+        <span class='list-switcher mobile-touch' prevent="true" id="menu_state_switch" ng-click="menu_state=(menu_state=='short')?'':'short'"><i class="mapicon_expand_{/{menu_state=='short'?'down':'up'}/} icon-white"></i>{/{menu_state=='short'?'Show':'Hide' }/} List</span>
+        
+        
+       <div id="compare_block" class="results-block active_{/{compare_block}/}">
+           <div class="view_more mobile-touch" prevent="true"  ng-class="{hidden_true:(compare_block || !compares.length)}" ng-click="ActivateBlock('compare')">View more</div> <div class="block-tag" ng-hide="compare_block"><span class="badge badge">{/{compares.length}/}</span> PLACE<span ng-show="(compares.length-1)">S</span> TO COMPARE</div> <div class="block-tag" ng-show="compare_block">COMPARE PLACES</div>
+            <div ng-repeat="place in compares" class="hotspot">
+                <i class="spot-expander mapicon_dark_arrow_{/{active_place==$index?'down':'right'}/}" ng-click="active_place= active_place==$index?-1:$index"></i><div class="pulse_indicator">{/{place.pulse}/}<div class="arrow"></div></div><span  class="conteined_nhbds">{/{place.name}/} </span>
+                <div class="hidden-content" ng-if="active_place==$index">
+                    <hr>
+                    <i class="mapicon_dark_close" ng-click="ToggleNhbd(place,true)"></i>Remove from comparison
+                </div>
+            </div>
+           <div class="block-action-footer" ng-if="!premium">Comparison report is available to premium users only.<span class="link" ng-if="freemium">Upgrade</span></div>
+           <div class="block-action-footer" ng-if="premium">Compare ({/{compares.length}/}) side-by-side <a href="#/compare"><i class="mapicon_view_compare"></i></a></div>
+        </div>
+        
+        
+        <div id="places_block" class="results-block" ng-class="{active_false:!top_block,active_true:top_block}" >
+            <div class="view_more mobile-touch" prevent="true" ng-class="{hidden_true:(top_block || !spots.length)}" ng-click="ActivateBlock('top')" >View more</div> <div class="block-tag"><span class="badge badge-warning" ng-hide="top_block">{/{spots.length}/}</span> TOP PLACES</div>
+            <div ng-repeat="spot in spots" class="hotspot">
+                <i class="spot-expander mapicon_dark_arrow_{/{active_spot==$index?'down':'right'}/} update-scrolls  mobile-touch" prevent="true"  click="true" node-id="nhbd_page" ng-click="active_spot= active_spot==$index?-1:$index"></i><div class="pulse_indicator">{/{spot.pulse}/}<div class="arrow"></div></div><span  class="conteined_nhbds"> Instersection name</span>
+                <div class="hidden-content" ng-if="active_spot==$index">
+                    <ul class="hs-geographies-list">
+                        <h5> Neightborhoods</h5>
+                        <li ng-repeat="neighborhood in $parent.spot.neighborhoods">
+                            <label class="nbhds_label" ng-click="neighborhood.compare=!place.compare; ToggleNhbd(neighborhood)"><i ng-class="{mapicon_checked_true:neighborhood.compare,mapicon_checked_false:!neighborhood.compare}"></i>{/{neighborhood.name}/}</label>
+                        </li>
+                    </ul>
+                    <div class="hot-spot-stats demographic" ><h4>45K</h4><p>MEAN<br>INCOME</p></div> <div class="hot-spot-stats demographic" style="margin-left:0.5%; margin-right:0.5%"><h4>BACHELORS</h4><p>MEAN<br>EDUCATION</p></div> <div class="hot-spot-stats demographic" ><h4>38</h4><p>MEAN<br>AGE</p></div>
+                    <div class="hot-spot-stats housing" ><h4>285K</h4><p>MEAN<br>HOUSING PRICE</p></div><div class="hot-spot-stats conveniance" style="margin-left0.5%; margin-right:0.5%"><h4>HIGHLY</h4><p>WALKABLE</p></div><div class="hot-spot-stats conveniance"><h4>GREAT</h4><p>PUBLIC TRANSIT</p></div>
+                    <div class="hot-spot-stats housing" ><h4>RESIDENTIAL</h4><p>HOUSING TYPE</p></div><div class="upgrade-message pull-right">Want more information? Become premium</div><div class="upgrade-button pull-right">Upgrade</div>
+                    <div class="separator"></div>
+                </div>
+            </div>
+            
+        </div>
+        
+        
+        <div id="cities_block" class="results-block active_{/{cities_block}/}" >
+            <div class="view_more hidden_{/{cities_block || !cities.length}/} mobile-touch" prevent="true"  ng-click="ActivateBlock('cities')">View more</div> <div class="block-tag"><span class="badge badge-info" ng-hide="cities_block">{/{cities.length}/}</span> SELECTED GEOGRAPHIES</div>
+            <div ng-repeat="city in cities" class="hotspot">
+                <i class="spot-expander mapicon_dark_arrow_{/{active_spot==$index?'down':'right'}/}" ng-click="active_spot= active_spot==$index?-1:$index"></i><div class="pulse_indicator">{/{city.pulse}/}<div class="arrow"></div></div><span class="conteined_nhbds">{/{city.name}/} </span>
+                <div class="hidden-content" ng-if="active_spot==$index">
+                </div>
+            </div>
+            
+        </div>        
+    </div>
+    <div class="filters-bar static_element resizeable"  width_adjust=".nbds_leftbar" ng-if="version=='phase2'"></div>
+    
+    
+    
+                
+                   <div class="main_map static_element"></div>
+                
+    
+</div>
+<div class="legal-links"><a href="http://www.aboutplace.co/tac.html" target="_blanck">Terms of Use</a> <a href="http://www.aboutplace.co/privacy.html" target="_blanck">Privacy</a></div>
+<!--<button class="btn footer-toggler btn-small mobile-touch"  ng-click="toogleFooter()" prevent="true"><i class="icon-chevron-{/{expandedFooter?'right':'left'}/}"></i></button>-->

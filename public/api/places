@@ -1,0 +1,100 @@
+{
+    "hotspots":[
+        {
+            "pulse":5.1,
+            "cities":[
+                {
+                    "name":"hs1p1 ",
+                    "pulse":4.9,
+                    "gid":1
+                }
+            ],
+            "neighborhoods":[
+                {
+                    "name":"hs1p1 ",
+                    "pulse":4.9,
+                    "gid":1
+                },
+                {
+                    "name":"hs1p2 ",
+                    "pulse":4.9,
+                    "gid":2
+                },
+                                {
+                    "name":"hs1p2 ",
+                    "pulse":4.9,
+                    "gid":3
+                }
+            ]
+        },
+        {
+            "pulse":5.1,
+            "cities":[
+                {
+                    "name":"hs1p1 ",
+                    "pulse":4.9,
+                    "gid":1
+                }
+            ],
+            "neighborhoods":[
+                {
+                    "name":"hs2p1 ",
+                    "pulse":4.9,
+                    "gid":4
+                },
+                {
+                    "name":"hs2p2 ",
+                    "pulse":4.9,
+                    "gid":5
+                },
+                                {
+                    "name":"hs2p2 ",
+                    "pulse":4.9,
+                    "gid":6
+                }
+            ]
+        },
+        {
+            "pulse":5.1,
+            "cities":[
+                {
+                    "name":"hs1p1 ",
+                    "pulse":4.9,
+                    "gid":1
+                }
+            ],
+            "neighborhoods":[
+                {
+                    "name":"hs3p1 ",
+                    "pulse":4.9,
+                    "gid":7
+                },
+                {
+                    "name":"hs3p2 ",
+                    "pulse":4.9,
+                    "gid":8
+                },
+                                {
+                    "name":"hs3p2 ",
+                    "pulse":4.9,
+                    "gid":9
+                }
+            ]
+        }      
+        
+    ],
+    "selection":[
+        {
+            "gid":3006
+        },
+        {
+            "gid":123
+        },
+        {
+            "gid":2345
+        },
+        {
+            "gid":2345
+        }
+    ]            
+}
