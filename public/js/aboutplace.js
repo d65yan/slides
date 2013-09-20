@@ -231,11 +231,11 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
          GeograficService.GetRegions(function(){
                     $rootScope.$broadcast('regionsLoaded');
                     $scope.status='';
-                })
+                });
           
-          $scope.$on('regionsLoaded',function(){
+          /*$scope.$on('regionsLoaded',function(){
              $scope.regions=GeograficService.regions; $scope.$apply();
-          })
+          })*/
   
     }
       AppController.$inject=['$scope','$window','$http','$timeout','SelectionService','GeograficService','SystemsFilters','$rootScope','$dialog','$routeParams'];
@@ -751,6 +751,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
               $scope.msas[midx].groups[idx].SelectAll(true);
               SelectionService.SetArea($scope.msas[midx].groups[idx]);
               SelectionService.AddCities($scope.msas[midx].GetSelCities());
+              $scope.area=SelectionService.area;
           };
          
          var lfid=$routeParams.lifestyle||1152;
@@ -947,10 +948,6 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
          });
          
          
-         $scope.$on('systemsLoaded',function(){
-             $scope.systemsSet=SelectionService.SystemsSet;
-             $scope.UpdateUrl($scope.partial_query);
-         })
          
          $scope.$on('compareAddFailed',function($event,id){
              var nbhd=GetNhbd(id);
@@ -974,7 +971,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
                 $scope.msas=GeograficService.regions;
                 SelectCity(0,0);
                
-                $scope.$apply();
+               
                 /*$timeout(function(){
                     if(!CheckCookie("msaV")){
                         SetCookie("msaV",1,1);
@@ -986,7 +983,8 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
                 })*/
                 if($scope.lifeStyle && $scope.lifeStyle.id)
                     $scope.GetNhbds();
-            })
+                 $scope.$apply();
+            });
        
        
           
