@@ -23,7 +23,7 @@ angular.module('LocalServices',[])
         function AddPulses2Lifestyle(){
             for(var i=0;i<SystemsFilters.lifestyles.length;i++){
                 if(SystemsFilters.lifestylesCitypulses[SystemsFilters.lifestyles[i].id.toString()])
-                SystemsFilters.lifestyles[i].pulses=SystemsFilters.lifestylesCitypulses[SystemsFilters.lifestyles[i].id.toString()].pulses
+                SystemsFilters.lifestyles[i].pulses=SystemsFilters.lifestylesCitypulses[SystemsFilters.lifestyles[i].id.toString()].pulses;
             }
             $rootScope.$broadcast('reloadLifeStyles');
         }
@@ -63,9 +63,15 @@ angular.module('LocalServices',[])
                         g.map[sys.code]=sys;
                         g.children.push(sys);
                     }
+                    g.children.sort(function(a,b){
+                    return a.name.toLowerCase()>b.name.toLowerCase()?1:-1;
+                })
                     delete g.subgroups;
                     
                 }
+                tree.groups.sort(function(a,b){
+                    return a.name.toLowerCase()>b.name.toLowerCase()?1:-1;
+                })
                 SystemsFilters.relocaLife=[];
                 SystemsFilters.travelLife=[];
                 SystemsFilters.groupingMenu=angular.copy(tree.groups,[]);

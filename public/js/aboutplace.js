@@ -755,7 +755,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
          
          var lfid=$routeParams.lifestyle||1152;
          
-         $scope.prioritiesFull=SelectionService.priorities.length==(((36/9)/2)+1);
+         $scope.prioritiesFull=SelectionService.priorities.length===(((36/9)/2)+1);
          $scope.msas=GeograficService.regions;
          if($scope.msas && $scope.msas.length)
              SelectCity(0,0);
@@ -807,7 +807,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
                   $scope.$apply();*/
             });
           }
-          $scope.GetNhbds();
+          
           
           $scope.toogleFooter=function(){
             $scope.expandedFooter=!$scope.expandedFooter;
@@ -940,6 +940,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
              
              CreateLfList();
              initMenus();
+             $scope.GetNhbds();
          });
          
          $scope.$on('updateQuery',function(){
@@ -1071,6 +1072,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
          
       if($scope.lifestyles)
            $scope.SelectLifeStyle(GetLifeStyleIdxById(lfid)-1);
+            $scope.GetNhbds();
     }
      nhbdCtrl.$inject=['$scope','$window','$timeout','SelectionService','SystemsFilters','CompareService','$rootScope','$routeParams','GeograficService'];
      
