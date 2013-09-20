@@ -940,6 +940,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
              
              CreateLfList();
              initMenus();
+             if($scope.msas && $scope.msas.length)
              $scope.GetNhbds();
          });
          
@@ -985,6 +986,8 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
                         //intro.start();
                     }
                 })*/
+                if($scope.lifeStyle && $scope.lifeStyle.id)
+                    $scope.GetNhbds();
             })
        
        
@@ -1072,6 +1075,7 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
          
       if($scope.lifestyles){
            $scope.SelectLifeStyle(GetLifeStyleIdxById(lfid)-1);
+           if($scope.msas && $scope.msas.length)
             $scope.GetNhbds();
       }
     }
