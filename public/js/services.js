@@ -96,8 +96,10 @@ angular.module('LocalServices',[])
 
                         for(var k=0;k<SystemsFilters.groupingMenu.length;k++){
                             var g=SystemsFilters.groupingMenu[k];
-                            if(g.map[sg]){
+                            if(g.map[sg] ){
                                 ls.groups[g.id]=ls.groups[g.id]||{uid:g.id,code:g.code,name:g.name,systems:{},systemsArr:[],systems_count:0};
+                                if(ls.groups[g.id].systems[sg])
+                                    continue;
                                 var sys=ls.groups[g.id].systems[sg]||{mapname:g.map[sg].name,code:g.map[sg].code,uid:g.map[sg].uid};
                                 ls.groups[g.id].systems[sg]=sys;
                                 ls.groups[g.id].systemsArr.push(sys);
@@ -256,7 +258,7 @@ angular.module('LocalServices',[])
            
            var g=SelectionService.activeLifeStyle.groups[sy.parent];
            if(!g){
-                g={id:sy.parent,code:sy.parent,systemsArr:[sy],systems:[]};
+                g={id:sy.parent,code:sy.parent,systemsArr:[],systems:[]};
                 g.systems[sy.id]=sy;
                 SelectionService.activeLifeStyle.groups[g.id]=g;
            }
@@ -266,9 +268,12 @@ angular.module('LocalServices',[])
                 s={uid:sy.uid,mapname:sy.name,name:sy.name,code:sy.code,parent:sy.parent};
                 SelectionService.activeLifeStyle.systems[sy.code]=s;
                 SelectionService.activeLifeStyle.groups[sy.parent].systems[sy.code]=s;
-                
+               
             }
-            SelectionService.activeLifeStyle.groups[sy.parent].systemsArr.push(sy)
+            
+            if(!s.active)
+                SelectionService.activeLifeStyle.groups[sy.parent].systemsArr.push(sy);
+            
             var idx=SelectionService.usedSystems.indexOf(s.uid);
             s.active=true;
             
