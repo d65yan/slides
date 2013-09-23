@@ -354,6 +354,8 @@ angular.module('LocalServices',[])
         SelectionService.isPriority=function(id){
             return SelectionService.priorities.indexOf(id)>=0;
         };
+        
+        
         function UpdateQuery(){
                         SelectionService.map_query='';
            
@@ -372,9 +374,13 @@ angular.module('LocalServices',[])
                return res;
            });
            
-
+           SelectionService.priorities=SelectionService.priorities.sort(function(a,b){
+               var res=a-b;
+               res=(res===0?0:(res/Math.abs(res)));
+               return res;
+           });
            
-           SelectionService.map_query+='area='+SelectionService.area.id+'&lifestyle='+SelectionService.activeLifeStyle.id+'&subgroups=['+SelectionService.usedSystems.join(',')+(SelectionService.priorities.length?(']&pri=['+SelectionService.priorities.join(',')+']'):'');//+'&gid='+SelectionService.cities.join(',');
+           SelectionService.map_query+='area='+SelectionService.area.id+'&lifestyle='+SelectionService.activeLifeStyle.id+'&subgroups='+SelectionService.usedSystems.join(',')+(SelectionService.priorities.length?('&pri='+SelectionService.priorities.join(',')+''):'');//+'&gid='+SelectionService.cities.join(',');
            SelectionService.query=SelectionService.query+cities;
 
            $rootScope.$broadcast('updateQuery');
