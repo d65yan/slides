@@ -848,15 +848,17 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
                  SelectionService.RemoveFilter(addon.id);
          }
          
-          $scope.SelectLifeStyle=function(idx){
+           $scope.SelectLifeStyle=function(idx){
              if($scope.lifeStyle.id){
+                 if($scope.lifeStyle.idx===idx)
+                     return;
                 SelectionService.UnselectLifeStyle($scope.lifeStyle.id);
-                var nlfs=angular.extend({},GetLifeStyleById($scope.lifeStyle.id));
+                /*var nlfs=angular.extend({},GetLifeStyleById($scope.lifeStyle.id));
                 $scope.ddLifeStyles.unshift(nlfs);
-                idx++;
+                idx++;*/
              
              }
-             var nlf=$scope.ddLifeStyles.splice(idx,1)[0];
+             var nlf=$scope.ddLifeStyles[idx];
              
              $scope.lifeStyle=SelectionService.SelectLifeStyle(nlf.id);
              $scope.visible_menus=[];
@@ -1021,16 +1023,16 @@ otherwise({redirectTo: '/nhbds/342343/1152'});
             
             $scope.ddLifeStyles=[];
             
-            if(!$scope.lifeStyle || !$scope.lifeStyle.id){
+            //if(!$scope.lifeStyle || !$scope.lifeStyle.id){
                 $scope.ddLifeStyles=angular.copy($scope.lifestyles, $scope.ddLifestyles);
                 return true;
-            }
+            //}
             
-            for(var i=0;i<$scope.lifestyles.length;i++){
+            /*for(var i=0;i<$scope.lifestyles.length;i++){
                 if($scope.lifestyles[i].id===$scope.lifeStyle.id)
                     continue;
                 $scope.ddLifeStyles.push(angular.extend({},$scope.lifestyles[i]))
-            }
+            }*/
         }
         
         function initMenus(){

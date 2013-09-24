@@ -152,6 +152,7 @@ angular.module('LocalServices',[])
         SelectionService.lastQuery="";
         SelectionService.spots=[];
         SelectionService.priorities=[];
+        SelectionService.prioritiesHash={};
         var activeRequest=0;
         
         SelectionService.Clear=function(){
@@ -265,12 +266,12 @@ angular.module('LocalServices',[])
            
             var s=SelectionService.activeLifeStyle.systems[sy.code];
             if(!s){
-                s={uid:sy.uid,mapname:sy.name,name:sy.name,code:sy.code,parent:sy.parent};
+                s={uid:sy.uid,mapname:(sy.name||sy.mapname),name:(sy.name||sy.mapname),code:sy.code,parent:sy.parent};
                 SelectionService.activeLifeStyle.systems[sy.code]=s;
                 SelectionService.activeLifeStyle.groups[sy.parent].systems[sy.code]=s;
                
             }
-            
+            s.mapname=s.mapname||s.name;
             if(!s.active)
                 SelectionService.activeLifeStyle.groups[sy.parent].systemsArr.push(sy);
             
@@ -306,8 +307,9 @@ angular.module('LocalServices',[])
             if(idx<0)
                 return false;
             SelectionService.usedSystems.splice(idx,1);
-            idx=SelectionService.priorities.indexOf(s.code);
-            SelectionService.priorities.splice(idx,1);
+            var idx1=SelectionService.priorities.indexOf(s.code);
+            if(idx1>=0)
+            SelectionService.priorities.splice(idx1,1);
             if(!skipS)
                 UpdateQuery();
             $rootScope.$broadcast('selectedSystemsChanged');
