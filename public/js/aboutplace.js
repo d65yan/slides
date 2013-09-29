@@ -1,6 +1,6 @@
       var AP=angular.module("aboutPlace", ['ngRoute','ngTouch','ngAnimate','ui.directives','ui.bootstrap','Reports','LocalServices','Directives','customFiltersModule'/*,'MapModule'*/]) 
       .config(['$routeProvider','$locationProvider','$interpolateProvider', function($routeProvider,$locationProvider,$interpolateProvider) {
-        $routeProviderwhen('/?', {templateUrl: 'views/nhbds.html', controller: nhbdCtrl,reloadOnSearch:false}).
+        $routeProvider.when('/?', {templateUrl: 'views/nhbds.html', controller: nhbdCtrl,reloadOnSearch:false}).
        otherwise({redirectTo: '/?'});
 //$locationProvider.html5Mode(true);
         $interpolateProvider.startSymbol('{/{');
