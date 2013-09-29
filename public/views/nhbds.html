@@ -359,7 +359,26 @@
         box-shadow: #5a5a5a 1px 1px 10px -2px*/
     }
     
+    
+    .nbds_leftbar .main_container ul.list-menu{
+        background-color:#d4dcd1 !important;
+        padding:0 !important;
+        border-radius:0 0 0 0 !important;
+        border:none !important;
+        width:100%;
+        /*border-radius:0 0 3px 3px;
+        box-shadow: #5a5a5a 1px 1px 10px -2px*/
+    }
+    
     .nbds_leftbar .main_container .dropdown ul.dropdown-menu li{
+        padding-left:10px;
+        padding-right:5px;
+        padding-top:2px;
+        cursor:pointer;
+        position:relative;
+    }
+    
+    .nbds_leftbar .main_container ul.list-menu li{
         padding-left:10px;
         padding-right:5px;
         padding-top:2px;
@@ -376,26 +395,62 @@
         width:90%;
         margin:0;
         }
+        
+        
+    .nbds_leftbar .main_container  ul.list-menu li hr{
+            
+        border-top: solid #e6e9e0 1px;
+        border-bottom: solid #b0c3c1 1px;
+        position:absolute;
+        top:100%;
+        width:90%;
+        margin:0;
+        }
+        
            
         .nbds_leftbar .main_container .dropdown ul.dropdown-menu li:last-child hr{
             display:none;
         }
     
+        .nbds_leftbar .main_container ul.list-menu li:last-child hr{
+            display:none;
+        }
+        
+        
         .nbds_leftbar .main_container .dropdown ul.dropdown-menu li.selected,.nbds_leftbar .main_container .dropdown ul.dropdown-menu li:hover,.nbds_leftbar .main_container .dropdown ul.dropdown-menu li:focus,.nbds_leftbar .main_container .dropdown ul.dropdown-menu li:active{
         background-color:#7d8b7e;
         color:white;
     }
+    
+  .nbds_leftbar .main_container ul.list-menu li.selected,.nbds_leftbar .main_container ul.list-menu li:hover,.nbds_leftbar .main_container ul.list-menu li:focus,.nbds_leftbar .main_container ul.list-menu li:active{
+        background-color:#7d8b7e;
+        color:white;
+    }
+    
+    
     .nbds_leftbar .main_container .dropdown ul.dropdown-menu li.selected{
         text-decoration: underline;
         cursor:default;  
         font-weight: bold;
     }
     
+    
+        .nbds_leftbar .main_container ul.list-menu li.selected{
+        text-decoration: underline;
+        cursor:default;  
+        font-weight: bold;
+    }
+    
+    
    .nbds_leftbar .main_container .dropdown ul.dropdown-menu li:active{
         background-color:#ecede7;
         color:black;
     }
     
+    .nbds_leftbar .main_container  ul.list-menu li:active{
+        background-color:#ecede7;
+        color:black;
+    }
     
    .nbds_leftbar .main_container .btn{
         font-size:0.8em;
@@ -799,12 +854,104 @@ left: -0.9em;
     background-image:url('img/upgrade.png');
     background-size:100% 100%;
 }
+
+        
+        .results-block.ng-enter{
+            -webkit-transition:left linear  0.3s;
+            -moz-transition:left linear 0.3s;
+            -o-transition:left linear  0.3s;
+            transition:left linear  0.3s;
+        }
+        
+        .results-block.ng-enter{
+            opacity:1;
+            position:absolute;
+            width:290px !important;
+            left:-310px;
+         
+        }
+        
+        .results-block.ng-enter.ng-enter-active {
+          opacity:1;
+          left:0px;
+          width:290px !important;
+        }
+        
+        .results-block.ng-leave {
+          /*  -webkit-transition:opacity linear 0.3s;
+            -moz-transition:opacity linear 0.3s;
+            -o-transition:opacity linear 0.3s;
+            transition:opacity linear 0.3s;
+            opacity:1;
+
+            position:absolute;*/
+          display:none;
+      
+        }
+        .results-block.ng-leave.ng-leave-active {
+           /* opacity:0;
+            position:absolute;*/
+           display:none;
+        }
+        
+        
+        
+        
+  
+        .main_container.ng-enter{
+            -webkit-transition:margin-left linear  0.3s 0.1s;
+            -moz-transition:margin-left linear 0.3s 0.1s;
+            -o-transition:left linear  0.3s 0.1s;
+            transition:margin-left linear  0.3s 0.1s;
+        }
+        
+        .main_container.ng-enter{
+            opacity:1;
+            /*position:absolute !important;*/
+            width:290px !important;
+            margin-left:-330px;
+            overflow:hidden;
+         
+        }
+        
+        .main_container.ng-enter.ng-enter-active {
+          opacity:1;
+          margin-left:0px;
+          width:290px !important;
+        }
+        
+        .main_container.ng-leave {
+           /* -webkit-transition:opacity linear 0.2s 1s;
+            -moz-transition:opacity linear 0.2s 1s;
+            -o-transition:opacity linear 0.2s 1s;
+            transition:opacity linear 0.2s 1s;*/
+            display:none;
+           /* opacity:1;
+            position:absolute;
+            width:290px !important;*/
+      
+        }
+        .main_container.ng-leave.ng-leave-active {
+            display:none;
+           /* opacity:0;
+            position:absolute;
+            width:290px !important;*/
+        }
+        
 </style>
 <!-- with animation skips dimentioning whrn rendered<section  id="nhbd_page" class="content-section scrollable resizeable" global="1" auto="self" height-adjust="header" skip-render="true" style="width:100%; height:600px;">-->
 <div  id="nhbd_page" class="content-section scrollable resizeable" global="1" auto="self" height-adjust="header" style="width:100%; height:600px;" update="{/{updateMapSpace}/}">
   <div class="shadowtop static_element"></div>
     <div class="nbds_leftbar {/{menu_state}/} mobile-touch" ng-click="CollapseAll()">
-        <div class="main_container {/{menu_state}/}">
+        <div class="main_container" ng-if="stage!==3" ng-class="{short:menu_state}">
+            <h3> </h3>
+            <h2><div style="height:1em;">LIFESTYLES</div></h2>
+            <hr/>
+                <ul class="list-menu">
+                    <li ng-repeat="lf in $parent.ddLifeStyles" ng-click="$parent.$parent.SelectLifeStyle($index)" ng-class="{selected:$parent.$parent.lifeStyle.idx==$index}">{/{lf.name}/}<hr/></li>
+                </ul>
+        </div>
+        <div class="main_container" ng-if="stage===3" ng-class="{short:menu_state}">
             
             <h3>MY CITY</h3>
             <h2><div style="height:1em;">{/{area.name}/}</div></h2>
@@ -827,7 +974,7 @@ left: -0.9em;
         <span class='list-switcher mobile-touch' prevent="true" id="menu_state_switch" ng-click="menu_state=(menu_state=='short')?'':'short'"><i class="mapicon_expand_{/{menu_state=='short'?'down':'up'}/} icon-white"></i>{/{menu_state=='short'?'Show':'Hide' }/} List</span>
         
         
-       <div id="compare_block" class="results-block active_{/{compare_block}/}">
+       <div id="compare_block" class="results-block" ng-if="stage===3" ng-class="{active_true:compare_block,active_false:!compare_block}">
            <div class="view_more mobile-touch" prevent="true"  ng-class="{hidden_true:(compare_block || !compares.length)}" ng-click="ActivateBlock('compare')">View more</div> <div class="block-tag" ng-hide="compare_block"><span class="badge badge">{/{compares.length}/}</span> PLACE<span ng-show="(compares.length-1)">S</span> TO COMPARE</div> <div class="block-tag" ng-show="compare_block">COMPARE PLACES</div>
             <div ng-repeat="place in compares" class="hotspot">
                 <i class="spot-expander mapicon_dark_arrow_{/{active_place==$index?'down':'right'}/}" ng-click="active_place= active_place==$index?-1:$index"></i><div class="pulse_indicator">{/{place.pulse}/}<div class="arrow"></div></div><span  class="conteined_nhbds">{/{place.name}/} </span>
@@ -839,9 +986,8 @@ left: -0.9em;
            <div class="block-action-footer" ng-if="!premium">Comparison report is available to premium users only.<span class="link" ng-if="freemium">Upgrade</span></div>
            <div class="block-action-footer" ng-if="premium">Compare ({/{compares.length}/}) side-by-side <a href="#/compare"><i class="mapicon_view_compare"></i></a></div>
         </div>
-        
-        
-        <div id="places_block" class="results-block" ng-class="{active_false:!top_block,active_true:top_block}" >
+ 
+        <div id="places_block" class="results-block" ng-class="{active_false:!top_block,active_true:top_block}"  ng-if="stage===3">
             <div class="view_more mobile-touch" prevent="true" ng-class="{hidden_true:(top_block || !spots.length)}" ng-click="ActivateBlock('top')" >View more</div> <div class="block-tag"><span class="badge badge-warning" ng-hide="top_block">{/{spots.length}/}</span> TOP PLACES</div>
             <div ng-repeat="spot in spots" class="hotspot">
                 <i class="spot-expander mapicon_dark_arrow_{/{active_spot==$index?'down':'right'}/} update-scrolls  mobile-touch" prevent="true"  click="true" node-id="nhbd_page" ng-click="active_spot= active_spot==$index?-1:$index"></i><div class="pulse_indicator">{/{spot.pulse}/}<div class="arrow"></div></div><span  class="conteined_nhbds"> Instersection name</span>
@@ -861,8 +1007,30 @@ left: -0.9em;
             
         </div>
         
+        <div id="places_block" class="results-block active_true"  ng-if="stage===1">
+            <!--<div class="view_more hidden_{/{geographies_block || !cities.length}/} mobile-touch" prevent="true"  ng-click="ActivateBlock('cities')">View more</div>--> <div class="block-tag"> AVAILABLE NOW</div>
+            <div ng-repeat="msa in msas" class="hotspot">
+                <i class="spot-expander mapicon_dark_arrow_{/{active_spot==$index?'down':'right'}/}" ng-click="active_spot= active_spot==$index?-1:$index"></i><div class="pulse_indicator">{/{msa.pulse}/}<div class="arrow"></div></div><span class="conteined_nhbds">{/{msa.name}/} </span>
+                <div class="hidden-content" ng-if="active_spot==$index">
+                    some stats
+                    <button ng-click="$parent.$parent.$parent.SelectMsa($parent.$index)">Go</button>
+                </div>
+            </div>
+            
+        </div>
         
-        <div id="cities_block" class="results-block active_{/{cities_block}/}" >
+        <div id="places_block" class="results-block active_true"  ng-if="stage===2">
+            <!--<div class="view_more hidden_{/{geographies_block || !cities.length}/} mobile-touch" prevent="true"  ng-click="ActivateBlock('cities')">View more</div>--> <div class="block-tag"> AVAILABLE AREAS</div>
+            <div ng-repeat="area in msa.groups" class="hotspot">
+                <i class="spot-expander mapicon_dark_arrow_{/{active_spot==$index?'down':'right'}/}" ng-click="active_spot= active_spot==$index?-1:$index"></i><div class="pulse_indicator">{/{area.pulse}/}<div class="arrow"></div></div><span class="conteined_nhbds">{/{area.name}/} </span>
+                <div class="hidden-content" ng-if="active_spot==$index">
+                    some stats
+                    <button ng-click="$parent.$parent.$parent.SelectCity(-1,$parent.$index)">Go</button>
+                </div>
+            </div>
+            
+        </div>
+        <div id="cities_block" class="results-block"  ng-if="stage===3" ng-class="{active_true:cities_block,active_false:!cities_block}">
             <div class="view_more hidden_{/{cities_block || !cities.length}/} mobile-touch" prevent="true"  ng-click="ActivateBlock('cities')">View more</div> <div class="block-tag"><span class="badge badge-info" ng-hide="cities_block">{/{cities.length}/}</span> SELECTED GEOGRAPHIES</div>
             <div ng-repeat="city in cities" class="hotspot">
                 <i class="spot-expander mapicon_dark_arrow_{/{active_spot==$index?'down':'right'}/}" ng-click="active_spot= active_spot==$index?-1:$index"></i><div class="pulse_indicator">{/{city.pulse}/}<div class="arrow"></div></div><span class="conteined_nhbds">{/{city.name}/} </span>
@@ -877,9 +1045,9 @@ left: -0.9em;
     
     
                 
-                   <div class="main_map static_element"></div>
+                   <div class="main_map static_element" stage="{/{stage}/}" msa="{/{msa_idx}/}" area="{/{area_idx}/}"></div>
                 
     
 </div>
-<div class="legal-links"><a href="http://www.aboutplace.co/tac.html" target="_blanck">Terms of Use</a> <a href="http://www.aboutplace.co/privacy.html" target="_blanck">Privacy</a></div>
-<!--<button class="btn footer-toggler btn-small mobile-touch"  ng-click="toogleFooter()" prevent="true"><i class="icon-chevron-{/{expandedFooter?'right':'left'}/}"></i></button>-->
+<!--<div class="legal-links"><a href="http://www.aboutplace.co/tac.html" target="_blanck">Terms of Use</a> <a href="http://www.aboutplace.co/privacy.html" target="_blanck">Privacy</a></div>
+<button class="btn footer-toggler btn-small mobile-touch"  ng-click="toogleFooter()" prevent="true"><i class="icon-chevron-{/{expandedFooter?'right':'left'}/}"></i></button>-->

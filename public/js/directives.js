@@ -764,23 +764,33 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             }
         }
     }])
-    .directive('mainMap',['$timeout','SelectionService',function($timeout,SelectionService){
+    .directive('mainMap',['$timeout','SelectionService','GeograficService',function($timeout,SelectionService,GeograficService){
         return{
             restrict:'C',
             replace:false,
+            scope:{
+                stage:'@stage',
+                msa:'@msa',
+                area:'@area'
+            },
             template:'<div style="width:100%; height:100%" id="main-map"></div>',
             link:function(scope,element,attrs){
                 var map,marker,markersLayer,projObject;
                 var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
                 var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+                var zoomControl=new OpenLayers.Control.Zoom();
+                var miamiCenter;
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
+                 var mapserver='http://demo-maps.aboutplace.co/heat';
                 //var mapserver='http://geo.urban4m.com/heat';
-                var mapserver='http://demo-maps.aboutplace.co/heat';
-                var strTFS,prtTFS=null;
+                                var strTFS,prtTFS=null;
+                                
+                var Stage1Bounds;
                 var url='';
                 var TMSLayer=GeoLayer=null;
                 var nLayer;
-                
+                var min_zoom=0,
+                    max_zoom=0;
                 function Vector(name,style){
                     this.name=name;
                     this.style=style;
@@ -900,14 +910,14 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     this.later.addFeatures(list);
                     
                 };
-                 function formatFeature(ft){
+                 
+                function formatFeature(ft){
                     return{"type":"Feature","properties":{id:ft.id||ft.gid,name:ft.name},geometry:ft.g};
                 };
                 
                 scope.UpdateUrl=function(partq){
                    // strTFS.url='api.urban4m.com/heat'+partq;
                 }
-                
                 
                 function ChangeOverlay(lpath,fend){
                     path=lpath;
@@ -953,8 +963,6 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 //this.obj.setBaseLayer(this.TMSLayer);
             };
                 
-                
-                
                 function placeMarker(ltln,icon) {
                     var size = new OpenLayers.Size(26,40);
                     var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
@@ -978,7 +986,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 function resize() {
                     if( !angular.isUndefined(map) && angular.isFunction(map.updateSize))
                     map.updateSize();
-                }
+                    
+                    }
                 
                 function drawMap(){
        
@@ -988,14 +997,22 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     maxZoomlevel:14,
                     tilesize:OpenLayers.Size(256,256),
                     projection:"EPSG:4326",
-
+                    fractionalZoom:true,
                     displayProjection: fromProjection,
                     units: "m",
                     /*maxResolution: 156543.0339,
                     maxExtent: new OpenLayers.Bounds(-20037508, -20037508, 20037508, 20037508.34) ,*/
                     controls:[
                         new OpenLayers.Control.Navigation({'zoomWheelEnabled':false}),
-                        new OpenLayers.Control.Zoom(),
+                        /* new OpenLayers.Control.CacheRead(),
+                         new OpenLayers.Control.CacheWrite({
+                            autoActivate: true,
+                            imageFormat: "image/png",
+                            eventListeners: {
+                                cachefull: function() { }
+                            }
+                        })*/
+                        //new OpenLayers.Control.Zoom(),
                         //new OpenLayers.Control.MousePosition()
                        //new OpenLayers.Control.PanZoomBar(),
                         //new OpenLayers.Control.LayerSwitcher()
@@ -1009,17 +1026,13 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     
                     ],{
                         isBaseLayer:true,
-                        tileOptions: {crossOriginKeyword: null}
+                        tileOptions: {crossOriginKeyword: null},
+                        transitionEffect: 'resize'
                     });
                      
                     map.addLayer(nLayer); 
 
-                map.setCenter(
-                new OpenLayers.LonLat(-80.26, 25.81).transform(
-                    fromProjection,
-                    map.getProjectionObject()
-                ), 12
-            );  
+
 
                 markersLayer=new OpenLayers.Layer.Markers( "Markers" );
                 map.addLayer(markersLayer);
@@ -1057,7 +1070,14 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 
                 var nbds=new Vector('Neighborhoods',style)
                 
-
+            Stage1Bounds=new OpenLayers.Bounds(-150,24,-67,49).transform(
+                    fromProjection,
+                    map.getProjectionObject());
+                    
+           miamiCenter=new OpenLayers.LonLat(-80.26, 25.81).transform(
+                    fromProjection,
+                    map.getProjectionObject()
+                )
                 
 }
 
@@ -1065,28 +1085,65 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
     drawMap();
     map.zoomToProxy = map.zoomTo;
     map.zoomTo =  function (zoom,xy){
-        if(zoom<11)
-            zoom=11;
-        else if(zoom>14)
-            zoom=14;
+        if(zoom<min_zoom)
+            zoom=min_zoom;
+        else if(zoom>max_zoom)
+            zoom=max_zoom;
         map.zoomToProxy(zoom,xy); 
     };
 
     
+    
+    
     scope.$watch(function(){return attrs.resize},function(value){
-        if(value && value.length && value!='false' && map && !angular.isUndefined(map.updateSize))
+        /*if(value && value.length && value!='false' && map && !angular.isUndefined(map.updateSize))
             $timeout(function(){
                 map.updateSize();
                 if(marker)
                     map.setCenter(marker.lonlat)
-            })
+            })*/
             
     })
     
+    scope.$watch('stage',function(nv, ov){
+        $timeout(function(){
+        if(+nv===3){
+            min_zoom=11;
+            max_zoom=14;
+           map.setCenter(miamiCenter,12);
+            map.addControl(zoomControl);
+        }
+        else{ 
+            if(+ov===3)
+                map.removeControl(zoomControl);
+            if(nv==1){
+                min_zoom=4;
+                max_zoom=5;
+                var zoom=map.getZoomForExtent(Stage1Bounds);
+               map.zoomTo(Math.round(zoom));
+               var h1=Stage1Bounds.getCenterLonLat()
+               map.setCenter(h1);
+                    
+           }
+            else if(nv==2){
+                min_zoom=7;
+                max_zoom=9;
+                map.setCenter(miamiCenter,8);
+            }
+        }
+        });
+    })
+    
     scope.$on('selectedSystemsChanged',function(){
-        nLayer.url=[mapserver+"/${z}/${x}/${y}.png?"+SelectionService.map_query];
-        nLayer.redraw();
-    });        
+        
+        
+        if(+scope.stage===3){
+            nLayer.url=[mapserver+"/${z}/${x}/${y}.png?"+SelectionService.map_query];
+            nLayer.redraw();
+        }
+    });     
+    $timeout(function(){resize();},100);
+    
              }
         }
         
