@@ -1,8 +1,7 @@
       var AP=angular.module("aboutPlace", ['ngRoute','ngTouch','ngAnimate','ui.directives','ui.bootstrap','Reports','LocalServices','Directives','customFiltersModule'/*,'MapModule'*/]) 
       .config(['$routeProvider','$locationProvider','$interpolateProvider', function($routeProvider,$locationProvider,$interpolateProvider) {
-        $routeProvider.
-        when('/?', {templateUrl: 'views/nhbds.html', controller: nhbdCtrl,reloadOnSearch:false}).
-  otherwise({redirectTo: '/'});
+        $routeProviderwhen('/?', {templateUrl: 'views/nhbds.html', controller: nhbdCtrl,reloadOnSearch:false}).
+       otherwise({redirectTo: '/?'});
 //$locationProvider.html5Mode(true);
         $interpolateProvider.startSymbol('{/{');
         $interpolateProvider.endSymbol('}/}');
@@ -1072,6 +1071,8 @@
         }
         
        function GetLifeStyleById(id){
+           if(!$scope.lifestyles)
+               return;
             for(var i=0;i<$scope.lifestyles.length;i++)
                 if($scope.lifestyles[i].id.toString()===id.toString())
                     return $scope.lifestyles[i];
@@ -1079,6 +1080,8 @@
         }
         
         function GetLifeStyleIdxById(id){
+        if(!$scope.lifestyles)
+               return;
             for(var i=0;i<$scope.lifestyles.length;i++)
                 if($scope.lifestyles[i].id.toString()===id.toString())
                     return i;
