@@ -1,7 +1,8 @@
       var AP=angular.module("aboutPlace", ['ngRoute','ngTouch','ngAnimate','ui.directives','ui.bootstrap','Reports','LocalServices','Directives','customFiltersModule'/*,'MapModule'*/]) 
       .config(['$routeProvider','$locationProvider','$interpolateProvider', function($routeProvider,$locationProvider,$interpolateProvider) {
-        $routeProvider.when('/?', {templateUrl: 'views/nhbds.html', controller: nhbdCtrl,reloadOnSearch:false}).
-       otherwise({redirectTo: '/?'});
+        $routeProvider.
+        when('/?', {templateUrl: 'views/nhbds.html', controller: nhbdCtrl,reloadOnSearch:false}).
+        otherwise({redirectTo: '/'});
 //$locationProvider.html5Mode(true);
         $interpolateProvider.startSymbol('{/{');
         $interpolateProvider.endSymbol('}/}');
@@ -882,6 +883,8 @@
          }
          
           $scope.SelectLifeStyle=function(idx){
+              if((!idx && idx!==0) || !$scope.lifestyles)
+                  return false;
              if($scope.lifeStyle.id){
                  if($scope.lifeStyle.idx===idx)
                      return;
@@ -1039,7 +1042,7 @@
            var msa_idx=search.m===0||search.m?search.m:-1;
            var area_idx=search.c===0||search.c?search.c:-1;
            var new_stage=1+( msa_idx>=0)*1+(area_idx>=0)*1;
-           if (!$scope.lifeStyle || +$scope.lifeStyle.id!=+ $scope.lf_id)
+           if ($scope.lifestyles && $scope.lifestyles.length && (!$scope.lifeStyle || +$scope.lifeStyle.id!=+ $scope.lf_id))
                $scope.SelectLifeStyle(GetLifeStyleIdxById( $scope.lf_id));
            
            if($scope.stage!=new_stage){
