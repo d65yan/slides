@@ -978,7 +978,7 @@
              $scope.menu=SystemsFilters.groupingMenu;
              $scope.lifestyles=angular.copy(SelectionService.lifestyles);
              CreateLfList();
-             $scope.SelectLifeStyle(GetLifeStyleIdxById($scope.lf_id))
+             //$scope.SelectLifeStyle(GetLifeStyleIdxById($scope.lf_id))
                 
              
              
