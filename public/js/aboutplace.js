@@ -977,10 +977,11 @@
          $scope.$on('lifestylesLoaded',function(){
              $scope.menu=SystemsFilters.groupingMenu;
              $scope.lifestyles=angular.copy(SelectionService.lifestyles);
+             CreateLfList();
              $scope.SelectLifeStyle(GetLifeStyleIdxById($scope.lf_id))
                 
              
-             CreateLfList();
+             
              initMenus();
              if(!$scope.lifeStyle || !$scope.lifeStyle.id)
                 $scope.SelectLifeStyle(GetLifeStyleIdxById(lfid)-1);
