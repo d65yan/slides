@@ -771,7 +771,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             scope:{
                 stage:'@stage',
                 msa:'@msa',
-                area:'@area'
+                area:'@area',
+                lfs:'@lfs'
             },
             template:'<div style="width:100%; height:100%" id="main-map"></div>',
             link:function(scope,element,attrs){
