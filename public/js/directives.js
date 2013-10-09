@@ -963,12 +963,12 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 //this.obj.setBaseLayer(this.TMSLayer);
             };
                 
-                function placeMarker(ltln,icon) {
-                    var size = new OpenLayers.Size(26,40);
+                 var placeMarker=function (ltln,icon,text) {
+                    var size = new OpenLayers.Size(80,85);
                     var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-                    var  marker_icon = new OpenLayers.Icon(icon||'http://www.openlayers.org/dev/img/marker.png', size, offset);
+                    var  marker_icon = new OpenLayers.Icon(icon||'http://www.openlayers.org/dev/img/marker.png', size, offset,null,text+'','pulse-marker');
        
-                    var marker=new OpenLayers.Marker(ltln,marker_icon);
+                    var marker=new OpenLayers.Marker(ltln,marker_icon,text);
                     markersLayer.addMarker(marker);
                     //marker.events.register("mouseover", marker, function(){ele.style.cursor = "pointer";});
                     //marker.events.register("mouseout", marker, function(){ele.style.cursor = "default";}); 
@@ -981,6 +981,10 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         marker.destroy();
                         marker=null;
                     }
+                }
+                
+                function AddSpot(lnlt,text){
+                    markersSpotArr.push(placeMarker(lnlt,"img/pulsepoint.png",text));
                 }
                 
                 function resize() {
@@ -1141,7 +1145,19 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             nLayer.url=[mapserver+"/${z}/${x}/${y}.png?"+SelectionService.map_query];
             nLayer.redraw();
         }
-    });     
+    });  
+    
+    scope.$on('PlacesReceived',function($event,spots){
+        markersSpotArr=[];
+        for(var i=0;i<spots.length;i++){
+            if(spots[i].center){
+               AddSpot(new OpenLayers.LonLat(spots[i].center.lon,spots[i].center.lat).transform(
+                    fromProjection,
+                    map.getProjectionObject()),spots[i].pulse);
+            }
+        }
+    })
+    
     $timeout(function(){resize();},100);
     
              }

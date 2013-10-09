@@ -500,6 +500,7 @@ angular.module('LocalServices',[])
                 SelectionService.spots=spots;
                 if(angular.isFunction(fn))
                  fn(SelectionService.spots);
+                $rootScope.$broadcast("PlacesReceived",SelectionService.spots)
             });
             
             

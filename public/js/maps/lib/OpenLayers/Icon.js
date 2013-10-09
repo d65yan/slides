@@ -74,7 +74,7 @@ OpenLayers.Icon = OpenLayers.Class({
      *                                      properties.
      * calculateOffset - {Function} 
      */
-    initialize: function(url, size, offset, calculateOffset) {
+    initialize: function(url, size, offset, calculateOffset,text,clase,attrs,clickImg) {
         this.url = url;
         this.size = size || {w: 20, h: 20};
         this.offset = offset || {x: -(this.size.w/2), y: -(this.size.h/2)};
@@ -82,6 +82,29 @@ OpenLayers.Icon = OpenLayers.Class({
 
         var id = OpenLayers.Util.createUniqueID("OL_Icon_");
         this.imageDiv = OpenLayers.Util.createAlphaImageDiv(id);
+        if(text && text.length){
+            var div=document.createElement('div');
+            div.className='marker-text';
+            
+            this.imageDiv.appendChild(div);
+            div.innerHTML=text;
+            //this.imageDiv.innerHTML=html+'<div style="position:absolute; margin-top:'+text_y_offset||0+'; text-align:center">'+text+'</div>';
+            this.clase=clase;
+            this.text=text;
+        }
+        
+        if(clase && clase.length){
+            var cs=this.imageDiv.className;
+            cs+=' '+clase;
+            this.imageDiv.className=cs;
+        }
+        
+        if(attrs && typeof attrs ==='object'){
+            for(var i in attrs){
+                this.imageDiv.setAttribute(i,attrs[i]);
+            }
+        }
+        
     },
     
     /** 
@@ -108,7 +131,7 @@ OpenLayers.Icon = OpenLayers.Class({
         return new OpenLayers.Icon(this.url, 
                                    this.size, 
                                    this.offset, 
-                                   this.calculateOffset);
+                                   this.calculateOffset,this.text,this.text_y_offset);
     },
     
     /**
@@ -201,7 +224,7 @@ OpenLayers.Icon = OpenLayers.Class({
             if (this.px == null) {
                 this.display(false);
             } else {
-                if (this.calculateOffset) {
+                if (typeof this.calculateOffset=='function') {
                     this.offset = this.calculateOffset(this.size);  
                 }
                 OpenLayers.Util.modifyAlphaImageDiv(this.imageDiv, null, {
@@ -237,6 +260,12 @@ OpenLayers.Icon = OpenLayers.Class({
                        (this.imageDiv.parentNode.nodeType != 11));    
 
         return isDrawn;   
+    },
+    
+    updateUrl:function(url){
+        var img=this.imageDiv.getElementsByTagName('img')[0];
+        this.url=url;
+        img.src=url;
     },
 
     CLASS_NAME: "OpenLayers.Icon"

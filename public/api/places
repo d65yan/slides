@@ -2,99 +2,73 @@
     "hotspots":[
         {
             "pulse":5.1,
-            "cities":[
-                {
-                    "name":"hs1p1 ",
-                    "pulse":4.9,
-                    "gid":1
-                }
-            ],
+            "center":{
+                "lon":"-80.19546",
+                "lat":"25.77368"
+            },
             "neighborhoods":[
                 {
-                    "name":"hs1p1 ",
-                    "pulse":4.9,
-                    "gid":1
-                },
-                {
-                    "name":"hs1p2 ",
-                    "pulse":4.9,
+                    "name":"Municipality 1",
+                    "pulse":5.1,
                     "gid":2
                 },
-                                {
-                    "name":"hs1p2 ",
+                {
+                    "name":"Municipality 2",
                     "pulse":4.9,
                     "gid":3
-                }
-            ]
-        },
-        {
-            "pulse":5.1,
-            "cities":[
-                {
-                    "name":"hs1p1 ",
-                    "pulse":4.9,
-                    "gid":1
-                }
-            ],
-            "neighborhoods":[
-                {
-                    "name":"hs2p1 ",
-                    "pulse":4.9,
-                    "gid":4
-                },
-                {
-                    "name":"hs2p2 ",
-                    "pulse":4.9,
-                    "gid":5
                 },
                                 {
-                    "name":"hs2p2 ",
-                    "pulse":4.9,
-                    "gid":6
+                    "name":"Municipality 3",
+                    "pulse":4.3,
+                    "gid":4
                 }
             ]
         },
         {
-            "pulse":5.1,
-            "cities":[
-                {
-                    "name":"hs1p1 ",
-                    "pulse":4.9,
-                    "gid":1
-                }
-            ],
+            "pulse":4.5,
+            "center":{
+                "lon":"-80.13572",
+                "lat":"25.78635"
+            },
             "neighborhoods":[
                 {
-                    "name":"hs3p1 ",
-                    "pulse":4.9,
+                    "name":"Municipality 7",
+                    "pulse":4.5,
+                    "gid":10
+                },
+                {
+                    "name":"Municipality 8",
+                    "pulse":4.2,
+                    "gid":11
+                },
+                                {
+                    "name":"Municipality 9",
+                    "pulse":3.9,
+                    "gid":12
+                }
+            ]
+        } ,
+        {
+            "pulse":3.2,
+            "neighborhoods":[
+                {
+                    "name":"Municipality 4",
+                    "pulse":3.2,
+                    "gid":6
+                },
+                {
+                    "name":"Municipality 5",
+                    "pulse":2.8,
                     "gid":7
                 },
-                {
-                    "name":"hs3p2 ",
-                    "pulse":4.9,
-                    "gid":8
-                },
                                 {
-                    "name":"hs3p2 ",
-                    "pulse":4.9,
-                    "gid":9
+                    "name":"Municipality 6",
+                    "pulse":2.5,
+                    "gid":8
                 }
             ]
-        }      
-        
-    ],
-    "selection":[
-        {
-            "gid":3006
-        },
-        {
-            "gid":123
-        },
-        {
-            "gid":2345
-        },
-        {
-            "gid":2345
         }
-    ]            
+           
+        
+    ]       
 }
