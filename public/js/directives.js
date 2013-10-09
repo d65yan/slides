@@ -784,8 +784,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                  var mapserver='http://demo-maps.aboutplace.co/heat';
                 //var mapserver='http://geo.urban4m.com/heat';
                 var strTFS,prtTFS=null;
-                
-                                var pulses=[
+                var markersSpotArr=[];
+                var pulses=[
               {
                   center:{
                       lon:"-80.26",
