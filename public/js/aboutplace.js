@@ -984,7 +984,7 @@
              
              initMenus();
              if(!$scope.lifeStyle || !$scope.lifeStyle.id)
-                $scope.SelectLifeStyle(GetLifeStyleIdxById(lfid)-1);
+                $scope.SelectLifeStyle(GetLifeStyleIdxById($scope.lf_id));
              if($scope.msas && $scope.msas.length && $scope.stage===3)
               $scope.SelectCity($scope.msa_idx,$scope.area_idx);
           $scope.$apply();
