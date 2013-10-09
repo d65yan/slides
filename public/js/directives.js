@@ -783,7 +783,61 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
                  var mapserver='http://demo-maps.aboutplace.co/heat';
                 //var mapserver='http://geo.urban4m.com/heat';
-                                var strTFS,prtTFS=null;
+                var strTFS,prtTFS=null;
+                
+                                var pulses=[
+              {
+                  center:{
+                      lon:"-80.26",
+                      lat:"25.81",
+                              
+                  },
+                  pulses:{
+                      "1201":"6.5",
+                      "1151":"5.2",
+                      "1152":"4.8",
+                      "1150":"5.5",
+                      "1202":"6.0",
+                      "1153":"5.9",
+                      "1325":"4.3"
+                  },
+                  children:[]
+              },
+              {
+                  center:{
+                      lon:"-71.0597732",
+                      lat:"42.3584308",
+                              
+                  },
+                  pulses:{
+                      "1201":"6.6",
+                      "1151":"5.3",
+                      "1152":"4.9",
+                      "1150":"5.4",
+                      "1202":"6.1",
+                      "1153":"5.7",
+                      "1325":"4.5"
+                  },
+                  children:[]
+              },
+              { 
+                  center:{
+                      lon:"-97.7430608",
+                      lat:"30.267153",
+                              
+                  },
+                  pulses:{
+                      "1201":"6.2",
+                      "1151":"5.8",
+                      "1152":"5.8",
+                      "1150":"6.5",
+                      "1202":"5.0",
+                      "1153":"5.4",
+                      "1325":"6.4"
+                  },
+                  children:[]
+              },
+          ];
                                 
                 var Stage1Bounds;
                 var url='';
@@ -1127,6 +1181,11 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                map.zoomTo(Math.round(zoom));
                var h1=Stage1Bounds.getCenterLonLat()
                map.setCenter(h1);
+               for(var i=0;i<pulses.length;i++){
+                   AddSpot(new OpenLayers.LonLat(pulses[i].center.lon,pulses[i].center.lat).transform(
+                    fromProjection,
+                    map.getProjectionObject()),pulses[i].pulses[scope.lfs]);
+               }
                     
            }
             else if(nv==2){
@@ -1137,6 +1196,22 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         }
         });
     })
+    
+    scope.$watch('lfs',function(){
+        if(scope.stage>1)
+            return;
+        
+         for(var i=0;i< markersSpotArr.length;i++){
+                    deleteMarker(markersSpotArr[i]);
+        }
+        markersSpotArr=[];
+        for(var h=0;h<pulses.length;h++){
+                   AddSpot(new OpenLayers.LonLat(pulses[h].center.lon,pulses[h].center.lat).transform(
+                    fromProjection,
+                    map.getProjectionObject()),pulses[h].pulses[scope.lfs]);
+               }
+    })
+    
     
     scope.$on('selectedSystemsChanged',function(){
         
