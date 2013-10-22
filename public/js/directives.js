@@ -764,81 +764,34 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             }
         }
     }])
-    .directive('mainMap',['$timeout','SelectionService','GeograficService',function($timeout,SelectionService,GeograficService){
+    .directive('mainMap',['$timeout','SelectionService','GeograficService','$location','$rootScope',function($timeout,SelectionService,GeograficService,$location,$rootScope){
         return{
             restrict:'C',
             replace:false,
             scope:{
+
                 stage:'@stage',
                 msa:'@msa',
                 area:'@area',
-                lfs:'@lfs'
+                lfs:'@lfs',
+                center:'@center'
+                
             },
             template:'<div style="width:100%; height:100%" id="main-map"></div>',
             link:function(scope,element,attrs){
-                var map,marker,markersLayer,projObject;
+                var map,marker,markersLayer,projObject,infoPop;
                 var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
                 var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
+                var markersSpotArr=[];
                 var zoomControl=new OpenLayers.Control.Zoom();
                 var miamiCenter;
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
-                 var mapserver='http://demo-maps.aboutplace.co/heat';
+                var mapserver='http://demo-maps.aboutplace.co/heat';
                 //var mapserver='http://geo.urban4m.com/heat';
                 var strTFS,prtTFS=null;
-                var markersSpotArr=[];
-                var pulses=[
-              {
-                  center:{
-                      lon:"-80.26",
-                      lat:"25.81",
-                              
-                  },
-                  pulses:{
-                      "1201":"6.5",
-                      "1151":"5.2",
-                      "1152":"4.8",
-                      "1150":"5.5",
-                      "1202":"6.0",
-                      "1153":"5.9",
-                      "1325":"4.3"
-                  },
-                  children:[]
-              },
-              {
-                  center:{
-                      lon:"-71.0597732",
-                      lat:"42.3584308",
-                              
-                  },
-                  pulses:{
-                      "1201":"6.6",
-                      "1151":"5.3",
-                      "1152":"4.9",
-                      "1150":"5.4",
-                      "1202":"6.1",
-                      "1153":"5.7",
-                      "1325":"4.5"
-                  },
-                  children:[]
-              },
-              { 
-                  center:{
-                      lon:"-97.7430608",
-                      lat:"30.267153",
-                              
-                  },
-                  pulses:{
-                      "1201":"6.2",
-                      "1151":"5.8",
-                      "1152":"5.8",
-                      "1150":"6.5",
-                      "1202":"5.0",
-                      "1153":"5.4",
-                      "1325":"6.4"
-                  },
-                  children:[]
-              },
-          ];
+                var geo=GeograficService;
+                var select=SelectionService;
+
                                 
                 var Stage1Bounds;
                 var url='';
@@ -1018,10 +971,13 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 //this.obj.setBaseLayer(this.TMSLayer);
             };
                 
-                 var placeMarker=function (ltln,icon,text) {
-                    var size = new OpenLayers.Size(80,85);
+                var placeMarker=function (ltln,icon,text,clase) {
+                    var size = new OpenLayers.Size(60,65);
                     var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
-                    var  marker_icon = new OpenLayers.Icon(icon||'http://www.openlayers.org/dev/img/marker.png', size, offset,null,text+'','pulse-marker');
+                    var tclase='pulse-marker';
+                    if(clase && clase.length)
+                        tclase+=" "+clase
+                    var  marker_icon = new OpenLayers.Icon(icon||'http://www.openlayers.org/dev/img/marker.png', size, offset,null,text+'',tclase);
        
                     var marker=new OpenLayers.Marker(ltln,marker_icon,text);
                     markersLayer.addMarker(marker);
@@ -1038,8 +994,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     }
                 }
                 
-                function AddSpot(lnlt,text){
-                    markersSpotArr.push(placeMarker(lnlt,"img/pulsepoint.png",text));
+                function AddSpot(lnlt,text,clase){
+                    markersSpotArr.push(placeMarker(lnlt,"img/pointers/pointer_3_1.png",text,clase));
                 }
                 
                 function resize() {
@@ -1071,7 +1027,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                                 cachefull: function() { }
                             }
                         })*/
-                        //new OpenLayers.Control.Zoom(),
+                        new OpenLayers.Control.Zoom(),
                         //new OpenLayers.Control.MousePosition()
                        //new OpenLayers.Control.PanZoomBar(),
                         //new OpenLayers.Control.LayerSwitcher()
@@ -1081,7 +1037,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
 
                 map = new OpenLayers.Map($(element).find('#main-map')[0], mapOpt);
                 nLayer=new OpenLayers.Layer.OSM('U4M',[
-                    mapserver+"/${z}/${x}/${y}.png?"+SelectionService.map_query
+                    mapserver+"/${z}/${x}/${y}.png?"+select.map_query
                     
                     ],{
                         isBaseLayer:true,
@@ -1095,8 +1051,9 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
 
                 markersLayer=new OpenLayers.Layer.Markers( "Markers" );
                 map.addLayer(markersLayer);
+                map.raiseLayer(markersLayer,5);
                 
-                
+                /*
                                 var contHL = {
                     getStrokeColor: function(f) {
                         var zoom = self.mapPanel.map.getZoom();
@@ -1128,7 +1085,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             });
                 
                 var nbds=new Vector('Neighborhoods',style)
-                
+               */ 
             Stage1Bounds=new OpenLayers.Bounds(-150,24,-67,49).transform(
                     fromProjection,
                     map.getProjectionObject());
@@ -1137,6 +1094,11 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     fromProjection,
                     map.getProjectionObject()
                 )
+                    
+                    
+                    map.events.register("zoomend",map,function(){
+                        ApplyCluster();
+                    })
                 
 }
 
@@ -1151,7 +1113,78 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         map.zoomToProxy(zoom,xy); 
     };
 
-    
+    function ApplyCluster(){
+        if(!markersSpotArr.length)
+            return;
+         var clustersArr=[
+                       [
+                           {
+                               idx:0,
+                               marker:markersSpotArr[0]
+                           }
+                       ]
+                   ];
+                   $(".pulse-marker").removeClass (function (index, css) {
+                            var arr=css.split(" ");
+                            var clases='';
+                            for(var i=0;i<arr.length;i++){
+                                if(arr[i].match(/cluster/g))
+                                    clases+=arr[i];
+                            }
+                        return clases;
+                    });
+                   
+                   for(var i=1;i<markersSpotArr.length;i++){
+                       var matched=false;
+                       var point=markersLayer.getViewPortPxFromLonLat(markersSpotArr[i].lonlat);
+                       //new OpenLayers.Geometry.Point(markersSpotArr[i].lonlat.lon,markersSpotArr[i].lonlat.lat);
+                       for(var j=0;j<clustersArr.length;j++){
+                           //if(point.distanceTo(new OpenLayers.Geometry.Point(clustersArr[j][0].marker.lonlat.lon,clustersArr[j][0].marker.lonlat.lat))<120000){
+                           if(point.distanceTo(markersLayer.getViewPortPxFromLonLat(clustersArr[j][0].marker.lonlat))<60){
+                               clustersArr[j].push({marker:markersSpotArr[i], idx:i});
+                               matched=true;
+                               break;
+                           }
+                       }
+                       if(!matched){
+                           clustersArr.push([
+                                {
+                                    idx:i,
+                                    marker:markersSpotArr[i]
+                                }
+                            ])
+                       }
+                   }
+                   
+                   for(var k=0;k<clustersArr.length;k++){
+                         var len=clustersArr[k].length;
+                         var alpha=360/(len+2);
+                         var beta=alpha/2;
+                         var hip=20/Math.sin(beta);
+                         var c=markersLayer.getViewPortPxFromLonLat(clustersArr[k][0].marker.lonlat);
+                         
+                         for(var l=0; l<len;l++){
+                             var marker=clustersArr[k][l];
+                            
+                             if(len<5){
+                                  $('.marker_'+marker.idx).addClass("cluster_"+len+"_"+l);
+                                 marker.marker.icon.setUrl('img/pointers/pointer_'+len+'_'+l+'.png');
+                             }
+                             else{
+                                  $('.marker_'+marker.idx).addClass("cluster_gt_4");
+                                 marker.marker.icon.setUrl('img/pointers/big_cluster.png');
+                                 var px={x:0,y:0};
+                                 
+                                 
+                                 px.x=c.x+10+hip*Math.cos(l*alpha);
+                                 px.y=c.y+40+hip*Math.sin(l*alpha);
+                                 /*px.x-=20;
+                                 px.y-=20;*/
+                                 marker.marker.icon.moveTo(px);
+                             }
+                         }
+                     }
+    }
     
     
     scope.$watch(function(){return attrs.resize},function(value){
@@ -1164,74 +1197,199 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             
     })
     
-    scope.$watch('stage',function(nv, ov){
+
+        scope.$watch('stage',function(nv, ov){
+           
+       
         $timeout(function(){
+                
+        
         if(+nv===3){
-            min_zoom=11;
+            min_zoom=6;
             max_zoom=14;
-           map.setCenter(miamiCenter,12);
-            map.addControl(zoomControl);
+           //map.setCenter(miamiCenter,12);
+            //map.addControl(zoomControl);
+            map.zoomTo(12);
         }
         else{ 
-            if(+ov===3)
-                map.removeControl(zoomControl);
-            if(nv==1){
+             for(var i=0;i< markersSpotArr.length;i++){
+                    deleteMarker(markersSpotArr[i]);
+            }
+            $(".pulse-marker").off('click');
+            markersSpotArr=[];
+            /*if(+ov===3)
+                map.removeControl(zoomControl);*/
+            if(+nv===1){
                 min_zoom=4;
-                max_zoom=5;
+                max_zoom=10;
                 var zoom=map.getZoomForExtent(Stage1Bounds);
                map.zoomTo(Math.round(zoom));
-               var h1=Stage1Bounds.getCenterLonLat()
+               var h1=Stage1Bounds.getCenterLonLat();
                map.setCenter(h1);
-               for(var i=0;i<pulses.length;i++){
-                   AddSpot(new OpenLayers.LonLat(pulses[i].center.lon,pulses[i].center.lat).transform(
-                    fromProjection,
-                    map.getProjectionObject()),pulses[i].pulses[scope.lfs]);
+               for(var i=0;i<geo.pulses.length;i++){
+                   for(var j=0;j<geo.pulses[i].children.length;j++)
+                        AddSpot(new OpenLayers.LonLat(geo.pulses[i].children[j].center.lon,geo.pulses[i].children[j].center.lat).transform(fromProjection, map.getProjectionObject()),geo.pulses[i].children[j].pulses[scope.lfs],"marker_"+markersSpotArr.length+" "+"area_"+geo.pulses[i].children[j].gid);
                }
-                    
+               
+               $(".pulse-marker").on('click',function(){
+                   event.stopPropagation();
+                    event.preventDefault();
+                    var cname=$.trim(this.className);
+                   var area=geo.GetRegionAreaById(null, +cname.split(' ')[2].split('_')[1]);
+                   var idx=+cname.split(' ')[1].split('_')[1];
+                     $("#gotoArea").off('click');  
+                 if(infoPop)
+                      map.removePopup(infoPop);
+                 infoPop=new OpenLayers.Popup.Anchored("city_detail",
+                 markersSpotArr[idx].lonlat,
+                 new OpenLayers.Size(200,200),
+                 'BLA BLA BLA '+area.name+' <br/><button class="btn" id="gotoArea">go</button>',
+                 null,
+                 true);
+                 infoPop.panMapIfOutOfView=true;
+                 //infoPop.keepInMap=true;
+                  map.addPopup(infoPop);
+                  $('#gotoArea').on('click',function(){
+                      map.removePopup(infoPop);
+                      $location.search('c',area.id);
+                      scope.$apply();
+                  })
+                         
+                   
+               });
+               
+               $timeout(function(){
+                  ApplyCluster();
+                   
+               });
+                   
+               
            }
             else if(nv==2){
-                min_zoom=7;
+                /*min_zoom=7;
                 max_zoom=9;
-                map.setCenter(miamiCenter,8);
-            }
+                map.setCenter(miamiCenter,8);*/
+               //map.zoomTo(8);
+           }
         }
         });
     })
     
+    
+    /*scope.$watch('center',function(){
+       if(!scope.center || !scope.center.length)
+           return;
+       var lnlt=scope.center.split(',');
+       var nCenter=new OpenLayers.LonLat(+lnlt[0], +lnlt[1]).transform(fromProjection,map.getProjectionObject());
+       map.setCenter(nCenter);
+    });*/
+    
+   scope.$watch('area',function(){
+         if(!scope.area || !scope.area.length || +scope.area<0)
+           return;
+       var center=geo.GetregionAreaCenterById(+scope.area);
+       var nCenter=new OpenLayers.LonLat(center.lon, center.lat).transform(fromProjection,map.getProjectionObject());
+       map.setCenter(nCenter);
+    });
+    
+    
+    
     scope.$watch('lfs',function(){
         if(scope.stage>1)
             return;
-        
+        $(".pulse-marker").off('click');
          for(var i=0;i< markersSpotArr.length;i++){
                     deleteMarker(markersSpotArr[i]);
         }
         markersSpotArr=[];
-        for(var h=0;h<pulses.length;h++){
-                   AddSpot(new OpenLayers.LonLat(pulses[h].center.lon,pulses[h].center.lat).transform(
-                    fromProjection,
-                    map.getProjectionObject()),pulses[h].pulses[scope.lfs]);
+               for(var i=0;i<geo.pulses.length;i++){
+                   for(var j=0;j<geo.pulses[i].children.length;j++)
+                        AddSpot(new OpenLayers.LonLat(geo.pulses[i].children[j].center.lon,geo.pulses[i].children[j].center.lat).transform(fromProjection, map.getProjectionObject()),geo.pulses[i].children[j].pulses[scope.lfs],"marker_"+markersSpotArr.length+" "+"area_"+geo.pulses[i].children[j].gid);
                }
+               
+       $timeout(function(){
+                  ApplyCluster();
+                   
+       });
+        $(".pulse-marker").on('click',function(){
+                   var area=geo.GetRegionAreaById(null, +this.className.split(' ')[2].split('_')[1]);
+                   var idx=+this.className.split(' ')[1].split('_')[1];
+                     $("#gotoArea").off('click');  
+                 if(infoPop)
+                      map.removePopup(infoPop);
+                 infoPop=new OpenLayers.Popup.Anchored("city_detail",
+                 markersSpotArr[idx].lonlat,
+                 new OpenLayers.Size(200,200),
+                 'BLA BLA BLA '+area.name+' <br/><button class="btn" id="gotoArea">go</button>',
+                 null,
+                 true);
+                 infoPop.panMapIfOutOfView=true;
+                 //infoPop.keepInMap=true;
+                  map.addPopup(infoPop);
+                  $('#gotoArea').on('click',function(){
+                      map.removePopup(infoPop);
+                      $location.search('c',area.id);
+                      scope.$apply();
+                  })
+                         
+                   
+               });
     })
-    
     
     scope.$on('selectedSystemsChanged',function(){
         
         
         if(+scope.stage===3){
-            nLayer.url=[mapserver+"/${z}/${x}/${y}.png?"+SelectionService.map_query];
+            nLayer.url=[mapserver+"/${z}/${x}/${y}.png?"+select.map_query];
             nLayer.redraw();
         }
     });  
     
+    
+    scope.$on('collapse',function($event,id){
+         if(infoPop)
+            map.removePopup(infoPop);
+   })
+    
     scope.$on('PlacesReceived',function($event,spots){
+        $(".pulse-marker").off('click');
+        for(var i=0;i< markersSpotArr.length;i++){
+                    deleteMarker(markersSpotArr[i]);
+        }
         markersSpotArr=[];
         for(var i=0;i<spots.length;i++){
             if(spots[i].center){
-               AddSpot(new OpenLayers.LonLat(spots[i].center.lon,spots[i].center.lat).transform(
-                    fromProjection,
-                    map.getProjectionObject()),spots[i].pulse);
+               AddSpot(new OpenLayers.LonLat(spots[i].center.lon,spots[i].center.lat).transform(fromProjection, map.getProjectionObject()),spots[i].pulse,"marker_"+i);
             }
         }
+        
+        
+        
+         $(".pulse-marker").on('click',function(){
+             event.stopPropagation();
+             event.preventDefault();
+             
+             var cname=$.trim(this.className);
+              var idx=+cname.split(' ')[1].split('_')[1];
+              $rootScope.$broadcast('hotSpotClicked',idx);
+              return;
+                 if(infoPop)
+                      map.removePopup(infoPop);
+                 infoPop=new OpenLayers.Popup.Anchored("city_detail",
+                 markersSpotArr[idx].lonlat,
+                 new OpenLayers.Size(200,200),
+                 'BLA BLA BLA <br/>SCORE CARD',
+                 null,
+                 true);
+                 infoPop.panMapIfOutOfView=true;
+                 //infoPop.keepInMap=true;
+                  map.addPopup(infoPop);
+               });
+        
+        
+        
+        
+        
     })
     
     $timeout(function(){resize();},100);
@@ -2188,4 +2346,16 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                
         };
     }])
+    .directive('takePos',['$timeout',function($timeout){
+        return {
+            restrict:'C',
+            replace:false,
+            link:function(scope,element,attrs){
+                if(navigator.geolocation)
+                    navigator.geolocation.getCurrentPosition(scope.SetLocation,null,{enableHighAccuracy: true,timeout: 5000,maximumAge: 0});
+            }
+               
+        };
+    }])
+
 ;

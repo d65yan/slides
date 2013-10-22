@@ -27,12 +27,16 @@
 	<script type="text/javascript" src="js/services.js"></script>
 	<script type="text/javascript" src="js/directives.js"></script>
 	<script type="text/javascript" src="js/aboutplace.js"></script>
+        <script type="text/javascript" src="js/animations.js"></script>
 	<script type="text/javascript" src="js/filters.js"></script>
-
-
+	<script type="text/javascript" src="js/proj4js.js"></script>
+	<script type="text/javascript" src="js/urban.js"></script>
+        <script type="text/javascript" src="https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.js"></script>
 
 <style>
-    
+    .*chevron{
+    cursor:pointer;
+}
    .action_pin{
         background-color:blue;
     }
@@ -103,8 +107,9 @@ display:inline;}
             /*-moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
             -webkit-box-shadow:  #5a5a5a 1px 1px 10px -2px;
             box-shadow: #5a5a5a 1px 1px 10px -2px;*/
-            height:30px;
-            padding-top:10px;
+            /*height:30px;
+            padding-top:10px;*/
+            height:40px;
         }
 
 
@@ -212,7 +217,7 @@ margin-right:0px;
        
         #main-logo-container{
             vertical-align: baseline;
-            position: absolute;
+            /*position: absolute;*/
             top: -10px;/*7px*/
             /*background-color: white;*/
             left: 20px; 
@@ -385,6 +390,97 @@ margin-right:0px;
 min-width:900px
 }
 
+
+.g-dropdown{
+    position:relative;
+    display:inline-block;
+    border:solid 1px #ccc;
+    padding-right:3px;
+}
+
+.g-dropdown i{
+    cursor:pointer;
+}
+
+.g-dropdown input{
+    border:none;
+    line-height:1em;
+    margin-top:0px;
+    margin-bottom:0px;
+
+}
+
+.g-dropdown input:focus{
+     border:none !important;
+     outline-style: none!important;
+box-shadow:none !important;
+   
+
+}
+
+.g-dropdown .content{
+    position:absolute;
+padding-top:6px;
+    left:0;
+    top:100%;
+    width: 600px;
+    z-index:4000;
+    background-color:white;
+    -moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
+    -webkit-box-shadow:  #5a5a5a 1px 1px 10px -2px;
+    box-shadow: #5a5a5a 1px 1px 10px -2px;
+}
+
+#header-lifestyle-selector_dropdown.g-dropdown .content{
+    width: auto;
+padding-left:3px;
+padding-right:3px;
+}
+
+.g-dropdown .content .msas-list{
+    float:left;
+    margin-right:5px;
+    margin-left:5px;
+    width:30%;
+}
+
+.g-dropdown .content .msas-list .msa-header{
+    font-size:110%;
+font-weight:bold;
+border-bottom:solid black 2px;
+}
+
+.g-dropdown .content li{
+white-space:pre;
+border-bottom:solid #bbb 1px;
+cursor:pointer;
+padding-right:1em;
+}
+
+.g-dropdown .content li:after{
+content:">";
+font-weight:bold;
+position:absolute;
+right:0;
+}
+
+
+.header-lifestyle-selector{
+    height:20px;
+    padding-top:4px;
+    padding-bottom:4px;
+    line-height:1em;
+    font-size:14px;
+   margin-left:6px;
+margin-right:6px;
+}
+
+
+#header-lifestyle-selector_dropdown{
+    padding-top:3px;
+    padding-bottom:5px;
+margin-right:3px;
+}
 </style>
   <script>
       $(document).ready(function(){
@@ -405,12 +501,26 @@ min-width:900px
 <body   ng-controller="AppController" ng-init="authServer='<%= authServerURL %>/'; user=<%= user %>; logged=<%= logged %>" ng-click="CollapseAll()" class="mobile-touch" > 
     <div id="upper_wrapper"  class="main_app1" ng-cloack update="{/{state}/}">
         <header>
-<div class="contained">
+<div>
             <span id="main-logo-container"><a href="#/home" class="mobile-touch" message="Let's Start all over again!!"><img id="main-logo" src="img/logo.png"></a></span>
-            <span class="sosial-container"><a><img src="img/facebook.png"/></a><a><img src="img/twitter.png"/></a><a><img src="img/pincterest.png"/></a></span>
+            <span><span class="g-dropdown"><input type="text" placeholder="type in an address,city or zip code" ng-model="geo_filter" ng-change="FilterCitites()"><i class="icon-chevron-down" ng-click="ShowCities()"></i><div  ng-show="show_cities" class="content">
+                        <div ng-repeat="msa in geo.regions" class="msas-list" ng-show="msa.someSelected">
+                            <div class="msa-header">{/{msa.name}/}</div>
+                            <ul>
+                                <li ng-repeat="area in msa.groups" ng-click="$parent.$parent.SelectArea(area)" ng-show="area.selecteds">{/{area.name}/}</li>
+                            </ul>
+                        </div>
+                        
+                    </div></span> 
+                    <span class="g-dropdown" id="header-lifestyle-selector_dropdown" ng-click="show_lfs=!show_lfs" style="cursor:pointer"><span class="header-lifestyle-selector"><span ng-hide="selection.activeLifeStyle.id" >Select a Lifestyle</span>{/{selection.activeLifeStyle.name}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">
+                        <ul>
+                            <li ng-repeat="lfs in selection.lifestyles" ng-click="$parent.SelectLifeStyle(lfs)">{/{lfs.name}/}</li>
+                        </ul>
+                    </div></span><button class="btn btn-success" ng-click="GoTo()">Go</button></span>
+                <!--<span class="sosial-container"><a><img src="img/facebook.png"/></a><a><img src="img/twitter.png"/></a><a><img src="img/pincterest.png"/></a></span>-->
             <span class="header-menus">
                 <ul >
-                <li><a>About Us</a></li><li><a>FAQs</a></li><li><a>PlacePulse</a></li><li>My Account <i class="icon-chevron-down"></i></li></ul>
+                <li><li><a>Premium</a></li><li>My Account <i class="icon-chevron-down"></i></li></ul>
             </span>
             
           <div style="clear:both;"></div>  
@@ -439,11 +549,14 @@ min-width:900px
 </div>
     </footer>
 </div>
+    <script type="text/javascript" src="js/strategy_tfs.js"></script>
+    <script type="text/javascript" src="js/protocol_tfs.js"></script>
     <script type="text/javascript" src="js/reports.js"></script>
-	<script type="text/javascript" src="https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.js"></script>
+    <script type="text/javascript" src="js/radar-chart.js"></script>
 <style type="text/css" media="screen, projection">
     @import url(https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.css); 
 </style> 
+<script type="text/javascript" src="https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.js"></script>
 <script type="text/javascript">
   FreshWidget.init("", {"queryString": "&widgetType=popup", "widgetType": "popup", "buttonText": "Feedback? ", "buttonColor": "white", "buttonBg": "#FB5F00", "backgroundImage": "", "alignment": "2", "offset": "235px", "formHeight": "500px", "url": "http://aboutplace.freshdesk.com"} );
     

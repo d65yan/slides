@@ -1,19 +1,21 @@
       var AP=angular.module("aboutPlace", ['ngRoute','ngTouch','ngAnimate','ui.directives','ui.bootstrap','Reports','LocalServices','Directives','customFiltersModule'/*,'MapModule'*/]) 
       .config(['$routeProvider','$locationProvider','$interpolateProvider', function($routeProvider,$locationProvider,$interpolateProvider) {
-        $routeProvider.
-        when('/?', {templateUrl: 'views/nhbds.html', controller: nhbdCtrl,reloadOnSearch:false}).
-        otherwise({redirectTo: '/'});
+        $routeProvider.when('/?', {templateUrl: 'views/nhbds.html', controller: nhbdCtrl,reloadOnSearch:false}).
+        when('/:nocache?', {templateUrl: 'views/nhbds.html', controller: nhbdCtrl,reloadOnSearch:false}).
+	otherwise({redirectTo: '/'});
 //$locationProvider.html5Mode(true);
         $interpolateProvider.startSymbol('{/{');
         $interpolateProvider.endSymbol('}/}');
 
 }]);
       
-      function AppController($scope,$window,$http,$timeout,SelectionService,GeograficService,SystemsFilters,$rootScope,$dialog,$routeParams){
+      function AppController($scope,$window,$http,$timeout,SelectionService,GeograficService,SystemsFilters,$rootScope,$dialog,$routeParams,$location){
           //$scope.logged=false;
           $rootScope.history = [];
           $rootScope.back=false;
           $rootScope.same=false;
+          $scope.geo=GeograficService;
+          $scope.selection=SelectionService;
           $scope.showAuthBox=false;
           $scope.showAuthBoxForm=true;
           $scope.authInProcess=false;
@@ -35,6 +37,13 @@
               if($scope.childView && angular.isFunction($scope.childView.GoNext))
                   $scope.childView.GoNext();
           };
+          
+          $scope.GoTo=function(){
+               $location.search('c',$scope.selectedArea.id);
+               if($scope.selection.activeLifeStyle.id)
+                $location.search('l',$scope.selection.activeLifeStyle.id);
+          }
+          
           $scope.CollapseAll=function(){
               $rootScope.$broadcast('collapse',-1);
           }
@@ -73,8 +82,23 @@
           
 
           $scope.ShowCities=function(){
-              $scope.showCities=!$scope.showCities;
+              for(var i=0;i<$scope.geo.regions.length;i++){
+                 $scope.geo.regions[i].SelectAll();
+              }
+             $scope.show_cities=!$scope.show_cities;
           };
+
+          $scope.SelectArea=function(area){
+              $scope.selectedArea=area;
+              $scope.geo_filter=area.name;
+              $scope.show_cities=false;
+              
+          }
+
+          $scope.SelectLifeStyle=function(lfs){
+              //$scope.selection.SelectLifeStyle(lfs.id);
+              $location.search('l',lfs.id);
+          }
 
             $scope.failedSearchOpts = {
                 backdrop: true,
@@ -215,14 +239,7 @@
 
 
           $scope.status='Loading Application Data';
-         /*SystemsFilters.GetAddons(function(){
-                $rootScope.$broadcast('addonsLoaded');
-           })*/
-           
-          /*SystemsFilters.GetLifeStyles(function(){
-                $rootScope.$broadcast('lifestylesLoaded');
-           })*/
-          
+
           SystemsFilters.GetTree(function(){
                 $rootScope.$broadcast('lifestylesLoaded');
                 
@@ -233,12 +250,29 @@
                     $scope.status='';
                 })
           
-          $scope.$on('regionsLoaded',function(){
-             $scope.regions=GeograficService.regions; $scope.$apply();
+          $scope.FilterCitites=function(){
+              $scope.geo_results=!$scope.geo_filter.length;
+               $scope.show_cities=!$scope.geo_results;
+              for(var i=0;i<$scope.geo.regions.length;i++){
+                  if(!$scope.geo_filter.length){
+                      $scope.geo.regions[i].SelectAll();
+                      continue;
+                  }
+                  
+                   $scope.geo.regions[i].UnselectAll();
+                  $scope.geo.regions[i].filter_selection.name_zip=$scope.geo_filter;
+                  $scope.geo.regions[i].ApplyFilters();
+                  $scope.geo_results=  $scope.geo_results||$scope.geo.regions[i].some_selected;
+              }
+          }
+  
+         $scope.$on('regionsLoaded',function(){
+             for(var i=0; i<GeograficService.regions.length;i++)
+                 GeograficService.regions[i].SelectAll();
           })
   
     }
-      AppController.$inject=['$scope','$window','$http','$timeout','SelectionService','GeograficService','SystemsFilters','$rootScope','$dialog','$routeParams'];
+      AppController.$inject=['$scope','$window','$http','$timeout','SelectionService','GeograficService','SystemsFilters','$rootScope','$dialog','$routeParams','$location'];
      
      function homeCtrl($scope,$window,$timeout,GeograficService,SystemsFilters,$location,$filter){
          $scope.$parent.footerState='100%'; 
@@ -734,22 +768,22 @@
       }
      lifestylePulseCtrl.$inject=['$scope','$timeout','SystemsFilters','GeograficService','SelectionService','$routeParams','$location'];
      
-     
-     
      function nhbdCtrl($scope,$window,$timeout,SelectionService,SystemsFilters,CompareService,$rootScope,$routeParams,GeograficService,$location){
                  
          
          $scope.GetNhbds=function(){
+             $scope.hotspotscore=-1;
+             $scope.$parent.status="Getting results";
               SelectionService.RequestPlaces(function(){
-                  $scope.$parent.status='';
+                  
                   $scope.spots=SelectionService.spots;
-                  /*var phase = $scope.$root.$$phase;
-                
-                if(phase != '$apply' && phase != '$digest')
-                  $scope.$apply();*/
+                  $timeout(function(){
+                      if($scope.$parent)
+                        $scope.$parent.status='';
+                  },1000);
             });
           }
-         
+          
          $scope.SelectCity=function(midx,idx){
              midx=(midx<0 || midx>=$scope.msas.length)?($scope.msa?$scope.msa.idx:0):midx;
               $scope.msas[midx].SetActiveGroup(idx);
@@ -757,11 +791,12 @@
               SelectionService.SetArea($scope.msas[midx].groups[idx]);
               SelectionService.AddCities($scope.msas[midx].GetSelCities());
               $scope.area=SelectionService.area;
+              $scope.area_id=$scope.area.id||-1;
               $scope.stage=3;
               $scope.area_idx=idx;
               if(!$scope.msa || +$scope.msa.idx!==+midx)
                     $scope.SelectMsa(midx,true)
-              $location.search('c',idx);
+              $location.search('c', $scope.area.id);
               //$location.replace();
                         $scope.citiesList=SelectionService.cities;
           $scope.cities=[];
@@ -779,7 +814,7 @@
                  return;
               $scope.msa=$scope.msas[midx];
               $scope.stage=2;
-               $location.search('m',midx);
+               $location.search('m',$scope.msa.id);
                //$location.replace();
                 $scope.msa_idx=midx;
                 
@@ -790,13 +825,21 @@
               $scope.SelectCity(midx,0)
               
           };
-         
+         $scope.area_id=-1;
          var search=$location.search();
-         $scope.lf_id=search.l||1152;
-         $scope.msa_idx=search.m===0||search.m?search.m:-1;
-         $scope.area_idx=search.c===0||search.c?search.c:-1;
+         $scope.lf_id=+search.l/*||1152*/;
+         var reg=GeograficService.GetRegionById(search.m)
+         $scope.msa_idx=reg?reg.idx:-1;
+         var are=GeograficService.GetRegionAreaById($scope.msa_idx,search.c);
+         $scope.area_idx=are?are.idx:-1;
+         if($scope.msa_idx<0 && are)
+             $scope.msa_idx=are.parent.idx;
          //$scope.area_idx=$location.search('');
          
+         if($scope.lf_id){
+             SelectionService.SelectLifeStyle($scope.lf_id);
+         }
+         $scope.lifeStyle=angular.extend({},SelectionService.activeLifeStyle);
          $scope.stage=1+( $scope.msa_idx>=0)*1+($scope.area_idx>=0)*1;
          $scope.prioritiesFull=SelectionService.priorities.length==(((36/9)/2)+1);
          $scope.msas=GeograficService.regions;
@@ -807,24 +850,23 @@
                 $scope.SelectCity($scope.msa_idx,$scope.area_idx);
          }
         
+          var selectionWatcher;
           $scope.$parent.footerState='0%';
           $scope.expandedFooter=false;
+          $scope.score_card=null;
           $scope.$parent.state='nhbd';
-          $scope.area=SelectionService.area;
+          $scope.area=SelectionService.area||{};
+          $scope.hotspotscore=-1;
+          $scope.area_id=$scope.area.id||-1;
           $scope.systemsSet=SelectionService.systemsSet;
           $scope.lifestyles=angular.copy(SelectionService.lifestyles);
           $scope.menu=SystemsFilters.groupingMenu;
-          $scope.lifeStyle=angular.extend({},SelectionService.activeLifeStyle);
+          
           $scope.priorities=SelectionService.priorities;          
-          /*$scope.citiesList=SelectionService.cities;
-          $scope.cities=[];
-          for(var i in $scope.citiesList){
-              $scope.cities.push($scope.citiesList[i]);
-          }*/
           $scope.addons=SelectionService.filters;
           $scope.onlyWithName='';
           $scope.userView='list';
-          $scope.partial_query=SelectionService.partial_query;
+          $scope.partial_query=SelectionService.map_query;
           $scope.activesOnly=false;
           $scope.DoHide=function(name,active){
               var n=name.match($scope.onlyWithName) || !($.trim($scope.onlyWithName).length>0);
@@ -833,13 +875,13 @@
           }
           $scope.showHiddenMenu=false;
 
-
-         
-
           $scope.$on('collapse',function($event,id){
                        if(id!==-2)
                            $scope.showHiddenMenu=false;
-         })
+                       /*$scope.score_card=null;
+                       $scope.hotspotscore=-1;*/
+                       
+         });
          
           
           //$scope.GetNhbds();
@@ -855,16 +897,20 @@
               $event.stopImmediatePropagation();
               $event.stopPropagation();
                        
-              
+              $timeout.cancel(selectionWatcher);
+              $scope.$parent.status="Updating Your Selection. Changes will be applyed when you are done";
               sys=$scope.lifeStyle.systems[sys.code]?$scope.lifeStyle.systems[sys.code]:sys;
               if(sys.active)
-                  $scope.lifeStyle.systems[sys.code].active=SelectionService.RemoveSystem(sys.code, false);
+                  $scope.lifeStyle.systems[sys.code].active=SelectionService.RemoveSystem(sys.code, true);
               else{
                   if(! $scope.lifeStyle.systems[sys.code])
                        $scope.lifeStyle.systems[sys.code]=angular.extend({},sys)
-                  $scope.lifeStyle.systems[sys.code].active=SelectionService.AddSystem(sys, false);
+                  $scope.lifeStyle.systems[sys.code].active=SelectionService.AddSystem(sys, true);
               }
-              
+              selectionWatcher=$timeout(function(){
+                  SelectionService.UpdateQueryProxy(); 
+                  $rootScope.$broadcast('selectedSystemsChanged');
+              },2000);
               return $scope.lifeStyle.systems[sys.code].active;
           }
           
@@ -882,11 +928,11 @@
                  SelectionService.RemoveFilter(addon.id);
          }
          
-          $scope.SelectLifeStyle=function(idx){
+          $scope.SelectLifeStyle=function(idx,skip,force){
               if((!idx && idx!==0) || !$scope.lifestyles)
                   return false;
-             if($scope.lifeStyle.id){
-                 if($scope.lifeStyle.idx===idx)
+             if($scope.lifeStyle && $scope.lifeStyle.id){
+                 if($scope.lifeStyle.idx===idx && !force)
                      return;
                 SelectionService.UnselectLifeStyle($scope.lifeStyle.id);
                 /*var nlfs=angular.extend({},GetLifeStyleById($scope.lifeStyle.id));
@@ -896,19 +942,25 @@
              }
              var nlf=$scope.ddLifeStyles[idx];
              
-             $scope.lifeStyle=SelectionService.SelectLifeStyle(nlf.id);
+             $scope.lifeStyle=SelectionService.SelectLifeStyle(nlf.id,skip);
              $scope.visible_menus=[];
              $scope.hidden_menus=[];
              $timeout(function(){initMenus();});
                  $location.search('l', $scope.lifeStyle.id);
                  $location.replace();
                  $scope.lf_id= $scope.lifeStyle.id;
+                 
+         }
+         
+         $scope.ResetLifeStyle=function(){
+             $scope.SelectLifeStyle($scope.lifeStyle.idx,false,true);
          }
          
          $scope.ToggleNhbd=function(nbhd,modif){
-             if(nbhd.compare && !modif){
+             if(!nbhd.compare/* || (nbhd.compare && !modif)*/){
+                 nbhd.compare=true;
                 CompareService.Add2CompareWhileOff(nbhd);
-                $scope.compares.push(nbhd)
+                $scope.compares.push(nbhd);
              }
              else{
                  
@@ -973,6 +1025,19 @@
             });
          }
          
+         $scope.RemoveGeography=function(){
+             $location.search('c',null);
+             $location.search('m',null);
+             $scope.area={};
+             $scope.area_id="";
+                     
+         }
+         
+         $scope.UnselectLifeStyle=function(){
+             SelectionService.UnselectLifeStyle($scope.lifeStyle.id);
+             $scope.lifeStyle=null;
+             $location.search('l',null)
+         }
          
          $scope.$on('lifestylesLoaded',function(){
              $scope.menu=SystemsFilters.groupingMenu;
@@ -999,8 +1064,13 @@
          $scope.$on('compareAddFailed',function($event,id){
              var nbhd=GetNhbd(id);
              nbhd.compare=false;
-             $scope.compares.splice($scope.compares.indexOf(nbhd),1);
-             //$scope.$apply();
+             $timeout(function(){
+                 var idx=$scope.compares.indexOf(nbhd);
+                if(idx>=0)
+                $scope.compares.splice(idx,1);
+                $scope.$apply();
+             });
+             
          })
          
          $scope.$on('removedCompare',function($event,id){
@@ -1035,35 +1105,84 @@
                 })*/
                 if($scope.lifeStyle && $scope.lifeStyle.id && $scope.stage===3)
                      $scope.SelectCity($scope.msa_idx,$scope.area_idx);
-            })
+            });
        
+       $scope.$on('hotSpotClicked',function($event,idx){
+           $scope.hotspotscore=-1;
+           $scope.score_card={
+               hp:285000,
+               education_level:"College Degree",
+               average_age:38,
+               walkability:"High",
+               mass_transit:"Poor"
+           };
+           $scope.$apply();
+           $timeout(
+                   function(){
+                        $scope.hotspotscore=idx;
+                        $scope.$apply();
+                   },
+                   100
+            )
+       });
+       
+       $scope.$on('selectedSystemsChanged',function(){
+           if($scope.stage===3)
+            $scope.GetNhbds();
+        }); 
+    
+        $scope.SetLocation=function(ltln){
+            if (ltln && !ltln.PERMISSION_DENIED && !ltln.POSITION_UNAVAILABLE && !ltln.TIMEOUT) {
+                ltln.coords=ltln.coords||{};
+                ltln.coords.latitude=ltln.coords.latitude||ltln.lat;
+                ltln.coords.longitude=ltln.coords.longitude||ltln.lng
+                var lat = ltln.coords.latitude;
+                var lng = ltln.coords.longitude;
+                $scope.geo.LocateArea(lng+","+lat, function(gid){
+                    if($scope.stage===1)
+                        $location.search('c',gid);
+                    //$scope.$apply();
+                });
+            }
+        }
+    
        $scope.$watch(function(){return JSON.stringify($location.search());},function(){
            var search=$location.search();
-            $scope.lf_id=search.l||1152;
-           var msa_idx=search.m===0||search.m?search.m:-1;
-           var area_idx=search.c===0||search.c?search.c:-1;
+            $scope.lf_id=+search.l/*||1152*/;
+            
+            /*var reg=GeograficService.GetRegionById(search.m)
+            var msa_idx=reg?reg.idx:-1;*/
+            var are=GeograficService.GetRegionAreaById(null,search.c);
+            var area_idx=are?are.idx:-1;
+            if(are)
+                var msa_idx=are.parent.idx;
+            
            var new_stage=1+( msa_idx>=0)*1+(area_idx>=0)*1;
-           if ($scope.lifestyles && $scope.lifestyles.length && (!$scope.lifeStyle || +$scope.lifeStyle.id!=+ $scope.lf_id))
-               $scope.SelectLifeStyle(GetLifeStyleIdxById( $scope.lf_id));
+           if ($scope.lf_id && $scope.lifestyles && $scope.lifestyles.length && (!$scope.lifeStyle || +$scope.lifeStyle.id!=+ $scope.lf_id))
+               $scope.SelectLifeStyle(GetLifeStyleIdxById( $scope.lf_id),new_stage!=3);
            
-           if($scope.stage!=new_stage){
-               if(new_stage===2 || new_stage===3)
+           //if($scope.stage!==new_stage){
+               if(new_stage===2)
                    
-                   if($scope.msas && $scope.msas.length && msa_idx!==$scope.msa.idx)
+                   if($scope.msas && $scope.msas.length && (!$scope.msa || msa_idx!==$scope.msa.idx))
                        $scope.SelectMsa(msa_idx);
-               if(new_stage===3)
-                   if($scope.msas && $scope.msas.length && area_idx!=$scope.area.idx)
-                       $scope.SelectCity(null,area_idx);
-           }
+               if(new_stage===3){
+                   if($scope.msas && $scope.msas.length && (!$scope.area || +search.c!==+$scope.area.id)){
+                       $scope.SelectCity(msa_idx,area_idx);
+                   }
+               } else{
+                   $scope.area=null;
+               }
+           //}
            $scope.stage=new_stage;
            
-       })
+       });
           
          function GetNhbd(id){
               for(var i=0;i<$scope.spots.length;i++)
-                  for(var j=0;j<$scope.spots[i].places.length;j++)
-                    if($scope.spots[i].places[j].gid===id)
-                      return $scope.spots[i].places[j];
+                  for(var j=0;j<$scope.spots[i].neighborhoods.length;j++)
+                    if($scope.spots[i].neighborhoods[j].gid===id)
+                      return $scope.spots[i].neighborhoods[j];
               return false;
         }
         

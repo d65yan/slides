@@ -49,17 +49,142 @@
     .local_footer .footer-toggler{
         float:right
     }*/
+   
+   
+
+   .pulse-marker.cluster_gt_4{
+       width:30px !important;
+       height:30px !important;
+       margin:0 !important;
+       font-size:45%;
+       font-weight:normal;
+       
+
+   } 
+   
+      .pulse-marker.cluster_2_0{
+       margin-left:-30%;
+       height:55px !important;
+       margin-top:10px;
+
+   }
+   
+    .pulse-marker.cluster_2_1{
+       margin-left:30%;
+       height:55px !important;
+       margin-top:10px;
+
+   }
     
+   .pulse-marker.cluster_3_0, .pulse-marker.cluster_4_0{
+       margin-left:-40%;
+       margin-top:40%;
+   }
+   
+  
+   .pulse-marker.cluster_3_2, .pulse-marker.cluster_4_2{
+       margin-left:40%;
+       margin-top:40%;
+   }
+   
+     .pulse-marker.cluster_4_3{
+       margin-top:100%;
+   }
+   
+   
+       .pulse-marker .marker-text{
+        text-align: center;
+font-weight: bold;
+font-size: 180%;
+position: absolute;
+width: 100%;
+left: 0;
+top: 29.9%;
+    }
+   
+   .pulse-marker.cluster_gt_4 .marker-text{
+       top: 15%;
+       
+
+   } 
+    
+        .pulse-marker.cluster_3_0 .marker-text, .pulse-marker.cluster_4_0 .marker-text{
+                margin-left:-7%;
+        }
+        
+        .pulse-marker.cluster_3_2 .marker-text, .pulse-marker.cluster_4_2 .marker-text{
+                margin-left:8%;
+        }
+   
+    .pulse-marker.cluster_3_0, .pulse-marker.cluster_4_0,  .pulse-marker.cluster_3_2, .pulse-marker.cluster_4_2{
+           
+               height:55px !important;
+        }
+        
+            .pulse-marker img{
+            width:100% !important;
+            height:100% !important;
+        }
+        
+        .pulse-marker{
+            width:60px !important;
+               height:65px !important;
+            transition: all 0.3s ease;
+            cursor:pointer;
+            font-size:85%;
+        }
+        .pulse-marker .marker-text{
+             transition: all 0s linear;
+        }
+        
+        .pulse-marker:hover{
+            width:100% !important;
+            height:100% !important;
+            font-size:130%;
+            z-index:4100;
+        }
+        
+       .pulse-marker:hover .marker-text{
+            top:35%;
+        }
+        .pulse-marker.cluster_1_0:hover,.pulse-marker.cluster_3_1:hover,.pulse-marker.cluster_4_1:hover{
+            margin-top:-50%;
+            margin-left:-20%;
+            
+        }
+        
+        .pulse-marker.cluster_2_0:hover{
+            margin-top:-25%;
+            margin-left:-55%;
+        }
+        
+        .pulse-marker.cluster_2_1:hover{
+            margin-top:-25%;
+            margin-left:10%;
+        }
+   
+        
+       .pulse-marker.cluster_3_0:hover{
+            margin-top:20%;
+            margin-left:-80%;
+        }
+        
+        .pulse-marker.cluster_3_2:hover{
+            margin-top:20%;
+            margin-left:40%;
+        }
+   
     #menu_state_switch{
         cursor:pointer;
-        margin-top:5px;
-        margin-bottom:10px;
+        margin-top:0px;
+       /* margin-bottom:10px;*/
         color:white;
         font-weight:bold;
         text-shadow: 1px 1px 5px #666;
         display:inline-block;
         overflow:hidden;
         padding-right: 30px;
+        display:block;
     }
     
     #menu_state_switch i{
@@ -276,7 +401,7 @@
     }
     
     .nbds_leftbar.short{
-        height:6.5em;
+        height:1.9em;
         overflow:hidden;
     }
     
@@ -297,7 +422,7 @@
         border:solid #f9f8f4 5px;
         border-top:none;
         background-color:#d4dcd1;
-        padding-top:10px;
+        /*padding-top:10px;*/
         padding-bottom:10px;
         padding-left:10px;
         padding-right:10px;
@@ -308,7 +433,7 @@
     }
     
     .nbds_leftbar .main_container.short{
-        height:3em;
+        height:0.85em;
         overflow:hidden;
      }
     .nbds_leftbar .main_container h3{
@@ -316,7 +441,7 @@
         font-size:0.8em;
         line-height:1em;
         margin-left:10px;
-        display:inline;
+        display:block;
         text-shadow: -1px -1px 1px rgba(0,0,0,0.15);
         
     }
@@ -452,7 +577,7 @@
         color:black;
     }
     
-   .nbds_leftbar .main_container .btn{
+   .nbds_leftbar .main_container .groups_cont .btn{
         font-size:0.8em;
         margin-right:10px;
         margin-top:10px;
@@ -493,6 +618,7 @@
     background-color: #AAA;
     }
     
+   
     
     .filters-bar{
         height:50px;
@@ -516,9 +642,15 @@
     }
     
     
+
+    
     .main_map div.olControlZoom{
         left:330px;
         top:40px;
+    }
+    
+    .left_bar_hidden .main_map div.olControlZoom{
+        left:40px;
     }
     
 #main-map img{
@@ -559,14 +691,15 @@
      margin-bottom:3px;
 }
 
-.results-block{
+.results-block, .score-card-block{
     background-color:#f9f8f4;
     border-radius:5px 5px 5px 5px;
     -moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
     -webkit-box-shadow:  #5a5a5a 1px 1px 10px -2px;
     box-shadow: #5a5a5a 1px 1px 10px -2px;
     padding:10px;
-    margin-bottom:20px;
+    margin-top:10px;
+    margin-bottom:10px;
     position:relative;
     overflow:visible;
     
@@ -624,21 +757,21 @@
    
     
 
-.hotspot .hidden-content{
+.score-content{
     padding-left:5px;
     padding-right:5px;
     background-color:white;
     padding-bottom:5px;
 }
 
-.hotspot .hidden-content hr{
+.score-content .hidden-content hr{
     height:1px;
     margin:0;
     margin-top:10px;
     margin-bottom:5px;
 }
 
-.hotspot .hidden-content .upgrade-message{
+.score-content .upgrade-message{
     color:#bbb;
     width:60%;
     margin-top:5px;
@@ -856,42 +989,45 @@ left: -0.9em;
 }
 
         
-        .results-block.ng-enter{
-            -webkit-transition:left linear  0.3s;
-            -moz-transition:left linear 0.3s;
-            -o-transition:left linear  0.3s;
-            transition:left linear  0.3s;
-        }
-        
-        .results-block.ng-enter{
-            opacity:1;
+        .score-card-block.ng-enter{
+            -webkit-transition:all ease  0.1s;
+            -moz-transition:all ease 0.1s;
+            -o-transition:allease  0.1s;
+            transition:all ease  0.1s;
+           opacity:0;
             position:absolute;
             width:290px !important;
             left:-310px;
-         
         }
         
-        .results-block.ng-enter.ng-enter-active {
+      /*  .score-card-block.ng-enter{
+
+         
+        }*/
+        
+        .score-card-block.ng-enter.ng-enter-active {
           opacity:1;
           left:0px;
           width:290px !important;
         }
         
-        .results-block.ng-leave {
-          /*  -webkit-transition:opacity linear 0.3s;
-            -moz-transition:opacity linear 0.3s;
-            -o-transition:opacity linear 0.3s;
-            transition:opacity linear 0.3s;
+        .score-card-block.ng-leave {
+            -webkit-transition:all ease 0.1s;
+            -moz-transition:all ease 0.1s;
+            -o-transition:all ease 0.1s;
+            transition:all ease 0.1s;
             opacity:1;
-
-            position:absolute;*/
-          display:none;
+            position:absolute;
+            /*left:0px;
+            width:290px !important;*/
+          
       
         }
-        .results-block.ng-leave.ng-leave-active {
-           /* opacity:0;
-            position:absolute;*/
-           display:none;
+        .score-card-block.ng-leave.ng-leave-active {
+            opacity:0;
+            /*position:absolute;
+            left:-310px;
+           display:none;*/
         }
         
         
@@ -938,52 +1074,86 @@ left: -0.9em;
             width:290px !important;*/
         }
         
-    .pulse-marker .marker-text{
-        text-align: center;
-	font-weight: bold;
-	font-size: 180%;
-	position: absolute;
-	width: 100%;
-	left: 0;
-	top: 27px;
-    }
+        .removable-selected-element-box{
+            font-size:12px;
+            display:inline;
+             border:solid 1px black;
+        }
+        
+
+        
+        .removable-selected-element-box .remove-button, .removable-selected-element-box .details-button{
+            border-right:solid 1px black;
+            padding:2px;
+            padding-top:0px;
+            padding-bottom:0px;
+            margin-right:3px;
+            cursor:pointer;
+            background-color:#badebc;
+            
+        }
+        
+         .removable-selected-element-box .details-button{
+            
+            border:none; 
+            border-left:solid 1px black;
+            margin-right: 0px;
+        }
+        
+        .reset-button{
+            color:blue;
+            text-decoration: underline;
+            display:block;
+        }
+        
+        .closeable-block .close-button{
+            position:absolute;
+            right:5px;
+            top:5px;
+            cursor:pointer;
+        }
+        
 </style>
 <!-- with animation skips dimentioning whrn rendered<section  id="nhbd_page" class="content-section scrollable resizeable" global="1" auto="self" height-adjust="header" skip-render="true" style="width:100%; height:600px;">-->
-<div  id="nhbd_page" class="content-section scrollable resizeable" global="1" auto="self" height-adjust="header" style="width:100%; height:600px;" update="{/{updateMapSpace}/}">
+<div  id="nhbd_page" class="content-section scrollable resizeable take-pos" global="1" auto="self" height-adjust="header" style="width:100%; height:600px;" update="{/{updateMapSpace}/}" ng-class="{left_bar_hidden:menu_state==='short'}">
   <div class="shadowtop static_element"></div>
     <div class="nbds_leftbar {/{menu_state}/} mobile-touch" ng-click="CollapseAll()">
         <div class="main_container" ng-if="stage!==3" ng-class="{short:menu_state}">
-            <h3> </h3>
-            <h2><div style="height:1em;">LIFESTYLES</div></h2>
+            <span class='list-switcher mobile-touch' prevent="true" id="menu_state_switch" ng-click="$parent.menu_state=(menu_state=='short')?'':'short'"><i class="mapicon_expand_{/{menu_state=='short'?'down':'up'}/} icon-white"></i>{/{menu_state=='short'?'Show':'Hide' }/} List</span>
+            
+            <h2><div style="height:1em;">Explore your city</div></h2>
             <hr/>
                 <ul class="list-menu">
-                    <li ng-repeat="lf in $parent.ddLifeStyles" ng-click="$parent.$parent.SelectLifeStyle($index)" ng-class="{selected:$parent.$parent.lifeStyle.idx==$index}">{/{lf.name}/}<hr/></li>
+                    <!--<li ng-repeat="lf in $parent.ddLifeStyles" ng-click="$parent.$parent.SelectLifeStyle($index)" ng-class="{selected:$parent.$parent.lifeStyle.idx==$index}">{/{lf.name}/}<hr/></li>-->
                 </ul>
         </div>
         <div class="main_container" ng-if="stage===3" ng-class="{short:menu_state}">
+            <span class='list-switcher mobile-touch' prevent="true" id="menu_state_switch" ng-click="$parent.menu_state=(menu_state=='short')?'':'short'"><i class="mapicon_expand_{/{menu_state=='short'?'down':'up'}/} icon-white"></i>{/{menu_state=='short'?'Show':'Hide' }/} List</span>
+            <h3>Your Selections:</h3>
+            <div  class='removable-selected-element-box'><span class='remove-button' ng-click="RemoveGeography()">x</span>{/{area.name}/} </div>&nbsp;
             
-            <h3>MY CITY</h3>
-            <h2><div style="height:1em;">{/{area.name}/}</div></h2>
+            <div  class='removable-selected-element-box' style="white-space: pre" ng-show="lifeStyle && lifeStyle.id"><span class='remove-button' ng-click="UnselectLifeStyle(lifeStyle)">x</span>{/{$parent.lifeStyle.name}/} <span class="details-button" ng-click="lifestyle_details=!lifestyle_details">{/{lifestyle_details?'Hide':'View' }/} Details</span></div>
+            
             <hr/>
-            <h3>MY LIFESTYLE</h3>
+            <!--<h3>MY LIFESTYLE</h3>
             <div class="dropdown">
                 <div class="dropdown-button lifestyles">{/{$parent.lifeStyle.name}/} <i class="mapicon_arrow_down"></i></div>
                 <ul class="dropdown-menu">
                     <li ng-repeat="lf in $parent.ddLifeStyles" ng-click="$parent.$parent.SelectLifeStyle($index)" ng-class="{selected:$parent.$parent.lifeStyle.idx==$index}">{/{lf.name}/}<hr/></li>
                 </ul>
-            </div>
+            </div>-->
             <br>
-            <div class="groups_cont">
+            <div class="groups_cont" ng-show="lifeStyle && lifeStyle.id && lifestyle_details && hotspotscore<0">
                 <button class="transparent prio_breadcrom mobile-touch" ng-click=" Remove($event)" ng-repeat="p in priorities">{/{$parent.lifeStyle.systems[p].mapname}/} <i class="icon-remove"></i></button>
                 <p style="background-color:#e6ece1; text-align:center" ng-if="!priorities.length">Prioritize up to 3 amenities by clicking on the <i class="mapicon_star_false"></i>  on the right of each amenity</p>
                 <div class="separator"></div>
                 <lf_group ng-repeat="g in menu" class="updateScrolls" node-id="nhbd_page"></lf_group>
+                <button ng-click="ResetLifeStyle()" class="separator transparent reset-button">reset</button>
             </div>
         </div>
-        <span class='list-switcher mobile-touch' prevent="true" id="menu_state_switch" ng-click="menu_state=(menu_state=='short')?'':'short'"><i class="mapicon_expand_{/{menu_state=='short'?'down':'up'}/} icon-white"></i>{/{menu_state=='short'?'Show':'Hide' }/} List</span>
         
-        
-       <div id="compare_block" class="results-block" ng-if="stage===3" ng-class="{active_true:compare_block,active_false:!compare_block}">
+       <div id="compare_block" class="results-block closeable-block" ng-if="stage===3" ng-class="{active_true:compare_block,active_false:!compare_block}">
+           <i class="close-button icon-remove" ng-click="ActivateBlock('')" ng-show="compare_block"></i>
            <div class="view_more mobile-touch" prevent="true"  ng-class="{hidden_true:(compare_block || !compares.length)}" ng-click="ActivateBlock('compare')">View more</div> <div class="block-tag" ng-hide="compare_block"><span class="badge badge">{/{compares.length}/}</span> PLACE<span ng-show="(compares.length-1)">S</span> TO COMPARE</div> <div class="block-tag" ng-show="compare_block">COMPARE PLACES</div>
             <div ng-repeat="place in compares" class="hotspot">
                 <i class="spot-expander mapicon_dark_arrow_{/{active_place==$index?'down':'right'}/}" ng-click="active_place= active_place==$index?-1:$index"></i><div class="pulse_indicator">{/{place.pulse}/}<div class="arrow"></div></div><span  class="conteined_nhbds">{/{place.name}/} </span>
@@ -996,7 +1166,7 @@ left: -0.9em;
            <div class="block-action-footer" ng-if="premium">Compare ({/{compares.length}/}) side-by-side <a href="#/compare"><i class="mapicon_view_compare"></i></a></div>
         </div>
  
-        <div id="places_block" class="results-block" ng-class="{active_false:!top_block,active_true:top_block}"  ng-if="stage===3">
+        <!--<div id="places_block" class="results-block" ng-class="{active_false:!top_block,active_true:top_block}"  ng-if="stage===3">
             <div class="view_more mobile-touch" prevent="true" ng-class="{hidden_true:(top_block || !spots.length)}" ng-click="ActivateBlock('top')" >View more</div> <div class="block-tag"><span class="badge badge-warning" ng-hide="top_block">{/{spots.length}/}</span> TOP PLACES</div>
             <div ng-repeat="spot in spots" class="hotspot">
                 <i class="spot-expander mapicon_dark_arrow_{/{active_spot==$index?'down':'right'}/} update-scrolls  mobile-touch" prevent="true"  click="true" node-id="nhbd_page" ng-click="active_spot= active_spot==$index?-1:$index"></i><div class="pulse_indicator">{/{spot.pulse}/}<div class="arrow"></div></div><span  class="conteined_nhbds"> Instersection name</span>
@@ -1014,22 +1184,10 @@ left: -0.9em;
                 </div>
             </div>
             
-        </div>
+        </div>-->
         
-        <div id="places_block" class="results-block active_true"  ng-if="stage===1">
-            <!--<div class="view_more hidden_{/{geographies_block || !cities.length}/} mobile-touch" prevent="true"  ng-click="ActivateBlock('cities')">View more</div>--> <div class="block-tag"> AVAILABLE NOW</div>
-            <div ng-repeat="msa in msas" class="hotspot">
-                <i class="spot-expander mapicon_dark_arrow_{/{active_spot==$index?'down':'right'}/}" ng-click="active_spot= active_spot==$index?-1:$index"></i><div class="pulse_indicator">{/{msa.pulse}/}<div class="arrow"></div></div><span class="conteined_nhbds">{/{msa.name}/} </span>
-                <div class="hidden-content" ng-if="active_spot==$index">
-                    some stats
-                    <button ng-click="$parent.$parent.$parent.SelectMsa($parent.$index)">Go</button>
-                </div>
-            </div>
-            
-        </div>
-        
-        <div id="places_block" class="results-block active_true"  ng-if="stage===2">
-            <!--<div class="view_more hidden_{/{geographies_block || !cities.length}/} mobile-touch" prevent="true"  ng-click="ActivateBlock('cities')">View more</div>--> <div class="block-tag"> AVAILABLE AREAS</div>
+        <!--<div id="places_block" class="results-block active_true"  ng-if="stage===2">
+            <div class="block-tag"> AVAILABLE AREAS</div>
             <div ng-repeat="area in msa.groups" class="hotspot">
                 <i class="spot-expander mapicon_dark_arrow_{/{active_spot==$index?'down':'right'}/}" ng-click="active_spot= active_spot==$index?-1:$index"></i><div class="pulse_indicator">{/{area.pulse}/}<div class="arrow"></div></div><span class="conteined_nhbds">{/{area.name}/} </span>
                 <div class="hidden-content" ng-if="active_spot==$index">
@@ -1047,14 +1205,30 @@ left: -0.9em;
                 </div>
             </div>
             
-        </div>        
+        </div>-->  
+        
+        <div class="score-card-block closeable-block"  ng-if="stage==3 && hotspotscore>=0">
+            <div class="score-content">
+            <i class="close-button icon-remove" ng-click="$parent.hotspotscore=-1"></i>
+                    <ul class="hs-geographies-list">
+                        <h5> Neightborhoods</h5>
+                        <li ng-repeat="neighborhood in $parent.spots[$parent.hotspotscore].neighborhoods">
+                            <label class="nbhds_label" ng-click="$parent.ToggleNhbd(neighborhood)"><i ng-class="{mapicon_checked_true:neighborhood.compare,mapicon_checked_false:!neighborhood.compare}"></i>{/{neighborhood.name}/}</label>
+                        </li>
+                    </ul>
+                    <div class="hot-spot-stats demographic" ><h4>45K</h4><p>MEAN<br>INCOME</p></div> <div class="hot-spot-stats demographic" style="margin-left:0.5%; margin-right:0.5%"><h4>BACHELORS</h4><p>MEAN<br>EDUCATION</p></div> <div class="hot-spot-stats demographic" ><h4>38</h4><p>MEAN<br>AGE</p></div>
+                    <div class="hot-spot-stats housing" ><h4>285K</h4><p>MEAN<br>HOUSING PRICE</p></div><div class="hot-spot-stats conveniance" style="margin-left0.5%; margin-right:0.5%"><h4>HIGHLY</h4><p>WALKABLE</p></div><div class="hot-spot-stats conveniance"><h4>GREAT</h4><p>PUBLIC TRANSIT</p></div>
+                    <div class="hot-spot-stats housing" ><h4>RESIDENTIAL</h4><p>HOUSING TYPE</p></div><div class="upgrade-message pull-right">Want more information? Become premium</div><div class="upgrade-button pull-right" style="margin-right:45px">Upgrade</div>
+                    <div class="separator"></div>
+            </div>
+        </div>
     </div>
     <div class="filters-bar static_element resizeable"  width_adjust=".nbds_leftbar" ng-if="version=='phase2'"></div>
     
     
     
                 
-                   <div class="main_map static_element" stage="{/{stage}/}" msa="{/{msa_idx}/}" area="{/{area_idx}/}" lfs="{/{lf_id}/}"></div>
+                   <div class="main_map static_element" stage="{/{stage}/}" msa="{/{msa_idx}/}" area="{/{area_id}/}" lfs="{/{lf_id}/}"></div>
                 
     
 </div>

@@ -149,6 +149,7 @@ angular.module('LocalServices',[])
         SelectionService.activeLifeStyle={};
         SelectionService.query="";
          SelectionService.partial_query='';
+          SelectionService.map_query='';
         SelectionService.lastQuery="";
         SelectionService.spots=[];
         SelectionService.priorities=[];
@@ -207,7 +208,7 @@ angular.module('LocalServices',[])
             return true;
         }
         
-        SelectionService.SelectLifeStyle=function(id){
+        SelectionService.SelectLifeStyle=function(id,skip){
             var lfs=GetLifeStyle(id);
             
             if(!SelectionService.activeLifeStyle)
@@ -231,7 +232,10 @@ angular.module('LocalServices',[])
 
                 }
             }
-            
+            if(!skip){
+                UpdateQuery();
+                $rootScope.$broadcast('selectedSystemsChanged');
+            }
             return SelectionService.activeLifeStyle;
         }
 
@@ -252,8 +256,6 @@ angular.module('LocalServices',[])
             SelectionService.activeLifeStyle={};
             return true;
         }
-   
-        
         
        SelectionService.AddSystem=function(sy,skipS,skipU){
            
@@ -281,11 +283,10 @@ angular.module('LocalServices',[])
             if(idx>=0)
                 return false;
             SelectionService.usedSystems.push(s.uid);
-            if(!skipS)
+            if(!skipS){
                 UpdateQuery();
-            
-            
-            $rootScope.$broadcast('selectedSystemsChanged');
+                $rootScope.$broadcast('selectedSystemsChanged');
+            }
             return true;
         }
 
@@ -310,9 +311,10 @@ angular.module('LocalServices',[])
             var idx1=SelectionService.priorities.indexOf(s.code);
             if(idx1>=0)
             SelectionService.priorities.splice(idx1,1);
-            if(!skipS)
+            if(!skipS){
                 UpdateQuery();
             $rootScope.$broadcast('selectedSystemsChanged');
+            }
             return false;
         }
         
@@ -357,6 +359,8 @@ angular.module('LocalServices',[])
             return SelectionService.priorities.indexOf(id)>=0;
         };
         
+
+        
         
         function UpdateQuery(){
                         SelectionService.map_query='';
@@ -382,11 +386,12 @@ angular.module('LocalServices',[])
                return res;
            });
            
-           SelectionService.map_query+='area='+SelectionService.area.id+'&lifestyle='+SelectionService.activeLifeStyle.id+'&subgroups='+SelectionService.usedSystems.join(',')+(SelectionService.priorities.length?('&pri='+SelectionService.priorities.join(',')+''):'');//+'&gid='+SelectionService.cities.join(',');
-           SelectionService.query=SelectionService.query+cities;
+           SelectionService.map_query+=(SelectionService.area?('area='+SelectionService.area.id+'&'):'')+(SelectionService.activeLifeStyle.id?('lifestyle='+SelectionService.activeLifeStyle.id+'&'):'')+(SelectionService.usedSystems.length?('subgroup='+SelectionService.usedSystems.join(',')+'&'):'')+(SelectionService.priorities.length?('pri='+SelectionService.priorities.join(',')+'&'):'');//+'&gid='+SelectionService.cities.join(',');
+           //SelectionService.map_query=SelectionService.map_query.substr(0,SelectionService.map_query-1);
+           SelectionService.query=SelectionService.map_query+cities;
 
            $rootScope.$broadcast('updateQuery');
-           return SelectionService.partial_query;
+           return SelectionService.map_query;
         }
         
         function UpdateServer(){
@@ -488,6 +493,7 @@ angular.module('LocalServices',[])
             if( SelectionService.lastQuery===SelectionService.query && SelectionService.spots.length){
                 if(angular.isFunction(fn))
                     fn(SelectionService.spots);
+                 $rootScope.$broadcast("PlacesReceived",SelectionService.spots)
                 return;
             }
             SelectionService.lastQuery=SelectionService.query;
@@ -498,9 +504,11 @@ angular.module('LocalServices',[])
             }).success(function(data){
                 var spots=data.hotspots;
                 SelectionService.spots=spots;
-                if(angular.isFunction(fn))
+               
+                
+               if(angular.isFunction(fn))
                  fn(SelectionService.spots);
-                $rootScope.$broadcast("PlacesReceived",SelectionService.spots)
+              $rootScope.$broadcast("PlacesReceived",SelectionService.spots)
             });
             
             
@@ -551,23 +559,237 @@ angular.module('LocalServices',[])
        
        $rootScope.$on('lifestylesLoaded',function(){
                 SelectionService.lifestyles=SystemsFilters.lifestyles;
-                SelectionService.SelectLifeStyle(SystemsFilters.lifestyles[0].id);
+                //SelectionService.SelectLifeStyle(SystemsFilters.lifestyles[0].id);
                //$rootScope.$apply();
        })
        
-
+        SelectionService.UpdateQueryProxy=UpdateQuery;
        
         return SelectionService;
     }])
-    .factory('GeograficService',['$rootScope','SelectionService','SystemsFilters','$timeout',function($rootScope,SelectionService,SystemsFilters,$timeout){////////////////////////SERVICE USED MOSTLY IN HOME //////////////////
+    .factory('GeograficService',['$rootScope','SelectionService','SystemsFilters','$timeout','$http',function($rootScope,SelectionService,SystemsFilters,$timeout,$http){////////////////////////SERVICE USED MOSTLY IN HOME //////////////////
         var GeograficService = {};
         GeograficService.regions=[];
+        
+        GeograficService.pulses=[
+              {
+                  center:{
+                      lon:"-80.26",
+                      lat:"25.81"
+                              
+                  },
+                  gid:7,
+                  pulses:{
+                      "1201":"6.5",
+                      "1151":"5.2",
+                      "1152":"4.8",
+                      "1150":"5.5",
+                      "1202":"6.0",
+                      "1153":"5.9",
+                      "1325":"4.3"
+                  },
+                  children:[
+                      {
+                         center:{
+                            lon:"-80.2264393",
+                            lat:"25.7889689"
+                              
+                        },
+                        gid:3003,
+                        pulses:{
+                            "1201":"6.5",
+                            "1151":"5.2",
+                            "1152":"4.8",
+                            "1150":"5.5",
+                            "1202":"6.0",
+                            "1153":"5.9",
+                            "1325":"4.3"
+                        }
+                      },
+                      {
+                         center:{
+                            lon:"-80.1433786",
+                            lat:"26.1223084"
+                        },
+                        gid:3004,
+                        pulses:{
+                            "1201":"6.5",
+                            "1151":"5.2",
+                            "1152":"4.8",
+                            "1150":"5.5",
+                            "1202":"6.0",
+                            "1153":"5.9",
+                            "1325":"4.3"
+                        }
+                      },
+                      {
+                         center:{
+                            lon:"-80.0533746",
+                            lat:"26.7153424"
+                              
+                        },
+                       gid:3005,
+                        pulses:{
+                            "1201":"6.5",
+                            "1151":"5.2",
+                            "1152":"4.8",
+                            "1150":"5.5",
+                            "1202":"6.0",
+                            "1153":"5.9",
+                            "1325":"4.3"
+                        }
+                      }
+                  ]
+              },
+              {
+                  center:{
+                      lon:"-71.0597732",
+                      lat:"42.3584308"
+                              
+                  },
+                  pulses:{
+                      "1201":"6.6",
+                      "1151":"5.3",
+                      "1152":"4.9",
+                      "1150":"5.4",
+                      "1202":"6.1",
+                      "1153":"5.7",
+                      "1325":"4.5"
+                  },
+                  children:[
+                      {
+                          center:{
+                               lon:"-71.2092214",
+                               lat:"42.3370413"
+                              
+                            },
+                            gid:3001,
+                            pulses:{
+                                "1201":"6.6",
+                                "1151":"5.3",
+                                "1152":"4.9",
+                                "1150":"5.4",
+                                "1202":"6.1",
+                                "1153":"5.7",
+                                "1325":"4.5"
+                            }
+                      },
+                      {
+                          center:{
+                               lon:"-71.1097335",
+                               lat:"42.3736158"
+                              
+                            },
+                            gid:3002,
+                            pulses:{
+                                "1201":"6.6",
+                                "1151":"5.3",
+                                "1152":"4.9",
+                                "1150":"5.4",
+                                "1202":"6.1",
+                                "1153":"5.7",
+                                "1325":"4.5"
+                            }
+                      }
+                  ]
+              },
+              { 
+                  center:{
+                      lon:"-97.7430608",
+                      lat:"30.267153",
+                              
+                  },
+                  pulses:{
+                      "1201":"6.2",
+                      "1151":"5.8",
+                      "1152":"5.8",
+                      "1150":"6.5",
+                      "1202":"5.0",
+                      "1153":"5.4",
+                      "1325":"6.4"
+                  },
+                  children:[
+                      {
+                          center:{
+                            lon:"-97.7430608",
+                            lat:"30.267153",
+                              
+                        },
+                        gid:3000,
+                        pulses:{
+                            "1201":"6.2",
+                            "1151":"5.8",
+                            "1152":"5.8",
+                            "1150":"6.5",
+                            "1202":"5.0",
+                            "1153":"5.4",
+                            "1325":"6.4"
+                        }
+                    }
+                  ]
+              },
+          ];
         GeograficService.activeRegion=null;
+        
+        GeograficService.GetRegionById=function(id){
+            if(!id && id!==0)
+                return null;
+                
+            for(var i=0;i<GeograficService.regions.length;i++)
+                if(GeograficService.regions[i].id.toString())
+                    return GeograficService.regions[i];
+        }
+        
+        GeograficService.GetRegionAreaById=function(midx,id){
+            if(!id && id!==0)
+                return null;
+            
+           
+            if(midx && midx>=0){
+                for(var i=0;i<GeograficService.regions[midx].groups.length;i++)
+                    if(GeograficService.regions[midx].groups[i].id.toString()==id.toString())
+                        return GeograficService.regions[midx].groups[i];
+            }
+        
+          else{
+              for(midx=0;midx<GeograficService.regions.length;midx++)
+                for(var i=0;i<GeograficService.regions[midx].groups.length;i++)
+                    if(GeograficService.regions[midx].groups[i].id.toString()==id.toString())
+                        return GeograficService.regions[midx].groups[i];
+          }
+        }   
+            
+        GeograficService.LocateArea= function(lnlt,fn){
+            $http.get('api/geocoder.json?lnlt='+lnlt).success(function(res){
+                    if(res.gid){
+                       if(fn && angular.isFunction(fn))
+                           fn(res.gid);
+                    }
+                        
+                }
+           );
+        };
+        
+        GeograficService.GetregionAreaCenterById  =function(id){
+             for(var i=0;i< GeograficService.pulses.length;i++){
+                 var pulse=GeograficService.pulses[i];
+                 if(!pulse.children)
+                     continue;
+                 for(var j=0;j< pulse.children.length;j++){
+                     var area=pulse.children[j];
+                     if(area.gid && area.gid===id)
+                         return area.center;
+                 }
+             }
+         } 
+            
         GeograficService.SelectRegion=function(idx){
             GeograficService.activeRegion=GeograficService.regions[idx];
             $rootScope.$broadcast('regionSelected');
             return  GeograficService.activeRegion;
         }
+        
+        
         GeograficService.GetRegions=function(f){
             d3.json('api/region',function(data){
                 if(data.results)
@@ -618,6 +840,7 @@ angular.module('LocalServices',[])
                 $rootScope.$broadcast('updateRegions');
             })
         
+        
 
         
         function City(a){
@@ -647,7 +870,10 @@ angular.module('LocalServices',[])
             if(!angular.isUndefined(state))
                 this.selected=state;
             
-            
+            if(this.selected)
+                this.parent.selecteds++;
+            else
+                this.parent.selecteds--;
             
             if(!skipEvent)
                 $rootScope.$broadcast('cityStatusToggled',this);
@@ -709,6 +935,7 @@ angular.module('LocalServices',[])
             this.cities=[];
             this.hpmax=0
             this.hpmin=1000000000000;
+            this.selecteds=0;
         }
         
         Group.prototype.GetSelCities=function(){
@@ -763,6 +990,7 @@ angular.module('LocalServices',[])
             for(var i=0;i<this.cities.length;i++)
                 this.cities[i].ToggleSelect(false,null,true);
             this.allSelected=false;
+            this.selecteds=0;
             if(!skipCheck)
             this.parent.CheckSelectedAll(false);
         }
@@ -806,6 +1034,7 @@ angular.module('LocalServices',[])
                 if(!angular.isUndefined(a[i]) && !angular.isFunction(a[i]) && !angular.isArray(a[i]) && !angular.isObject(a[i]))
                     this[i]=a[i]
             }
+            this.someSelected=true;
             this.selectAll=false;
             this.checkAll=false;
             this.hp=[10000000000000,0];
@@ -815,7 +1044,7 @@ angular.module('LocalServices',[])
             this.filter_selection={
             system_based:[],
            hp:[10000000000000,0],
-           hp_disabled:false,
+           hp_disabled:true,
             name_zip:''
             };
             this.active=false;
@@ -905,6 +1134,7 @@ angular.module('LocalServices',[])
                 this.groups[i].SelectAll(true);
             
             this.selectAll=true;
+            this.someSelected=true;
             
         }
         
@@ -912,6 +1142,7 @@ angular.module('LocalServices',[])
             for(var i=0;i<this.groups.length;i++)
                 this.groups[i].UnselectAll(true);
             this.checkAll=false;
+            this.someSelected=false;
             
         }
 
@@ -922,7 +1153,7 @@ angular.module('LocalServices',[])
         }
         
         Region.prototype.ApplyFilters=function(){
-            return;
+            //return;
             if(!this.filter_selection.system_based.length && !$.trim(this.filter_selection.name_zip).length && this.filter_selection.hp_disabled){
                 //return;
                 for(var i=0;i<this.groups.length;i++){
@@ -940,7 +1171,7 @@ angular.module('LocalServices',[])
                 var g=this.groups[i];
                 for(var j=0;j<g.cities.length;j++){
                     var city=g.cities[j];
-                    if(!city.filterTag.match(this.filter_selection.name_zip) /*&& !this.selectAll*/){
+                    if(!city.filterTag.toLowerCase().match(this.filter_selection.name_zip.toLowerCase()) /*&& !this.selectAll*/){
                         if(city.selected)
                             city.ToggleSelect(false/*||this.selectAll*/);
                         continue;
@@ -953,10 +1184,12 @@ angular.module('LocalServices',[])
                             break;
                     }
                     comply=comply||this.selectAll;
-                    if(city.selected!=comply)
+                    if(city.selected!==comply){
                         city.ToggleSelect(comply);
+                    }
                         
                 }
+                
             }
         }
         
@@ -970,22 +1203,24 @@ angular.module('LocalServices',[])
         
         Region.prototype.CheckSelectedAll=function(status){
             this.checkAll=status;
-
+            this.someSelected=false;
                 
                
-            if(!status){
-              $timeout(function(){$rootScope.$apply();});
-                return;
+
+            for(var i=0;i<this.groups.length;i++){
+                this.checkAll=this.checkAll && this.groups[i].allSelected;
+                this.someSelected=this.someSelected||this.groups[i].selecteds;
             }
-            //for(var i=0;i<this.groups.length;i++)
-                this.checkAll=this.checkAll && this.groups[this.activeGroup].allSelected;
              
         }
         
         Region.prototype.DeepCheckAll=function(){
             this.selectAll=true;
-            for(var i=0;i< this.groups.length;i++)
+            this.someSelected=false;
+            for(var i=0;i< this.groups.length;i++){
                 this.selectAll=this.selectAll && this.groups[i].CheckSelectedAll(true,true);
+                this.someSelected=this.someSelected||this.groups[i].selecteds;
+            }
             
             this.checkAll=this.selectAll;
         }
