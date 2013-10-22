@@ -1171,7 +1171,8 @@
                        $scope.SelectCity(msa_idx,area_idx);
                    }
                } else{
-                   $scope.area=null;
+                   $scope.area={};
+                    $scope.area_id="";
                }
            //}
            $scope.stage=new_stage;
