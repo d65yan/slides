@@ -440,6 +440,8 @@ angular.module('LocalServices',[])
 
     
         function GetLifeStyle(id){
+            if (!SelectionService.lifestyles)
+                return false;
             for(var i=0;i<SelectionService.lifestyles.length;i++){
                 if(SelectionService.lifestyles[i].id===id)
                     return SelectionService.lifestyles[i];
