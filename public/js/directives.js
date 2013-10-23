@@ -786,8 +786,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 var zoomControl=new OpenLayers.Control.Zoom();
                 var miamiCenter;
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
-                var mapserver='http://demo-maps.aboutplace.co/heat';
-                //var mapserver='http://geo.urban4m.com/heat';
+                //var mapserver='http://demo-maps.aboutplace.co/heat';
+                var mapserver='http://geo.urban4m.com/heat';
                 var strTFS,prtTFS=null;
                 var geo=GeograficService;
                 var select=SelectionService;
@@ -1231,7 +1231,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         AddSpot(new OpenLayers.LonLat(geo.pulses[i].children[j].center.lon,geo.pulses[i].children[j].center.lat).transform(fromProjection, map.getProjectionObject()),geo.pulses[i].children[j].pulses[scope.lfs],"marker_"+markersSpotArr.length+" "+"area_"+geo.pulses[i].children[j].gid);
                }
                
-               $(".pulse-marker").on('click',function(){
+               $(".pulse-marker").on('click',function(event){
                    event.stopPropagation();
                     event.preventDefault();
                     var cname=$.trim(this.className);
@@ -1664,7 +1664,9 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                
                if(attrs.click==='true'){
                    $(element).bind('click',function($event){
-                        $timeout(function(){update();},20);
+                        $timeout(function(){
+                            update();
+                        },20);
                    });
                }
              }
@@ -2355,6 +2357,64 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     navigator.geolocation.getCurrentPosition(scope.SetLocation,null,{enableHighAccuracy: true,timeout: 5000,maximumAge: 0});
             }
                
+        };
+    }])
+    .directive('marketSpace',['$timeout',function($timeout){
+        return {
+            restrict:'C',
+            scope:{},
+            link:function(scope,element,attrs){
+                scope.setHidden=function($event,st){
+                    if($event){
+                        $event.preventDefault();
+                        $event.stopPropagation();
+                        $event.stopImmediatePropagation();
+                    }
+                    scope.hidden=st;
+                    $timeout(function(){
+                        $timeout(function(){
+                           $timeout(function(){
+                                $(window).trigger('resize');
+                            })
+                        });
+                    })
+                    
+                };
+            }
+        };
+    }])
+    .directive('shareItem',['$timeout',function($timeout){
+        return {
+            restrict:'C',
+            scope:{
+                title:'@titulo',
+                key:'@key',
+                service:'@service',
+                note:'@note',
+                tags:'@tags',
+                link:'@lnk'
+                
+            },
+            link:function(scope,element,attrs){
+                
+                var services={
+                    "5":{title:"FaceBook", args:'width=200,height=100'},
+                    "7":{title:"Twitter", args:'width=462,height=504'},
+                    "309":{title:'Pinterest', args:'width=200,height=100'}
+                }
+                
+                $(element).attr('title','Share With '+services[scope.service].title);
+                scope.Share=function($event){
+                    if($event){
+                        $event.preventDefault();
+                        $event.stopPropagation();
+                        $event.stopImmediatePropagation();
+                    }
+                    var url="http://www.shareaholic.com/api/share/?v=1&apitype=1&apikey="+scope.key+"&service="+scope.service+"&title="+encodeURIComponent(scope.title)+"&link="+scope.link;
+                
+                    window.open(url,scope.title,services[scope.service].args);
+                };
+            }
         };
     }])
 
