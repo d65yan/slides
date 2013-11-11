@@ -2354,7 +2354,10 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             replace:false,
             link:function(scope,element,attrs){
                 if(navigator.geolocation)
-                    navigator.geolocation.getCurrentPosition(scope.SetLocation,null,{enableHighAccuracy: true,timeout: 5000,maximumAge: 0});
+                    navigator.geolocation.getCurrentPosition(function(loc){
+                        scope.SetLocation(loc);
+                        scope.$apply();
+                    },null,{enableHighAccuracy: true,timeout: 5000,maximumAge: 0});
             }
                
         };
