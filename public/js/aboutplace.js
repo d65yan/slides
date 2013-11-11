@@ -1141,7 +1141,7 @@
                 $scope.geo.LocateArea(lng+","+lat, function(gid){
                     if($scope.stage===1)
                         $location.search('c',gid);
-                    //$scope.$apply();
+                    $timeout(function(){$scope.$apply();});
                 });
             }
         }
