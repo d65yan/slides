@@ -255,8 +255,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     //z=Math.floor(z);
                    
                     //map.zoomToExtent(bounds);
-                        $rootScope.$$childHead.status='';
-                        $rootScope.$$childHead.$apply();
+                       /* $rootScope.$$childHead.status='';
+                        $rootScope.$$childHead.$apply();*/
                         
                         restyle();
                    })
@@ -642,25 +642,27 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 var areas=[
                     {
                         name:"Area with Lower Educational Performance",
-                        center:[-80.2299083838254, 25.8212930357779],
+                        center:[-80.22172,  25.81603],
                         variables:{
                             "1438":9.4,
                             "1377":6.6,
                             "1455":4.0, 
                             "1373": 2.4,
-                            "1468_dismiss":7.1
+                            "1468_dismiss":7.1,
+                            "1466":1.4
                             
                         }
                     },
                     {
                         name:"Area with Higher Educational Performance",
-                        center:[-80.379265387658, 25.7703491262735],
+                        center:[ 80.37342, 25.76977 ],
                         variables:{
                             "1438":1.5,
                             "1377":1.9,
                             "1455":1.4, 
                             "1373": 3.6,
-                            "1468_dismiss":8.3
+                            "1468_dismiss":8.3,
+                            "1466":5.4
                             
                         }
                     }
@@ -900,6 +902,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     
                     
                     this.ApplyGeoJson(data,crimeBlks,crimeLayer,style,'Crime');
+                    
                 };
                 
                 
@@ -923,7 +926,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     //citiesLayer.isBaseLayer=true;
                     map.addLayer(layer);
                     //map.riseLayer(citiesLayer,5);
-                    map.raiseLayer(markersLayer,5);
+                    map.raiseLayer(markersLayer,500);
+                    map.raiseLayer(layer,-500);
 
                     
                     highlightCtrl = new OpenLayers.Control.SelectFeature(layer, {
@@ -1063,6 +1067,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 markersLayer=new OpenLayers.Layer.Markers( "Markers" );
                 map.addLayer(markersLayer);
                 map.raiseLayer(markersLayer,5);
+                
                 
                 /*
                                 var contHL = {
@@ -1213,6 +1218,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             AddSpot(new OpenLayers.LonLat(areas[1].center[0],areas[1].center[1]).transform(fromProjection,toProjection),areas[1].variables[val],"marker_"+markersSpotArr.length);
         }
         ApplyCluster();
+        map.raiseLayer(markersLayer);
         
     });  
     

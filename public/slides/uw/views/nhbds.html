@@ -1,5 +1,5 @@
 <style>
-
+    
    .pulse-marker.cluster_gt_4{
        width:30px !important;
        height:30px !important;
@@ -554,10 +554,10 @@ margin-top: 2px;
   <div class="shadowtop static_element"></div>
  
     <div class="filters-bar static_element resizeable"  width_adjust="200" >
-        <ul style="margin-right:90px;">
+        <ul style="margin-right:90px;" ng-hide="title">
             <li ng-repeat="map in variables" class="variables-list" ng-click="SetActiveVar($index)" ng-class="{active:($parent.variable==$index)}">{{map.tag}}</li>
         </ul>
-        
+        <h4 style="margin-left:30px;">{{title}}</h4>
     </div>
     
     

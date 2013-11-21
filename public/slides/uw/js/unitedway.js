@@ -7,6 +7,8 @@
         when('/variables', {templateUrl: 'views/variable.html', controller: ChartsCtrl}).
         when('/maps', {templateUrl: 'views/nhbds.html', controller: MapsCtrl}).
         when('/results', {templateUrl: 'views/results_slide.html'}).
+        when('/stmap1', {templateUrl: 'views/stmap_1.html'}).
+        when('/stmap2', {templateUrl: 'views/nhbds.html', controller: MapsCtrlSmall}).
         when('/table', {templateUrl: 'views/results.html'}).
 	otherwise({redirectTo: '/'});
 //$locationProvider.html5Mode(true);
@@ -15,7 +17,7 @@
       
       function AppController($scope,$window,$http,$timeout,$rootScope,$dialog,$routeParams,$location){
           
-          $scope.slides=["","measures","tech","maps","results","table","conclusions","variables"];
+          $scope.slides=["","measures","tech","results","maps","table","stmap2","stmap1","conclusions","variables"];
           $scope.counter=-1;
           $scope.fonts=14;
           
@@ -383,6 +385,10 @@
                name:'1466',
                tag:'3rd Grade Reading'
            },
+          /* {
+               name:'edu',
+               tag:'3rd Grade Reading (Vector)'
+           },*/
            {
                name:'1438',
                tag:'Crime'
@@ -435,6 +441,33 @@
         
       } 
      MapsCtrl.$inject=['$scope','$window','$timeout','$location','$filter','$rootScope'];
+    
+     function MapsCtrlSmall($scope,$window,$timeout,$location,$filter,$rootScope){
+
+       $scope.variable=-1;
+       $scope.title="Spatial Variation of Impact of Female Householder on 3rd Grade Reading Level ";
+       $scope.variables=[
+           {
+               name:'1471',
+               tag:'Coefficient',
+           }
+       ]
+        $scope.SetActiveVar=function(idx){
+            $scope.variable=idx;
+        }
+        
+        $scope.ToggleEdu=function(){
+            $rootScope.$broadcast('toogleEdu',true);
+        }
+        
+        $scope.ToggleCrime=function(){
+            $rootScope.$broadcast('toogleCrime',true);
+        }
+ 
+        $scope.SetActiveVar(0);
+        
+      } 
+     MapsCtrlSmall.$inject=['$scope','$window','$timeout','$location','$filter','$rootScope'];
     
     
     
