@@ -777,13 +777,88 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 center:'@center'
                 
             },
-            template:'<div style="width:100%; height:100%" id="main-map"></div>',
+            template:'<div style="width:100%; height:100%" id="main-map"><div class="custom_controls_bar"><button class="btn btn-success" ng-disabled="canDraw" ng-click="ToggleDraw()">paint</button><br><button class="btn btn-primary" ng-disabled="canDraw" ng-click="ToggleEdit()">Edit</button><br><button class="btn" ng-disabled="!canDraw" ng-click="CancelAll()">Done</button><br><button class="btn btn-danger" ng-disabled="canDraw || !hasFeatures" ng-click="ClearBoundaries()">Clear</button></div></div></div>',
             link:function(scope,element,attrs){
                 var map,marker,markersLayer,projObject,infoPop;
                 var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
                 var toProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
                 var markersSpotArr=[];
                 var zoomControl=new OpenLayers.Control.Zoom();
+                var lineLayer = new OpenLayers.Layer.Vector("Line Layer");
+                scope.hasFeatures=false;
+                                      
+                                 var out_options = {
+                'internalProjection': toProjection,
+                'externalProjection': fromProjection
+            };
+            
+            var gjParser=new OpenLayers.Format.GeoJSON(out_options);
+                
+                var lineDrawer=new OpenLayers.Control.DrawFeature(lineLayer,
+                        OpenLayers.Handler.Path,{
+                            handlerOptions:{freehand:true,freehandToggle:null},
+                            multi:true,
+                            featureAdded:function(e){
+                                var simp=e.geometry.components[0].getVertices();
+                                var polygon= new OpenLayers.Feature.Vector(new OpenLayers.Geometry.Polygon([new OpenLayers.Geometry.LinearRing(e.geometry.components[0].simplify(700).getVertices())]));
+                                
+                                 
+                                 console.log(gjParser.write(polygon,out_options));
+                                
+                                lineLayer.destroyFeatures();
+                                lineLayer.addFeatures([polygon]);
+                                scope.ToggleDraw();
+                                scope.hasFeatures=true;
+                                var phase = scope.$root.$$phase;
+                
+                                 if(phase != '$apply' && phase != '$digest')
+                                    scope.$apply();
+                                
+                          }
+                        });
+                var poligonEdit= new OpenLayers.Control.ModifyFeature(lineLayer,{
+                    createVertices:false,
+                    onModificationEnd:function(ft){
+                        scope.ToggleEdit(true);
+                         console.log(gjParser.write(ft,out_options));
+                        var phase = scope.$root.$$phase;
+                
+                                 if(phase != '$apply' && phase != '$digest')
+                                    scope.$apply();
+                    }
+                });
+                scope.canDraw=false;
+                scope.drawTitle="Begin Drawing";
+                
+                scope.CancelAll=function() {
+                    scope.ToggleDraw(true);
+                    scope.ToggleEdit(true);
+                }
+                
+                scope.ClearBoundaries=function(){
+                    lineLayer.destroyFeatures();
+                    scope.CancelAll();
+                    scope.hasFeatures=false;
+                }
+                
+                scope.ToggleDraw=function(force) {
+                    lineDrawer.deactivate();
+                    
+                   scope.canDraw=!scope.canDraw && !force;
+                   if(scope.canDraw)
+                       lineDrawer.activate();
+                }
+                
+               scope.ToggleEdit=function(force) {
+                    poligonEdit.deactivate();
+                    $('.line-drawing-layer').removeClass('edit');
+                   scope.canDraw=!scope.canDraw && !force;
+                   if(scope.canDraw){
+                       poligonEdit.activate();
+                       $('.line-drawing-layer').addClass('edit');
+                   }
+                }
+                
                 var miamiCenter;
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
                 var mapserver='http://demo-maps.aboutplace.co/heat';
@@ -1028,6 +1103,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                             }
                         })*/
                         new OpenLayers.Control.Zoom(),
+                        lineDrawer,
+                        poligonEdit
                         //new OpenLayers.Control.MousePosition()
                        //new OpenLayers.Control.PanZoomBar(),
                         //new OpenLayers.Control.LayerSwitcher()
@@ -1045,13 +1122,28 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         transitionEffect: 'resize'
                     });
                      
+               nLayer.events.register('loadend',nLayer,function(){
+                   var node=document.getElementById(lineLayer.id);
+                    if(node){
+                         var clase=node.className.split(' ');
+                         node.className=clase+" line-drawing-layer";
+                    }
+                       
+                })
+                     
                     map.addLayer(nLayer); 
+                    map.addLayer(lineLayer); 
 
-
+                    
+                    //lineDrawer.activate();
+                    
 
                 markersLayer=new OpenLayers.Layer.Markers( "Markers" );
                 map.addLayer(markersLayer);
                 map.raiseLayer(markersLayer,5);
+                
+                
+                
                 
                 /*
                                 var contHL = {
@@ -1099,6 +1191,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     map.events.register("zoomend",map,function(){
                         ApplyCluster();
                     })
+                    
+
                 
 }
 
@@ -2420,5 +2514,229 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             }
         };
     }])
+    .directive('searchingTerm',['$timeout','$http',function($timeout,$http){
+        return {
+            restrict:'C',
+            template:'<span  class="search_term" ng-class="{edit:editable,error:(editable && !valid), accepted:(!editable && valid)}">\
+                <input type="text"  placeholder="Type your search seppareated by comma" ng-model="value" ng-disabled="searching" class="term"/>\
+                <span class="display">{{value}}</span>\
+                <div ng-show="editable && valid && active" class="list">\
+                    <ul>\
+                        <li ng-repeat="cat in filteredList">\
+                            <h4>{{cat.name}}</h4>\
+                            <ul>\
+                                <li ng-repeat="term in cat.terms" ng-click="$parent.$parent.Force(term.id,term.name)">\
+                                    {{term.name}}\
+                                </li>\
+                            </ul>\
+                        </li>\
+                    </ul>\
+                </div>\
+                <i class="icon-remove" ng-click="Delete()"></i>\
+            </span>',
+                transclude:true,
+            replace:true,
+            require:'^searchBar',
+            scope:{
+                config:'=config',
+                value:'=value',
+                id:'=id',
+                valid:'=valid',
+                editable:'=editable',
+                //focus:''
+                
+            },
+            link:function(scope,element,attrs,bar){
+                
+                var config={
+                    url:"/api/search.json",
+                    charsCount:3,
+                    delimiter:","
+                };
+               
+ //              var stateReg= /^(?-i:A[LKSZRAEP]|C[AOT]|D[EC]|F[LM]|G[AU]|HI|I[ADLN]|K[SY]|LA|M[ADEHINOPST]|N[CDEHJMVY]|O[HKR]|P[ARW]|RI|S[CD]|T[NX]|UT|V[AIT]|W[AIVY])$/i;
+               //var zipReg=/^(?!00000)(?<zip>(?<zip5>\d{5})(?:[ -](?=\d))?(?<zip4>\d{4})?)$/i;
+              /* var full_addressReg=new RegExp("^[a-zA-Z\\d]+(([\\'\\,\\.\\- #][a-zA-Z\\d ])?[a-zA-Z\\d]*[\\.]*)*$",'i');
+               var streetAddress=new RegExp('\\d{1,3}.?\\d{0,3}\\s[a-zA-Z]{2,30}\\s[a-zA-Z]{2,15}','i');*/
+                scope.searching=false;
+                scope.active=false;
+                var input=$(element).children('input');
+                var close=$(element).children('div.close');
 
+                var res_list=null;
+                scope.filteredList=[];
+                
+                function analize(){
+                    scope.value=$.trim(scope.value);
+                    
+                    
+                    
+                    var start=1;
+                    var temp="";
+                     var parts=scope.value.split(',');
+                    for(var i=0;i<parts.length;i++){
+                        var ltemp=temp+(temp.length?", ":"")+$.trim(parts[i]);
+                        if(ltemp.match(/^[ \w]{3,}([A-Za-z]\.)?([ \w]*\#\d+)?(\r\n| )[ \w]{3,},\x20[A-Za-z]{2}\x20\d{5}(-\d{4})?$/)){
+                            temp=ltemp;
+                            start++;
+                            if(parts[i].match(/^((\d{5}-\d{4})|(\d{5})|([A-Z]\d[A-Z]\s\d[A-Z]\d))$/))
+                                break;
+                        }
+                    }
+                    temp=temp.length?temp:parts[0];
+                    
+                   
+                    for(var i=start; i<parts.length;i++){
+                        bar.AddTerm({valid:true,editable:true, value:parts[i]})
+                    }
+                    scope.value=temp;
+                    
+                }
+                
+                scope.Delete=function(){
+                    bar.RemoveTerm(scope.id);
+                }
+                
+                $(input).focus(function(){
+                    scope.active=true;
+                })
+                
+                $(input).blur(function(){
+                    scope.active=false;
+                })
+                
+                
+                scope.Force=function(id,name){
+                    scope.id=id;
+                    scope.value=name;
+                    scope.valid=true;
+                    scope.editable=false;
+                }
+                
+                
+                scope.$watch('value',function(){
+                    analize();
+                    if(!scope.editable || scope.value.length<config.charsCount)
+                        return;
+                    
+                    
+                    
+                    if(!scope.value || !scope.value.length){
+                        scope.editable=true;
+                        scope.valid=true;
+                       res_list={};
+                       scope.filteredList=[];
+                        return;
+                    }
+                    
+ 
+
+                   Fetch(); 
+                        
+                    
+                });
+                
+                function Fetch(){
+                      scope.searching=true;
+                        $http.get(config.url).success(function(data){
+                            scope.searching=false;
+                            res_list=data;
+                            Validate();
+                        })
+                }
+                
+                
+                function Validate(){
+                    var terms={};
+                    scope.filteredList=[];
+                    for(var i in res_list){
+                        var obj={name:i,terms:res_list[i]}
+                            scope.filteredList.push(obj);
+                        for(var j=0;j<res_list[i].length;j++){
+                            
+                            
+                            /*if(res_list[i][j].name.toString().toLowerCase().match(scope.value.toString().toLowerCase())){
+                                if(!terms[i])
+                                    terms[i]=[];
+                                terms[i].push(res_list[i][j])
+                            }*/
+                                
+                        }
+                            
+                    }
+                    /*for(var i in terms){
+                        
+                        var obj={name:i,terms:terms[i]}
+                        scope.filteredList.push(obj);
+                    }*/
+                    
+  
+                    scope.valid=scope.filteredList.length;
+                    if(scope.filteredList.length==1 && scope.filteredList[0].terms.length==1){
+                        scope.value=scope.filteredList[0].terms[0].name;
+                        scope.id=scope.filteredList[0].terms[0].id;
+                        scope.editable=false
+                    }
+                    
+                    return scope.valid;
+                }
+                
+             }
+        };
+    }])
+    .directive('searchBar',['$timeout',function($timeout){
+        return {
+            restrict:'C',
+            replace:true,
+            template:'<span><i></i> <span class="searching_term" ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id"></span></span>',
+            scope:{
+                
+                
+            },
+            controller:function($scope){
+                $scope.searchTerms=[{id:"0_"+Date.now(),value:"",editable:true,valid:true}];
+                $scope.hiddenTerms=[];
+                $scope.visibleItems=3;
+                
+                var stash=[ $scope.searchTerms,  $scope.hiddenTerms];
+                var self=this;
+                this.AddTerm=function(obj){
+                    if(!obj.id){
+                        obj.id=$scope.hiddenTerms.length+$scope.searchTerms.length+"_"+Date.now();
+                    }
+                    if($scope.searchTerms.length>=$scope.visibleItems)
+                        $scope.hiddenTerms.unshift($scope.searchTerms.pop());
+                    
+                    $scope.searchTerms.unshift(obj);
+                }
+                
+                this.RemoveTerm=function(id){
+                    /*if(!$scope.hiddenTerms.length && $scope.searchTerms.length==1)
+                        return;*/
+                    var pos=FindTerm(id);
+                    if(pos){
+                        stash[pos.arr].splice(pos.pos,1);
+                    }
+                }
+                
+                function FindTerm(id){
+                    var result=null;
+                    for(var i=0;i<stash.length;i++){
+                        for(var j=0;j<stash[i].length;j++){
+                            if(stash[i][j].id===id){
+                                result={arr:i,pos:j};
+                                break;
+                            }
+                        }
+                    }
+                    return result;
+                }
+                
+                $scope.$watch(function(){return JSON.stringify($scope.searchTerms);},function(){
+                    if($scope.searchTerms &&(!$scope.searchTerms.length || !$scope.searchTerms[0].editable))
+                        $timeout(function(){self.AddTerm({value:"",editable:true,valid:true});});
+                })
+            }
+        };
+    }])
 ;

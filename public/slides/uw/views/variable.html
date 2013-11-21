@@ -1,0 +1,100 @@
+
+<style>
+    
+.bar rect {
+  /*fill: steelblue;*/
+}
+
+.bar text {
+  font:10px sans-serif;
+  /*fill:white*/
+}
+
+.axis_labels {
+  font:20px sans-serif !important;
+  /*fill:white*/
+}
+
+.axis text {
+  font: 10px sans-serif;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.bar_holder{
+    transition:opacity 800ms;
+    width:50%;
+    min-width: 500px;
+    float:left;
+    margin-left:30px;
+}
+
+.bar_holder h3{
+    font-size:22px;
+}
+.map_holder{
+    float:left;
+    width:45%;
+    min-width:400px
+}
+    .bar_holder.ng-enter{
+        opacity:0;
+    }
+    
+    .bar_holder.ng-enter.ng-enter-active{
+       opacity:1
+    }
+    .bar_holder.ng-leave{
+        position:absolute;
+        display:none
+    }
+    
+    .bar_holder.ng-leave.ng-leave-active{
+        
+    }
+    
+    .year_selection.active{
+        color:#f60;
+        font-weight:bold;
+    }
+    
+    .year_selection:hover{
+        color:#f80;
+
+    }
+    
+    .after_nav_control{
+        margin-left:90px;
+    }
+    
+    .olLayerDiv svg g g path{
+        transition:fill-opacity 500ms ease;
+    }
+</style>
+<section>
+    
+<ul class="after_nav_control">
+    <li ng-repeat="var in variableNames" style="display:inline-block; cursor:pointer; margin-right:10px;" ng-click="SetActiveVar($index)" ng-show="variables[var].show">{{variables[var].name}}</li>
+</ul>
+    <hr style="margin-bottom:30px;">
+<div ng-repeat="var in variableNames">  
+  <div ng-if="var==$parent.activeVar" class="bar_holder">  
+      <ul class="after_nav_control">
+    <li ng-repeat="year in $parent.$parent.dataCategories track by $index" style="display:inline-block; border-bottom:solid 1px black;cursor:pointer; margin-right:10px;" ng-click="$parent.$parent.SetActiveYear($index)" class="animated year_selection" ng-class="{active:($parent.$parent.counter==$index), pulse:($parent.$parent.counter==$index)}">{{year}}</li>
+    <li style="cursor:pointer; text-decoration:underline; color:blue; margin-top:5px;"><span ng-show="!$parent.$parent.isRunning && $parent.$parent.counter<3" ng-click="$parent.$parent.PlayAnim()">Play | </span><span ng-show="$parent.$parent.isRunning" ng-click="$parent.$parent.PauseAnim()">Pause | </span><span ng-click="$parent.$parent.RestartAnim()">Restart</span></li>
+  </ul>
+      <h3 style="display:inline-block">{{$parent.$parent.variables[$parent.var].title_1}}</h3> <h3 class="year_indicator animated" value="{{$parent.$parent.activeYear}}" style="display:inline-block">{{$parent.$parent.activeYear}}</h3>
+   <h5 >{{$parent.$parent.variables[$parent.var].title_2}}</h5>
+        <div class="bar_chart" xaxis="{{$parent.$parent.variables[$parent.var].axis.x.title}}" yaxis="{{$parent.$parent.variables[$parent.var].axis.y.title}}" data="$parent.$parent.variables[$parent.var].data[$parent.$parent.activeYear]" xsplits="$parent.$parent.variables[$parent.var].axis.x.splits" ydomain="$parent.$parent.variables[$parent.var].axis.y.domain" color="$parent.$parent.variables[$parent.var].color" style="width:100%; height:300px;"></div>
+    <!--xaxis="$parent.variables[var].axis.x.title" yaxis="$parent.variables[var].axis.y.title"-->
+  </div>
+  </div>
+        <div class="map_holder">
+            <div class="vector_map" color="{{variables[activeVar].color}}" year="{{activeYear}}" variable="{{activeVar}}"  style=" height:500px;  border:solid #eef 1px; background-color:white" url="./api/g/3003.json"  data-position="top" data-step="5" data-intro="Here you'll be able to see and edit your selections. you can select/unselect cities by clicking on them or by clicking out side and draging the cursor over the areas of interest." splits="variables[activeVar].axis.x.splits"></div>
+        </div>
+</section>
+ <!--<div class="bar_chart"  model=""></div>-->
