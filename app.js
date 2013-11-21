@@ -119,16 +119,16 @@ app.post(/\/slides\/*$/,function(req,res){
     if(req.body.password && req.body.password.length>5 && (!req.cookies.attempts || req.cookies.attempts<3)){
        for(var i in slides){
            if(slides[i].password===req.body.password){
-               var shasum = crypt.createHash('sha1');
-               shasum.update(Math.random()*100000000000000+"_"+Date.now());
-               
-
-               
-               var cooky=shasum.digest('hex');
-               res.cookie('u4mslides',cooky,{httpOnly:true,secure:false});
-               slides[i].authCookie=cooky;
-               slides[i].startedtime=Date.now();
+               var cooky=slides[i].authCookie;
+               if(!slides[i].endingtime || slides[i].endingtime<=Date.now()){
+                   var shasum = crypt.createHash('sha1');
+                   shasum.update(Math.random()*100000000000000+"_"+Date.now());
+                   cooky=shasum.digest('hex');
+                   slides[i].authCookie=cooky;
+                   slides[i].startedtime=Date.now();
+               }
                slides[i].endingtime=slides[i].startedtime+(slides[i].lasts*60*60*1000);
+               res.cookie('u4mslides',cooky,{httpOnly:true,secure:false});
                res.redirect('slides/'+i+'/');
                res.send('302','<br>');
                res.end();
