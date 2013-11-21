@@ -85,7 +85,7 @@ app.get(/\/slides\/[a-z]+/,function(req, res) {
                 res.render(slides[path].folder+'/index.ejs',{
                     layout:false,
                     locals:{
-                        token:('http://'+req.host+':'+puerto+req.url+"?t="+req.cookies.u4mslides+"&p=uw")
+                        token:('http://'+req.host+req.url+"?t="+req.cookies.u4mslides+"&p=uw")
                     }
                 });
                 res.end();
