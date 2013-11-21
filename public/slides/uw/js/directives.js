@@ -642,28 +642,29 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 var areas=[
                     {
                         name:"Area with Lower Educational Performance",
-                        center:[-80.22172,  25.81603],
+                        center:[-80.22172,25.81603],
                         variables:{
                             "1438":9.4,
                             "1377":6.6,
                             "1455":4.0, 
                             "1373": 2.4,
                             "1468_dismiss":7.1,
-                            "1466":1.4
+                            "1466":1.4,
+                            "1471":8.0
                             
                         }
                     },
                     {
                         name:"Area with Higher Educational Performance",
-                        center:[ 80.37342, 25.76977 ],
+                        center:[-80.37342,25.76977 ],
                         variables:{
                             "1438":1.5,
                             "1377":1.9,
                             "1455":1.4, 
                             "1373": 3.6,
                             "1468_dismiss":8.3,
-                            "1466":5.4
-                            
+                            "1466":5.4,
+                            "1471":3.2
                         }
                     }
             ]
@@ -1218,7 +1219,6 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             AddSpot(new OpenLayers.LonLat(areas[1].center[0],areas[1].center[1]).transform(fromProjection,toProjection),areas[1].variables[val],"marker_"+markersSpotArr.length);
         }
         ApplyCluster();
-        map.raiseLayer(markersLayer);
         
     });  
     
