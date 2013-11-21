@@ -7,6 +7,7 @@
         when('/variables', {templateUrl: 'views/variable.html', controller: ChartsCtrl}).
         when('/maps', {templateUrl: 'views/nhbds.html', controller: MapsCtrl}).
         when('/results', {templateUrl: 'views/results_slide.html'}).
+        when('/table', {templateUrl: 'views/results.html'}).
 	otherwise({redirectTo: '/'});
 //$locationProvider.html5Mode(true);
 
@@ -14,9 +15,9 @@
       
       function AppController($scope,$window,$http,$timeout,$rootScope,$dialog,$routeParams,$location){
           
-          $scope.slides=["","measures","tech","maps","results","conclusions","variables"];
+          $scope.slides=["","measures","tech","maps","results","table","conclusions","variables"];
           $scope.counter=-1;
-          
+          $scope.fonts=14;
           
           $scope.Go_Previous=function(){
               $location.path('/'+$scope.slides[$scope.counter-1]);
@@ -371,15 +372,19 @@
        
        $scope.variables=[
            {
-               name:'edu',
+               name:'1468',
+               tag:'Female Householdes',
+           },
+           {
+               name:'1468_dismiss',
+               tag:'Female Households (Pulse)',
+           },
+           {
+               name:'1466',
                tag:'3rd Grade Reading'
            },
            {
-               name:'1468',
-               tag:'Female Householder under 25 under Poverty Level',
-           },
-           {
-               name:'crime',
+               name:'1438',
                tag:'Crime'
            },
            {
@@ -399,7 +404,7 @@
                name:'1187',
                tag:'Bike Paths',
 
-           },*/
+           },
            {
                name:'1168',
                tag:'Fine Dining',
@@ -410,7 +415,7 @@
                name:'1188',
                tag:' Pizza',
 
-           }
+           }*/
            
            
        ]

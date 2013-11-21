@@ -32,7 +32,7 @@ var slides={
         authCookie:null,
         startedtime:null,
         endingtime:null,
-        lasts:0.5,
+        lasts:2,
         password:"123456"
     }
 }
@@ -128,7 +128,7 @@ app.post(/\/slides\/*$/,function(req,res){
                res.cookie('u4mslides',cooky,{httpOnly:true,secure:false});
                slides[i].authCookie=cooky;
                slides[i].startedtime=Date.now();
-               slides[i].endingtime=slides[i].startedtime+slides[i].lasts*60*60*1000;
+               slides[i].endingtime=slides[i].startedtime+(slides[i].lasts*60*60*1000);
                res.redirect('slides/'+i+'/');
                res.send('302','<br>');
                res.end();

@@ -644,20 +644,24 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         name:"Area with Lower Educational Performance",
                         center:[-80.2299083838254, 25.8212930357779],
                         variables:{
-                            "crime":9.4,
+                            "1438":9.4,
                             "1377":6.6,
                             "1455":4.0, 
-                            "1373": 2.4
+                            "1373": 2.4,
+                            "1468_dismiss":7.1
+                            
                         }
                     },
                     {
                         name:"Area with Higher Educational Performance",
                         center:[-80.379265387658, 25.7703491262735],
                         variables:{
-                            "crime":1.5,
+                            "1438":1.5,
                             "1377":1.9,
                             "1455":1.4, 
-                            "1373": 3.6
+                            "1373": 3.6,
+                            "1468_dismiss":8.3
+                            
                         }
                     }
             ]
@@ -1196,7 +1200,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         if(crimeLayer)
             crimeLayer.setVisibility(false);
         if(val!=='crime' && val!=='edu'){
-            nLayer.url=[mapserver+scope.variable+"/${z}/${x}/${y}.png"];
+            nLayer.url=[mapserver+scope.variable.replace(/_dismiss/g,'')+"/${z}/${x}/${y}.png"];
             nLayer.redraw();
         }
         else if(val==='crime' && crimeLayer)

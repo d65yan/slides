@@ -561,17 +561,19 @@ section.text-slide{
     width:960px;
     display:block;
     margin:auto;
-    margin-top:80px;
+    margin-top:200px;
 }
 
 section.text-slide h1{
     text-align:center;
+    font-size:350%;
 
 }
 
 section.text-slide h2{
     text-align:center;
     font-weight:normal;
+    font-size:250%;
 
 }
 
@@ -579,13 +581,17 @@ section.text-slide ul li h3{
     text-align:left;
     font-weight:bold;
     display:inline;
-    font-size:20px;
+    font-size:100%;
 
+}
+
+section.text-slide>ul {
+    margin-top:40px;
 }
 
 section.text-slide ul {
     list-style-type:disc;
-    font-size:20px;
+    font-size:150%;
 
 }
 
@@ -597,8 +603,34 @@ section.text-slide ul li{
 section.text-slide ul li ul{
     list-style-type:circle;
     padding-left:30px;
-    font-size:16px;
+    font-size:90%;
 
+}
+
+section.text-slide table{
+    width:100%;
+    border:none;
+    text-align:center;
+    font-size:150%;
+
+}
+
+section.text-slide table tr:nth-child(2){
+border-bottom:solid 1px black
+}
+
+section.text-slide table th{
+    background-color:#666;
+    color:white;
+}
+section.text-slide table tr:first-child th:first-child{
+    background-color:white;
+    
+}
+
+section.text-slide table tr td:first-child{
+    text-align:left;
+border-right:solid 1px black;
 }
 
 </style>
@@ -618,22 +650,23 @@ section.text-slide ul li ul{
 
   
 </head>
-<body   ng-controller="AppController"  ng-click="CollapseAll()" class="mobile-touch" > 
-    <div id="upper_wrapper"  class="main_app1" ng-cloack update="{{state}}">
+<body   ng-controller="AppController"  ng-click="CollapseAll()" class="mobile-touch"  > 
+    <div id="upper_wrapper"  class="main_app1" ng-cloack update="{{state}}" style="font-size:{{fonts}}px">
         <header>
 <div>
             <span id="main-logo-container"><a href="http://www.urban4m.com" ><img id="main-logo" src="../core/img/logo.png"></a></span>
             <span>Share Presentation: <%= token %></span>
+
             <span class="header-menus">
-                <ul >
-                <li> bla bla</li>
-                <a src="#/variables"><li>interesting</li></a>
-                <li>bla bla</li></ul>
+                <ul>
+                    <li>Font Size:<input type="text"  placeholder="font-size" ng-model="fonts" style="width:30px"/>px</li>
+                </ul>
             </span>
             
           <div style="clear:both;"></div>  
 </div>
         </header> 
+
         <div class="view_slider go_previous resizeable take-pos " global="1" auto="self" height-adjust="header" ng-click="$parent.Go_Previous()" ng-if="counter>0"></div>
         <div class="view_slider go_next resizeable take-pos static_element" global="1" auto="self" height-adjust="header" ng-click="$parent.Go_Next()" ng-if="(counter>=0 && counter<(slides.length-1))"></div>
         <div id="main_view_wrapper" style="margin-lefty:60px; margin-righty:60px;">
