@@ -375,11 +375,11 @@
        $scope.variables=[
            {
                name:'1468',
-               tag:'Female Householdes',
+               tag:'Female Households',
            },
            {
                name:'1468_dismiss',
-               tag:'Female Householdes (Pulse)',
+               tag:'Female Households (Pulse)',
            },
            {
                name:'1466',
