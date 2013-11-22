@@ -33,7 +33,7 @@ var slides={
         startedtime:null,
         endingtime:null,
         lasts:2,
-        password:"unitedway11-22-13"
+        password:"unitedway112213"
     }
 }
 
