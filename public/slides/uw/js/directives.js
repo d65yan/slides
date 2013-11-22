@@ -644,7 +644,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         name:"Area with Lower Educational Performance",
                         center:[-80.22172,25.81603],
                         variables:{
-                            "1438":9.4,
+                            "1438":3.7,
+                            "1438z":8.9,
                             "1377":6.6,
                             "1455":4.0, 
                             "1373": 2.4,
@@ -658,7 +659,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         name:"Area with Higher Educational Performance",
                         center:[-80.37342,25.76977 ],
                         variables:{
-                            "1438":1.5,
+                            "1438":3.5,
+                            "1438z":1.5,
                             "1377":1.9,
                             "1455":1.4, 
                             "1373": 3.6,
@@ -1115,6 +1117,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     
                     map.events.register("zoomend",map,function(){
                         ApplyCluster();
+                        if(map.zoom<10)
+                            map.zoomTo(10);
                     })
                 
 }
