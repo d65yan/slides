@@ -1583,7 +1583,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 
                         if(phase != '$apply' && phase != '$digest')
                         scope.$apply();
-                        scope.$parent.$parent.$broadcast('collapse',group.id);
+                        scope.$parent.$parent.$broadcast('collapse',scope.$id);
                    };
                    
                    scope.Prioritize=function($event,sys){
@@ -1601,7 +1601,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                    
                    
                    scope.$on('collapse',function($event,id){
-                       if(id!==group.id)
+                       if(id!==scope.$id)
                            scope.show=false;
                        
                         var phase = scope.$root.$$phase;
@@ -1796,7 +1796,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     /*$(element).toggleClass('open');
                     $rootScope.$broadcast('collapse',-3);*/
                     $timeout(function(){
-                        $rootScope.$broadcast('collapse',-3);
+                        $rootScope.$broadcast('collapse',scope.$id);
                     });
                     
                     $event.stopPropagation();
@@ -1805,7 +1805,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 });
                 
                 scope.$on('collapse',function($event,id){
-                    if(id!==-3)
+                    if(id!==scope.$id)
                         $(element).removeClass('open');
                     else
                        $(element).toggleClass('open');  
@@ -2411,7 +2411,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         $event.stopImmediatePropagation();
                     }
                     scope.show=!scope.show
-                    $rootScope.$broadcast('collapse',scope.arr);
+                    $rootScope.$broadcast('collapse',scope.$id);
                 };
                 
                 scope.$watch('arr',function(){
@@ -2420,7 +2420,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 });
                 
                 scope.$on('collapse',function($event,id){
-                    if(id!=scope.arr)
+                    if(id!=scope.$id)
                         scope.show=false;
                         
                 })
@@ -2517,7 +2517,163 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
     .directive('searchingTerm',['$timeout','$http',function($timeout,$http){
         return {
             restrict:'C',
-            templateUrl:'views/searchterm.html',
+            template:'<span  class="search_term" ng-class="{edit:editable,error:(editable && !valid), accepted:(!editable && valid)}">\
+<style>\
+.searching_bar .search_term{\
+            display:inline-block\
+        }\
+ .searching_bar .search_term .term-cont{\
+            position:relative;\
+            display:inline-block;\
+            /*border:solid 1px #ddd;\
+            padding:5px;\
+            width:270px;\
+            text-align:left;\
+            padding-top:10px;\
+            padding-bottom:10px;\
+            border-radius:5px;*/\
+        }\
+ .searching_bar .search_term .search-item-commit{\
+            /*width:43px;\
+            height:43px;*/\
+            display:inline-block;\
+            \
+        }\
+        \
+        \
+.searching_bar .search_term .list{\
+            position:absolute;\
+            left:0;\
+            top:100%;\
+            background-color:white;\
+            overflow:hidden;\
+        }\
+        \
+.searching_bar .search_term.accepted{\
+            /*background-color:lightblue;\
+            color:white;\
+            font-weight:bold;\
+            border:solid 1px blue;*/\
+            \
+        }\
+        \
+.searching_bar .search_term.edit.error{\
+            display:inline;\
+            position:relative;\
+            /*border:solid 2px #ff5555;*/\
+        }\
+        \
+.searching_bar .search_term.ng-leave{\
+            display:none;\
+        }\
+        \
+                \
+.searching_bar .search_term.edit .term{\
+           display:inline-block;\
+           margin-bottom:0px;\
+           /* line-height:1em;\
+            \
+            \
+            width:250px;\
+            padding:0;\
+            font-size:16px;*/\
+           \
+        }\
+.searching_bar .search_term.edit .display{\
+            display:none;\
+           \
+        }\
+        \
+.searching_bar .search_term.accepted .term{\
+            display:none;\
+           \
+        }\
+        \
+.searching_bar .search_term.accepted .display{\
+            display:inline;\
+           \
+        }\
+\
+        \
+.searching_bar .search_term.edit .term, .nbds_leftbar .main_container .searching_bar .search_term.edit .term:focus, .nbds_leftbar .main_container .searching_bar .search_term.edit .term:hover{\
+            border:none;\
+            box-shadow:none;\
+            outline: none;\
+\
+        }\
+\
+.searching_bar .hidden-terms-cont{\
+           /* min-height:80px;\
+            background-color:#EEE;\
+            border:solid #d9d9d9 1px;\
+            position:relative;\
+            margin-top:10px;*/\
+        }\
+        \
+.searching_bar .hidden-terms-cont .arrow{\
+                /*border: solid 11px transparent;\
+                border-bottom-color:#d9d9d9 !important;\
+                top:-22px;\
+                width:-11px;\
+                */\
+                height:0px;\
+                right:55px;\
+                position:absolute;\
+                \
+        }\
+        \
+.searching_bar .hidden-terms-cont .arrow:after {\
+            position: absolute;\
+            display: block;\
+            width: 0;\
+            height: 0;\
+            border-color: transparent;\
+            border-style: solid;\
+            position: absolute;\
+            top:1px;\
+display: block;\
+width: 0;\
+height: 0;\
+border-color: transparent;\
+border-style: solid;\
+/*border-width: 10px;*/\
+content: "";\
+bottom: 1px;\
+margin-left: -10px;\
+/*border-bottom-color: #eee;*/\
+border-top-width: 0;\
+        position:absolute;\
+       }\
+</style>\
+\
+    \
+    <table cellspacing="0" cellpadding="0"> \
+          <tr>\
+              <td style="vertical-align:top; padding:0">\
+                  \
+          <span class="term-cont">         \
+            <input type="text"  placeholder="{/{placeh}/}" ng-model="value" ng-disabled="searchingrt" class="term"/>\
+                <span class="display">{/{value}/}</span>\
+                <span ng-hide="(!editable || !valid || !active)" class="list" style="z-index:4000">\
+                    <ul>\
+                        <li ng-repeat="cat in filteredList">\
+                            <h4 ng-if="scats">{/{cat.name}/}</h4>\
+                            <ul>\
+                                <li ng-repeat="term in cat.terms" ng-click="$parent.$parent.Force(term.id,term.name)">\
+                                    {/{term.name}/}\
+                                </li>\
+                            </ul>\
+                        </li>\
+                    </ul>\
+                </span>\
+                <i class="icon-remove" ng-click="Delete()"></i>\
+       </span></td><td style="vertical-align:top; padding:0">\
+                <span class="search-item-commit" ng-if="!autoCommit1" ng-click="submit()"></span>\
+              </td>\
+      </tr>\
+      </table>\
+            </span>',
+            //templateUrl:'views/searchterm.html',
                 //transclude:true,
             replace:true,
             require:'^searchBar',
@@ -2540,7 +2696,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 };
                
                scope.autoCommit1=!scope.autoCommit || !(!scope.autoCommit.replace(/false/i,''));
-               
+               var last_forced={id:-1, name:''};
                scope.scats=bar.showCats;
  //              var stateReg= /^(?-i:A[LKSZRAEP]|C[AOT]|D[EC]|F[LM]|G[AU]|HI|I[ADLN]|K[SY]|LA|M[ADEHINOPST]|N[CDEHJMVY]|O[HKR]|P[ARW]|RI|S[CD]|T[NX]|UT|V[AIT]|W[AIVY])$/i;
                //var zipReg=/^(?!00000)(?<zip>(?<zip5>\d{5})(?:[ -](?=\d))?(?<zip4>\d{4})?)$/i;
@@ -2612,27 +2768,40 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     }
                 })
                 
-                var ForceFirst=function(id,name){
+                var ForceFirst=function(){
                     if( !scope.filteredList.length)
                         return false;
                     scope.Force(scope.filteredList[0].elems[0].id,scope.filteredList[0].elems[0].name);
+                    return true;
                 }
                 
                 scope.Force=function(id,name){
                     scope.id=id;
                     scope.value=name;
-                    
+                    last_forced.id=id;
+                    last_forced.name=name;
                    if(scope.autoCommit)
-                       scope.submit();
+                       submit();
                     
                 }
                 
-                scope.submit=function(){
+               function submit(){
                     config.delimiter=null;
                     scope.valid=true;
                     scope.editable=false;
                     scope.active=false;
                     input.blur();
+                }
+                
+                scope.submit=function(){
+                    submit();
+                    if(!scope.value && scope.value.length && scope.valid){
+                        var subm=true;
+                        if(scope.value!==last_forced.name || scope.id!== last_forced.id)
+                            subm=ForceFirst();
+                        if(subm)
+                            submit();
+                    }
                 }
                 
                 
@@ -2754,11 +2923,11 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
              }
         };
     }])
-    .directive('searchBar',['$timeout',function($timeout){
+    .directive('searchBar',['$timeout','SelectionService',function($timeout,SelectionService){
         return {
             restrict:'C',
             replace:true,
-            template:'<div class="searching_bar"><span class="searching_term" ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}"></span>\
+            template:'<div class="searching_bar"><span class="searching_term"  ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}"></span>\
                        <div class="hidden-terms-cont" ng-show="showHidden">\
                             <div class="arrow"></div>\
                             <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active"></span>\
@@ -2771,7 +2940,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 baseUrl:"@baseUrl",
                 type:"@type",
                 autoCommit:'@autoCommit',
-                placeh:'@placeh'
+                placeh:'@placeh',
+                lfs:'@lfs'
             },
             controller:function($scope){
                 $scope.showHidden=!$scope.showHidden.replace(/true/i,'');
@@ -2786,6 +2956,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 
                 this.baseUrl=$scope.baseUrl;
                 this.showcats=!$scope.showCategories || !(!$scope.showCategories.replace(/false/i,''));
+                this.lfs=!$scope.lfs?false:!$scope.lfs.replace(/true/i,'');
                 var stash=[ $scope.searchTerms,  $scope.hiddenTerms];
                 var self=this;
                 this.AddTerm=function(obj){
@@ -2800,12 +2971,12 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     if(!obj.id){
                         obj.id=$scope.hiddenTerms.length+$scope.searchTerms.length+"_"+Date.now();
                     }
-                    if($scope.searchTerms.length>=$scope.visibleItems){
-                        $timeout(function(){$scope.hiddenTerms.unshift($scope.searchTerms.pop());});
-                    }
+                    if($scope.searchTerms.length>=$scope.visibleItems)
+                        $scope.hiddenTerms.unshift($scope.searchTerms.pop());
+                    
                     
 
-                        $timeout(function(){$scope.searchTerms.unshift(obj);});
+                       $scope.searchTerms.unshift(obj);
                 }
                 
                 this.RemoveTerm=function(id){
@@ -2813,7 +2984,9 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         return;*/
                     var pos=FindTerm(id);
                     if(pos){
-                        stash[pos.arr].splice(pos.pos,1);
+                        var elem=stash[pos.arr].splice(pos.pos,1);
+                        if(elem[0].lifestyle)
+                            SelectionService.UnselectLifeStyle(elem[0].id)
                     }
                     if($scope.searchTerms.length<$scope.visibleItems && $scope.hiddenTerms.length)
                         $scope.searchTerms.push($scope.hiddenTerms.shift());
@@ -2833,10 +3006,72 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 }
                 
                 $scope.$watch(function(){return JSON.stringify($scope.searchTerms);},function(){
+                    
                     if($scope.searchTerms &&(!$scope.searchTerms.length || !$scope.searchTerms[0].editable))
-                        $timeout(function(){self.AddTerm({value:"",editable:true,valid:true});});
+                        self.AddTerm({value:"",editable:true,valid:true});
+                        //$timeout(function(){self.AddTerm({value:"",editable:true,valid:true});});
+                })
+                
+                if(this.lfs){
+                $scope.$watch(function(){return JSON.stringify(SelectionService.activeLifeStyle);},function(){
+                    for(var i=0;i<$scope.searchTerms.length;i++){
+                        if($scope.searchTerms[i].lifestyle)
+                            $scope.searchTerms.splice(i,1);
+                    }
+                    for(var i=0;i<$scope.hiddenTerms.length;i++){
+                        if($scope.hiddenTerms[i].lifestyle)
+                            $scope.hiddenTerms.splice(i,1);
+                    }
+                    if(SelectionService.activeLifeStyle.id && SelectionService.activeLifeStyle.id>0){
+                        $scope.searchTerms[0].id=SelectionService.activeLifeStyle.id;
+                        $scope.searchTerms[0].value=SelectionService.activeLifeStyle.name;
+                        $scope.searchTerms[0].lifestyle=true;
+                        $scope.searchTerms[0].valid=true;
+                        $scope.searchTerms[0].editable=false;
+                        //submit();
+                    }
+                })
+                }
+            }
+        };
+    }])    
+    .directive('gDrop',['$timeout','SelectionService','$location','$rootScope',function($timeout,SelectionService,$location,$rootScope){
+        return {
+            restrict:'C',
+            replace:true,
+            template:'<span class="g-dropdown"  ng-click="ToggleView($event)" style="cursor:pointer"><div class="icon-holder active_lifestyle_{/{selection.activeLifeStyle.id}/}"></div><span class="header-lifestyle-selector"><span ng-hide="selection.activeLifeStyle.id" >Custom</span>{/{selection.activeLifeStyle.name}/}</span><i class="icon-white icon-chevron-down" ></i><div class="content" ng-show="show_lfs">\
+                        <ul>\
+                            <li ng-repeat="lfs in selection.lifestyles" ng-click="$parent.SelectLifeStyle(lfs)" ng-class="{active:(lfs.id===$parent.selection.activeLifeStyle.id)}"><div class="icon-holder {/{(lfs.id===$parent.selection.activeLifeStyle.id)?\'active_\':\'\'}/}lifestyle_{/{lfs.id}/}" ></div>{/{lfs.name}/} <div class="indication_button"></div></li>\
+                            <li  ng-click="ClearLifeStyle()" ng-class="{active:(!selection.activeLifeStyle.id)}"><div class="icon-holder {/{(!selection.activeLifeStyle.id)?\'active_\':\'\'}/}lifestyle_" ></div>Custom<div class="indication_button"></div></li>\
+                        </ul>\
+                    </div></span>',
+            scope:{
+               
+                
+            },
+            link:function(scope,element,attrs){
+                scope.selection=SelectionService;
+                scope.SelectLifeStyle=function(lfs){
+                    $location.search('l',lfs.id);
+                }
+
+                scope.ClearLifeStyle=function(){
+                    $location.search('l',null);
+                }
+                
+                scope.ToggleView=function($event){
+                    $event.stopPropagation();
+                    scope.show_lfs=!scope.show_lfs;
+                    $rootScope.$broadcast('collapse',scope.$id);
+                }
+                
+                scope.$on('collapse',function($event,id){
+                    if(id!=scope.$id)
+                        scope.show_lfs=false;
+                    
                 })
             }
         };
     }])
+
 ;

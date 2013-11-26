@@ -165,16 +165,19 @@ margin-right:0px;
         }
 
         header .global-search-submit-button{
-            width:45px;
-            height:45px;
+            width:43px;
+            height:43px;
             background-image:url('img/buttons/search.png');
             background-position:center center;
             background-repeat:no-repeat;
-            background-size:cover;
-            cursor:pointer;
+            background-size:stretch;
         }
 
         
+        header .searching_bar .search_term{
+
+             border:solid 1px #eee !important;
+        }
         
         header .searching_bar .search_term.edit .term{
             background-color:transparent;
@@ -198,16 +201,11 @@ margin-right:0px;
             height:43px;
             padding-right:8px;
             border-radius:5px;
-            border:solid 1px #dcdcdc !important;
         }
 
         header .header-menus{
           float:right;
-          margin-right:80px;
           text-align:right;
-          margin-top: 11px;
-        font-size: 16px;
-        color: white;
         }
         
         header .header-menus>ul{
@@ -225,7 +223,7 @@ margin-right:0px;
             margin:0;
             padding-right:10px;
             margin-left:10px;
-            border-right:solid #ffa44b 1px;
+            border-right:solid black 1px;
             display:inline;
             position:relative;
             position:relative;
@@ -475,7 +473,7 @@ padding-top:6px;
     top:100%;
     width: 600px;
     z-index:4000;
-    background-color:#e5e5e5;
+    background-color:white;
     -moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
     -webkit-box-shadow:  #5a5a5a 1px 1px 10px -2px;
     box-shadow: #5a5a5a 1px 1px 10px -2px;
@@ -505,19 +503,14 @@ white-space:pre;
 border-bottom:solid #bbb 1px;
 cursor:pointer;
 padding-right:1em;
-color:black;
-height:34px;
-padding-top:10px;
-background-color:#e5e5e5;
-
 }
 
-.g-dropdown .content li.active{
-background-color:#f69d58;
-color:white;
-
+.g-dropdown .content li:after{
+content:">";
+font-weight:bold;
+position:absolute;
+right:0;
 }
-
 
 
 .header-lifestyle-selector{
@@ -529,102 +522,20 @@ color:white;
    margin-left:6px;
 margin-right:6px;
 color:white;
-    margin-top:11px;
-    display: inline-block;
-    width: 190px;
-    
-    
-   
+    margin-top:7px;
+    height:43px;
+    border:solid 1px #eee;
 }
 
-#header-lifestyle-selector_dropdown .icon-holder{
-   display: inline-block;
-    width: 28px;
-    height:28px;
-    background-image:url('img/icons/lfs_sprite.png');
-    background-repeat:no-repeat;
-    margin-top: -5px;
-margin-right:3px;
-    
-   
-}
-
-.active_lifestyle_{
-    background-position: 0px -27px;
-}
-
-.active_lifestyle_1201{
-    background-position: -27px -27px;
-}
-
-.active_lifestyle_1151{
-    background-position: -54px -27px;
-}
-
-.active_lifestyle_1152{
-    background-position: -81px -27px;
-}
-
-.active_lifestyle_1150{
-    background-position: -108px -27px;
-}
-
-.active_lifestyle_1202{
-    background-position: -135px -27px;
-}
-
-.active_lifestyle_1153{
-    background-position: -162px -27px;
-}
-
-.active_lifestyle_1325{
-    background-position: -189px -27px;
-}
-
-
-
-.lifestyle_{
-    background-position: 0px 0px;
-}
-.lifestyle_1201{
-    background-position: -27px -0px;
-}
-
-.lifestyle_1151{
-    background-position: -54px -0px;
-}
-
-.lifestyle_1152{
-    background-position: -81px -0px;
-}
-
-.lifestyle_1150{
-    background-position: -108px -0px;
-}
-
-.lifestyle_1202{
-    background-position: -135px -0px;
-}
-
-.lifestyle_1153{
-    background-position: -162px -0px;
-}
-
-.lifestyle_1325{
-    background-position: -189px -0px;
-}
 
 #header-lifestyle-selector_dropdown{
     
-margin-right:10px;
-margin-left:10px;
+margin-right:3px;
 font-size: 16px;
 background-color: #f69d58;
 color: white;
 border-radius: 5px;
-width: 250px;
- border:solid 1px #e2731e !important;
-height:43px;
+width: 230px;
 }
 </style>
   <script>
@@ -648,7 +559,7 @@ height:43px;
         <header>
 <div class="header-row">
     <div class="header-cell" >
-            <table style="float:left" cellpadding="0" cell spacing="0" border="0"><tr><td><span id="main-logo-container"><a href="#/home" class="mobile-touch" message="Let's Start all over again!!"><img id="main-logo" src="img/logo.png"></a></span></td>
+            <table style="float:left"><tr><td><span id="main-logo-container"><a href="#/home" class="mobile-touch" message="Let's Start all over again!!"><img id="main-logo" src="img/logo.png"></a></span></td>
            <!--<span><span class="g-dropdown"><input type="text" placeholder="type in an address,city or zip code" ng-model="geo_filter" ng-change="FilterCitites()"><i class="icon-chevron-down" ng-click="ShowCities()"></i><div  ng-show="show_cities" class="content">
                         <div ng-repeat="msa in geo.regions" class="msas-list" ng-show="msa.someSelected">
                             <div class="msa-header">{/{msa.name}/}</div>
@@ -658,9 +569,13 @@ height:43px;
                         </div>
                         
                     </div></span> -->
-                  <td style="vertical-align:top">  <div style="width:250px; display:inline-block;" type="addr" class="search_bar" show_hidden="false" max_search="1" visibles="1" show_categories="false" base_url="http://api.urban4m.com:9200/data/business/_search?q=addr:" placeh="Address, City or Zip code"></div></td>
-                  <td style="vertical-align:top"><span class="g-drop" id="header-lifestyle-selector_dropdown"></span> </td>
-                    <td style="vertical-align:top">
+                  <td>  <div style="width:250px; display:inline-block;" type="addr" class="search_bar" show_hidden="false" max_search="1" visibles="1" show_categories="false" base_url="http://api.urban4m.com:9200/data/business/_search?q=addr:" placeh="Address, City or Zip code"></div></td>
+                  <td>  <span class="g-dropdown" id="header-lifestyle-selector_dropdown" ng-click="show_lfs=!show_lfs" style="cursor:pointer"><span class="header-lifestyle-selector"><span ng-hide="selection.activeLifeStyle.id" >Select a Lifestyle</span>{/{selection.activeLifeStyle.name}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">
+                        <ul>
+                            <li ng-repeat="lfs in selection.lifestyles" ng-click="$parent.SelectLifeStyle(lfs)">{/{lfs.name}/}</li>
+                        </ul>
+                    </div></span></td>
+                    <td>
                         <div class="global-search-submit-button" ng-click="GoTo()"></div></span>
                   </td>
                   </tr>
@@ -668,7 +583,7 @@ height:43px;
                 <!--<span class="sosial-container"><a><img src="img/facebook.png"/></a><a><img src="img/twitter.png"/></a><a><img src="img/pincterest.png"/></a></span>-->
             <span class="header-menus">
                 <ul >
-                <li>Upgrade to Premium</li><li>My Account</li></ul>
+                <li><li><a>Premium</a></li><li>My Account <i class="icon-chevron-down"></i></li></ul>
             </span>
             
           <div style="clear:both;"></div>  

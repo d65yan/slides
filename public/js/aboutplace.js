@@ -100,6 +100,11 @@
               $location.search('l',lfs.id);
           }
 
+          $scope.ClearLifeStyle=function(){
+              //$scope.selection.SelectLifeStyle(lfs.id);
+              $location.search('l',null);
+          }
+
             $scope.failedSearchOpts = {
                 backdrop: true,
                 keyboard: true,
@@ -271,6 +276,7 @@
                  GeograficService.regions[i].SelectAll();
           })
   
+
     }
       AppController.$inject=['$scope','$window','$http','$timeout','SelectionService','GeograficService','SystemsFilters','$rootScope','$dialog','$routeParams','$location'];
      
@@ -1148,6 +1154,7 @@
     
        $scope.$watch(function(){return JSON.stringify($location.search());},function(){
            var search=$location.search();
+           
             $scope.lf_id=+search.l/*||1152*/;
             
             /*var reg=GeograficService.GetRegionById(search.m)
@@ -1160,6 +1167,11 @@
            var new_stage=1+( msa_idx>=0)*1+(area_idx>=0)*1;
            if ($scope.lf_id && $scope.lifestyles && $scope.lifestyles.length && (!$scope.lifeStyle || +$scope.lifeStyle.id!=+ $scope.lf_id))
                $scope.SelectLifeStyle(GetLifeStyleIdxById( $scope.lf_id),new_stage!=3);
+           else if(!search.l && ($scope.lf_id+1)!==1 && $scope.lifeStyle){
+               SelectionService.UnselectLifeStyle($scope.lifeStyle.id);
+               $scope.lifeStyle={};
+           }
+               
            
            //if($scope.stage!==new_stage){
                if(new_stage===2)

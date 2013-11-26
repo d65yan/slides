@@ -475,7 +475,7 @@ margin-top: 2px;
             display:inline-block
         }        
         
-        .nbds_leftbar .main_container .searching_bar .search_term .term-cont{
+        .nbds_leftbar .main_container .searching_bar .search_term.edit .term-cont{
             position:relative;
             border:solid 1px #ddd;
             padding:5px;
@@ -506,10 +506,15 @@ margin-top: 2px;
         }
         
         .nbds_leftbar .main_container .searching_bar .search_term.accepted{
-            background-color:lightblue;
-            color:white;
-            font-weight:bold;
-            border:solid 1px blue;
+            background-color:#eee;
+            color:#949494;
+            font-weight:200;
+            border:solid 1px #cbcbcb;
+            padding:5px;
+            margin-right:5px;
+            margin-left:5px;
+            border-radius:3px;
+                
             
         }
         
@@ -563,6 +568,8 @@ margin-top: 2px;
             border:solid #d9d9d9 1px;
             position:relative;
             margin-top:10px;
+            padding:10px;
+            text-align:left;
         }
         
         .nbds_leftbar .main_container .searching_bar .hidden-terms-cont .arrow{
@@ -608,7 +615,7 @@ border-top-width: 0;
             <br> 
             <img src="./img/buttons/wishlist.png">
              <h3>Add the amenities & criteria that matters most to you</h3>
-             <div class="search_bar" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="http://api.urban4m.com:9200/model/_search?q=" auto_commit="false" placeh="e.g starbuks, coffeshops, retiree"></div>
+             <div class="search_bar" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="http://api.urban4m.com:9200/model/_search?q=" auto_commit="false" placeh="e.g starbuks, coffeshops, retiree" lfs="true"></div>
         </div>
     </div>
     <div class="filters-bar static_element resizeable"  width_adjust=".nbds_leftbar" ng-if="stage=='pro'"></div>
