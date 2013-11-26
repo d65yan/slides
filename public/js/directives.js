@@ -861,8 +861,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 
                 var miamiCenter;
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
-                //var mapserver='http://demo-maps.aboutplace.co/heat';
-                var mapserver='http://geo.urban4m.com/heat';
+                var mapserver='http://demo-maps.aboutplace.co/heat';
+                //var mapserver='http://geo.urban4m.com/heat';
                 var strTFS,prtTFS=null;
                 var geo=GeograficService;
                 var select=SelectionService;
