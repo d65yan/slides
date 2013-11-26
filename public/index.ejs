@@ -102,13 +102,14 @@ display:inline;}
 		opacity: 0.3;
 	}
 
-                header{
+       header{
             /*-moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
             -webkit-box-shadow:  #5a5a5a 1px 1px 10px -2px;
             box-shadow: #5a5a5a 1px 1px 10px -2px;*/
-            /*height:30px;
-            padding-top:10px;*/
-            height:40px;
+           padding-top:8px;
+            height:54px;
+            background-color:#f37c20;
+            
         }
 
 
@@ -157,6 +158,43 @@ margin-right:0px;
 }
         
         
+        header .searching_bar{
+            margin-left:30px;
+            height:43px;
+        }
+
+        header .global-search-submit-button{
+            width:43px;
+            height:43px;
+            background-image:url('img/buttons/search.png');
+            background-position:center center;
+            background-repeat:no-repeat;
+            background-size:stretch;
+        }
+
+        header .searching_bar .search_term.edit .term{
+            background-color:transparent;
+            font-size:16px;
+            margin-top:7px;
+        }
+
+        header .searching_bar .search_term.edit i{
+           
+            margin-top:7px;
+        }
+
+
+        header .searching_bar .search_term.edit .term-cont{
+            background-color: white;
+        }
+
+        header .searching_bar .search_term .term-cont{
+            background-color: #f69d58;
+            height:43px;
+            padding-right:8px;
+            border-radius:5px;
+        }
+
         header .header-menus{
           float:right;
           text-align:right;
@@ -189,6 +227,9 @@ margin-right:0px;
             border:none;
             padding-right:5px;
         }
+
+       
+
         
 	.highlight_true {
 		color: #f60;
@@ -219,11 +260,11 @@ margin-right:0px;
             /*position: absolute;*/
             top: -10px;/*7px*/
             /*background-color: white;*/
-            left: 20px; 
+            margin-left: 80px; 
             z-index:6001;
         }
         #main-logo-container #main-logo{
-            width:200px;
+            width:180px;
         }
         
         
@@ -500,9 +541,10 @@ margin-right:3px;
 <body   ng-controller="AppController" ng-init="authServer='<%= authServerURL %>/'; user=<%= user %>; logged=<%= logged %>" ng-click="CollapseAll()" class="mobile-touch" > 
     <div id="upper_wrapper"  class="main_app1" ng-cloack update="{/{state}/}">
         <header>
-<div>
-            <span id="main-logo-container"><a href="#/home" class="mobile-touch" message="Let's Start all over again!!"><img id="main-logo" src="img/logo.png"></a></span>
-            <span><span class="g-dropdown"><input type="text" placeholder="type in an address,city or zip code" ng-model="geo_filter" ng-change="FilterCitites()"><i class="icon-chevron-down" ng-click="ShowCities()"></i><div  ng-show="show_cities" class="content">
+<div class="header-row">
+    <div class="header-cell" >
+            <table style="float:left"><tr><td><span id="main-logo-container"><a href="#/home" class="mobile-touch" message="Let's Start all over again!!"><img id="main-logo" src="img/logo.png"></a></span></td>
+           <!--<span><span class="g-dropdown"><input type="text" placeholder="type in an address,city or zip code" ng-model="geo_filter" ng-change="FilterCitites()"><i class="icon-chevron-down" ng-click="ShowCities()"></i><div  ng-show="show_cities" class="content">
                         <div ng-repeat="msa in geo.regions" class="msas-list" ng-show="msa.someSelected">
                             <div class="msa-header">{/{msa.name}/}</div>
                             <ul>
@@ -510,12 +552,18 @@ margin-right:3px;
                             </ul>
                         </div>
                         
-                    </div></span> 
-                    <span class="g-dropdown" id="header-lifestyle-selector_dropdown" ng-click="show_lfs=!show_lfs" style="cursor:pointer"><span class="header-lifestyle-selector"><span ng-hide="selection.activeLifeStyle.id" >Select a Lifestyle</span>{/{selection.activeLifeStyle.name}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">
+                    </div></span> -->
+                  <td>  <div style="width:250px; display:inline-block;" type="addr" class="search_bar" show_hidden="false" max_search="1" visibles="1" show_categories="false" base_url="http://api.urban4m.com:9200/data/business/_search?q=addr:" placeh="Address, City or Zip code"></div></td>
+                  <td>  <span class="g-dropdown" id="header-lifestyle-selector_dropdown" ng-click="show_lfs=!show_lfs" style="cursor:pointer"><span class="header-lifestyle-selector"><span ng-hide="selection.activeLifeStyle.id" >Select a Lifestyle</span>{/{selection.activeLifeStyle.name}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">
                         <ul>
                             <li ng-repeat="lfs in selection.lifestyles" ng-click="$parent.SelectLifeStyle(lfs)">{/{lfs.name}/}</li>
                         </ul>
-                    </div></span><button class="btn btn-success" ng-click="GoTo()">Go</button></span>
+                    </div></span></td>
+                    <td>
+                        <div class="global-search-submit-button" ng-click="GoTo()"></div></span>
+                  </td>
+                  </tr>
+                  </table>
                 <!--<span class="sosial-container"><a><img src="img/facebook.png"/></a><a><img src="img/twitter.png"/></a><a><img src="img/pincterest.png"/></a></span>-->
             <span class="header-menus">
                 <ul >
@@ -524,6 +572,7 @@ margin-right:3px;
             
           <div style="clear:both;"></div>  
 </div>
+<div>
         </header> 
         <div id="main_view_wrapper">
             <div ng-view  class="move-view"></div>

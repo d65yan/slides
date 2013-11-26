@@ -861,8 +861,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 
                 var miamiCenter;
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
-                var mapserver='http://demo-maps.aboutplace.co/heat';
-                //var mapserver='http://geo.urban4m.com/heat';
+                //var mapserver='http://demo-maps.aboutplace.co/heat';
+                var mapserver='http://geo.urban4m.com/heat';
                 var strTFS,prtTFS=null;
                 var geo=GeograficService;
                 var select=SelectionService;
@@ -2517,24 +2517,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
     .directive('searchingTerm',['$timeout','$http',function($timeout,$http){
         return {
             restrict:'C',
-            template:'<span  class="search_term" ng-class="{edit:editable,error:(editable && !valid), accepted:(!editable && valid)}">\
-                <input type="text"  placeholder="Type your search seppareated by comma" ng-model="value" ng-disabled="searching" class="term"/>\
-                <span class="display">{{value}}</span>\
-                <div ng-show="editable && valid && active" class="list">\
-                    <ul>\
-                        <li ng-repeat="cat in filteredList">\
-                            <h4>{{cat.name}}</h4>\
-                            <ul>\
-                                <li ng-repeat="term in cat.terms" ng-click="$parent.$parent.Force(term.id,term.name)">\
-                                    {{term.name}}\
-                                </li>\
-                            </ul>\
-                        </li>\
-                    </ul>\
-                </div>\
-                <i class="icon-remove" ng-click="Delete()"></i>\
-            </span>',
-                transclude:true,
+            templateUrl:'views/searchterm.html',
+                //transclude:true,
             replace:true,
             require:'^searchBar',
             scope:{
@@ -2543,26 +2527,35 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 id:'=id',
                 valid:'=valid',
                 editable:'=editable',
-                //focus:''
-                
+                active:'@active',
+                autoCommit:'@autoCommit',
+                placeh:'@placeh'
             },
             link:function(scope,element,attrs,bar){
                 
                 var config={
-                    url:"/api/search.json",
-                    charsCount:3,
-                    delimiter:","
+                    url:bar.baseUrl||"http://api.urban4m.com:9200/model/_search?q=",
+                    charsCount:bar.charCount || 3,
+                    delimiter:bar.delimiter
                 };
                
+               scope.autoCommit1=!scope.autoCommit || !(!scope.autoCommit.replace(/false/i,''));
+               
+               scope.scats=bar.showCats;
  //              var stateReg= /^(?-i:A[LKSZRAEP]|C[AOT]|D[EC]|F[LM]|G[AU]|HI|I[ADLN]|K[SY]|LA|M[ADEHINOPST]|N[CDEHJMVY]|O[HKR]|P[ARW]|RI|S[CD]|T[NX]|UT|V[AIT]|W[AIVY])$/i;
                //var zipReg=/^(?!00000)(?<zip>(?<zip5>\d{5})(?:[ -](?=\d))?(?<zip4>\d{4})?)$/i;
               /* var full_addressReg=new RegExp("^[a-zA-Z\\d]+(([\\'\\,\\.\\- #][a-zA-Z\\d ])?[a-zA-Z\\d]*[\\.]*)*$",'i');
                var streetAddress=new RegExp('\\d{1,3}.?\\d{0,3}\\s[a-zA-Z]{2,30}\\s[a-zA-Z]{2,15}','i');*/
                 scope.searching=false;
-                scope.active=false;
+                //scope.active=false;
+                
+                var timeHandler=null;
+                
                 var input=$(element).children('input');
                 var close=$(element).children('div.close');
-
+                if(scope.active){
+                    input.focus();
+                }
                 var res_list=null;
                 scope.filteredList=[];
                 
@@ -2573,8 +2566,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     
                     var start=1;
                     var temp="";
-                     var parts=scope.value.split(',');
-                    for(var i=0;i<parts.length;i++){
+                     var parts=config.delimiter?scope.value.split(config.delimiter):[scope.value];
+                    /*for(var i=0;i<parts.length;i++){
                         var ltemp=temp+(temp.length?", ":"")+$.trim(parts[i]);
                         if(ltemp.match(/^[ \w]{3,}([A-Za-z]\.)?([ \w]*\#\d+)?(\r\n| )[ \w]{3,},\x20[A-Za-z]{2}\x20\d{5}(-\d{4})?$/)){
                             temp=ltemp;
@@ -2582,15 +2575,15 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                             if(parts[i].match(/^((\d{5}-\d{4})|(\d{5})|([A-Z]\d[A-Z]\s\d[A-Z]\d))$/))
                                 break;
                         }
-                    }
+                    }*/
                     temp=temp.length?temp:parts[0];
                     
                    
                     for(var i=start; i<parts.length;i++){
-                        bar.AddTerm({valid:true,editable:true, value:parts[i]})
+                        bar.AddTerm({active:true,valid:true,editable:true, value:parts[i]});
                     }
                     scope.value=temp;
-                    
+                    return parts.length>1;
                 }
                 
                 scope.Delete=function(){
@@ -2599,54 +2592,130 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 
                 $(input).focus(function(){
                     scope.active=true;
+                    //scope.$apply();
                 })
                 
                 $(input).blur(function(){
                     scope.active=false;
+                   
+                    
                 })
                 
+                $(input).keydown(function(e){
+                    if(e.keyCode===13){
+                        ForceFirst();
+                        scope.$apply();
+                    }
+                    else if(e.keyCode===27){
+                       scope.Delete();
+                        scope.$apply();
+                    }
+                })
+                
+                var ForceFirst=function(id,name){
+                    if( !scope.filteredList.length)
+                        return false;
+                    scope.Force(scope.filteredList[0].elems[0].id,scope.filteredList[0].elems[0].name);
+                }
                 
                 scope.Force=function(id,name){
                     scope.id=id;
                     scope.value=name;
+                    
+                   if(scope.autoCommit)
+                       scope.submit();
+                    
+                }
+                
+                scope.submit=function(){
+                    config.delimiter=null;
                     scope.valid=true;
                     scope.editable=false;
+                    scope.active=false;
+                    input.blur();
                 }
                 
                 
                 scope.$watch('value',function(){
-                    analize();
-                    if(!scope.editable || scope.value.length<config.charsCount)
-                        return;
+                    if(timeHandler){
+                        $timeout.cancel(timeHandler);
+                        timeHandler=null;
+                    }
                     
-                    
-                    
-                    if(!scope.value || !scope.value.length){
-                        scope.editable=true;
+
+                    if(!scope.editable || !scope.value || scope.value.length<config.charsCount){
                         scope.valid=true;
                        res_list={};
                        scope.filteredList=[];
                         return;
                     }
                     
- 
-
-                   Fetch(); 
+                   var analisis=analize();
+                    
+                   timeHandler=$timeout(function(){Fetch(analisis);},200); 
+                   //Fetch(); 
                         
                     
                 });
                 
-                function Fetch(){
+               scope.$on('takeFocus',function(e,id){
+                    if(id===scope.id)
+                        input.focus();
+                    
+                })
+                
+                function Fetch(auto){
+                    var l_auto=auto;
                       scope.searching=true;
-                        $http.get(config.url).success(function(data){
+                        $http.get(config.url+scope.value).success(function(data){
                             scope.searching=false;
-                            res_list=data;
-                            Validate();
+                                                   switch(bar.type){
+                                case 'addr':{
+                                      res_list=TranslateAddress(data);
+                                        break;
+                                }
+                                default:{
+                                     res_list=bar.addressTranslate(data);   
+                                }
+                            }
+                            
+                            Validate(l_auto);
                         })
                 }
                 
                 
-                function Validate(){
+                function Translate(obj){
+                    var nObj={};
+                    for(var i=0;i<obj.hits.hits.length;i++){
+                        if(!nObj[obj.hits.hits[i]._type])
+                            nObj[obj.hits.hits[i]._type]=[];
+                        nObj[obj.hits.hits[i]._type].push(obj.hits.hits[i]._source);
+                        
+                       
+                    }
+                    return nObj;
+                }
+                
+               function TranslateAddress(obj){
+                    var nObj={"address":[]};
+                    for(var i=0;i<obj.hits.hits.length;i++){
+                        var lobj=obj.hits.hits[i]._source;
+                        var nobj={
+                            name:(lobj.addr+' '+lobj.city16+', '+lobj.state+' '+lobj.zip),
+                            id:lobj.uniq_id,
+                            center:{
+                                lon:lobj.lng,
+                                lat:lobj.lat       
+                            }
+                        }
+                        nObj.address.push(nobj);
+                        
+                       
+                    }
+                    return nObj;
+                }
+                
+                function Validate( autocomplete){
                     var terms={};
                     scope.filteredList=[];
                     for(var i in res_list){
@@ -2672,7 +2741,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     
   
                     scope.valid=scope.filteredList.length;
-                    if(scope.filteredList.length==1 && scope.filteredList[0].terms.length==1){
+                    if(autocomplete && scope.filteredList.length==1 && scope.filteredList[0].terms.length==1){
+                        config.delimiter=null;
                         scope.value=scope.filteredList[0].terms[0].name;
                         scope.id=scope.filteredList[0].terms[0].id;
                         scope.editable=false
@@ -2688,26 +2758,54 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         return {
             restrict:'C',
             replace:true,
-            template:'<span><i></i> <span class="searching_term" ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id"></span></span>',
+            template:'<div class="searching_bar"><span class="searching_term" ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}"></span>\
+                       <div class="hidden-terms-cont" ng-show="showHidden">\
+                            <div class="arrow"></div>\
+                            <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active"></span>\
+                        </div></div>',
             scope:{
-                
-                
+                showHidden:"@showHidden",
+                visibleItems:"@visibles",
+                maxSearch:"@maxSearch",
+                showCategories:"@showCategories",
+                baseUrl:"@baseUrl",
+                type:"@type",
+                autoCommit:'@autoCommit',
+                placeh:'@placeh'
             },
             controller:function($scope){
+                $scope.showHidden=!$scope.showHidden.replace(/true/i,'');
                 $scope.searchTerms=[{id:"0_"+Date.now(),value:"",editable:true,valid:true}];
                 $scope.hiddenTerms=[];
-                $scope.visibleItems=3;
+                $scope.visibleItems=+$scope.visibleItems;
+                var maxSearch=+$scope.maxSearch;
+                maxSearch=maxSearch?maxSearch:1;
                 
+                this.type=$scope.type||'search';
+                this.delimiter=this.type==="addr"?null:",";
+                
+                this.baseUrl=$scope.baseUrl;
+                this.showcats=!$scope.showCategories || !(!$scope.showCategories.replace(/false/i,''));
                 var stash=[ $scope.searchTerms,  $scope.hiddenTerms];
                 var self=this;
                 this.AddTerm=function(obj){
+                    if(maxSearch>0 && ($scope.hiddenTerms.length+$scope.searchTerms.length)>=maxSearch)
+                        return;
+                    
+                   if($scope.searchTerms[0] && $scope.searchTerms[0].editable && !$scope.searchTerms[0].value ){
+                        $scope.$broadcast('takeFocus',$scope.searchTerms[0].id)
+                        return;
+                    }
+                    
                     if(!obj.id){
                         obj.id=$scope.hiddenTerms.length+$scope.searchTerms.length+"_"+Date.now();
                     }
-                    if($scope.searchTerms.length>=$scope.visibleItems)
-                        $scope.hiddenTerms.unshift($scope.searchTerms.pop());
+                    if($scope.searchTerms.length>=$scope.visibleItems){
+                        $timeout(function(){$scope.hiddenTerms.unshift($scope.searchTerms.pop());});
+                    }
                     
-                    $scope.searchTerms.unshift(obj);
+
+                        $timeout(function(){$scope.searchTerms.unshift(obj);});
                 }
                 
                 this.RemoveTerm=function(id){
@@ -2717,6 +2815,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     if(pos){
                         stash[pos.arr].splice(pos.pos,1);
                     }
+                    if($scope.searchTerms.length<$scope.visibleItems && $scope.hiddenTerms.length)
+                        $scope.searchTerms.push($scope.hiddenTerms.shift());
                 }
                 
                 function FindTerm(id){
