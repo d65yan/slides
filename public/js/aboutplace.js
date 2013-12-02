@@ -882,7 +882,7 @@
           $scope.showHiddenMenu=false;
 
           $scope.$on('collapse',function($event,id){
-                       if(id!==-2)
+                       if(id!==$scope.$id)
                            $scope.showHiddenMenu=false;
                        /*$scope.score_card=null;
                        $scope.hotspotscore=-1;*/
@@ -991,7 +991,7 @@
                        $event.stopImmediatePropagation();
                        $event.stopPropagation();
                        $scope.showHiddenMenu=!$scope.showHiddenMenu;
-                       $rootScope.$broadcast('collapse',-2)
+                       $rootScope.$broadcast('collapse',$scope.$id);
                   
 
          }
@@ -1042,6 +1042,7 @@
          $scope.UnselectLifeStyle=function(){
              SelectionService.UnselectLifeStyle($scope.lifeStyle.id);
              $scope.lifeStyle=null;
+             $scope.lf_id=-1;
              $location.search('l',null)
          }
          
