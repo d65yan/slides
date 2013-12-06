@@ -51,6 +51,16 @@ app.get('/',function(req, res) {
     return;
 });
 
+app.get('/api/search',function(req, res) {
+    
+     if(req.query.q==="doubletree")   
+        res.sendfile('public/api/search/doubletree.json');
+    else
+        res.sendfile('public/api/search/empty.json');
+});
+
+
+
 app.get(/\/slides\/[a-z]+/,function(req, res) {
         
         if(req.query.t)

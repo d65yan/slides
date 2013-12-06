@@ -1138,6 +1138,10 @@
             $scope.GetNhbds();
         }); 
     
+        $scope.$on('boundboxChanged',function($event,box){
+            $scope.bbox=box;
+        })
+    
         $scope.SetLocation=function(ltln){
             if (ltln && !ltln.PERMISSION_DENIED && !ltln.POSITION_UNAVAILABLE && !ltln.TIMEOUT) {
                 ltln.coords=ltln.coords||{};

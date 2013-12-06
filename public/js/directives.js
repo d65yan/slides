@@ -1130,6 +1130,11 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     }
                        
                 })
+                
+                nLayer.events.register('moveend',nLayer,function(){
+                   $rootScope.$broadcast('boundboxChanged',map.getExtent().transform(toProjection,fromProjection));
+                     console.log(map.getExtent().transform(toProjection,fromProjection));  
+                })
                      
                     map.addLayer(nLayer); 
                     map.addLayer(lineLayer); 
@@ -1190,6 +1195,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     
                     map.events.register("zoomend",map,function(){
                         ApplyCluster();
+                        //console.log(map.getExtent().transform(map.projectionObject,fromProjection));
                     })
                     
 
@@ -2517,7 +2523,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
     .directive('searchingTerm',['$timeout','$http',function($timeout,$http){
         return {
             restrict:'C',
-            template:'<span  class="search_term" ng-class="{edit:editable,error:(editable && !valid), accepted:(!editable && valid)}">\
+            template:'<span  class="search_term {{editable?\'edit\':\'\'}} {{(editable && !valid)?\'error\':\'\'}} {{(!editable && valid)?\'accepted\':\'\'}}" >\
 <style>\
 .searching_bar .search_term{\
             display:inline-block\
@@ -2558,9 +2564,9 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         }\
         \
 .searching_bar .search_term.edit.error{\
-            display:inline;\
+            /*display:inline;\
             position:relative;\
-            /*border:solid 2px #ff5555;*/\
+            border:solid 2px #ff5555;*/\
         }\
         \
 .searching_bar .search_term.ng-leave{\
@@ -2595,10 +2601,10 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         }\
 \
         \
-.searching_bar .search_term.edit .term, .nbds_leftbar .main_container .searching_bar .search_term.edit .term:focus, .nbds_leftbar .main_container .searching_bar .search_term.edit .term:hover{\
-            border:none;\
-            box-shadow:none;\
-            outline: none;\
+.searching_bar .search_term .term, .searching_bar .search_term .term:focus, .searching_bar .search_term .term:hover{\
+            border:none !important;\
+            box-shadow:none !important;\
+            outline: none !important;\
 \
         }\
 \
@@ -2659,9 +2665,7 @@ border-top-width: 0;\
                         <li ng-repeat="cat in filteredList">\
                             <h4 ng-if="scats">{/{cat.name}/}</h4>\
                             <ul>\
-                                <li ng-repeat="term in cat.terms" ng-click="$parent.$parent.Force(term.id,term.name)">\
-                                    {/{term.name}/}\
-                                </li>\
+                                <li ng-repeat="term in cat.terms" ng-click="$parent.$parent.Force(term.id,term.name)">{/{term.name}/}</li>\
                             </ul>\
                         </li>\
                     </ul>\
@@ -2690,7 +2694,7 @@ border-top-width: 0;\
             link:function(scope,element,attrs,bar){
                 
                 var config={
-                    url:bar.baseUrl||"http://api.urban4m.com:9200/model/_search?q=",
+                    url:bar.baseUrl||"http://api.urban4m.com:9200/model/_search?q=name:",
                     charsCount:bar.charCount || 3,
                     delimiter:bar.delimiter
                 };
@@ -2780,7 +2784,7 @@ border-top-width: 0;\
                     scope.value=name;
                     last_forced.id=id;
                     last_forced.name=name;
-                   if(scope.autoCommit)
+                   if(scope.autoCommit1)
                        submit();
                     
                 }
@@ -2794,7 +2798,7 @@ border-top-width: 0;\
                 }
                 
                 scope.submit=function(){
-                    submit();
+                    //submit();
                     if(!scope.value && scope.value.length && scope.valid){
                         var subm=true;
                         if(scope.value!==last_forced.name || scope.id!== last_forced.id)
@@ -2844,7 +2848,7 @@ border-top-width: 0;\
                                         break;
                                 }
                                 default:{
-                                     res_list=bar.addressTranslate(data);   
+                                     res_list=Translate_temp(data);   
                                 }
                             }
                             
@@ -2864,6 +2868,25 @@ border-top-width: 0;\
                     }
                     return nObj;
                 }
+                
+               function Translate_temp(obj){
+                    var nObj={"terms":[]};
+                    for(var i=0;i<obj.hits.hits.length;i++){
+                        
+                        var nobj={
+                            name:$.trim(obj.hits.hits[i]._index),
+                            id:$.trim(obj.hits.hits[i]._id)
+                            
+                        }
+                        nObj.terms.push(nobj);
+                        
+                       
+                    }
+                    if (!nObj.terms.length)
+                        delete nObj.terms;
+                    return nObj;
+                }
+                
                 
                function TranslateAddress(obj){
                     var nObj={"address":[]};
@@ -2930,7 +2953,7 @@ border-top-width: 0;\
             template:'<div class="searching_bar"><span class="searching_term"  ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}"></span>\
                        <div class="hidden-terms-cont" ng-show="showHidden">\
                             <div class="arrow"></div>\
-                            <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active"></span>\
+                            <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="true"></span>\
                         </div></div>',
             scope:{
                 showHidden:"@showHidden",
