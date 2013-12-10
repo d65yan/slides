@@ -1142,6 +1142,15 @@
             $scope.bbox=box;
         })
     
+        $scope.$on('searchChanged',function($event,terms){
+            $scope.friendlySerch='';
+            for(var i=0;i<terms.length;i++)
+                $scope.friendlySerch+=terms[i].name+',';
+            
+            if($scope.friendlySerch.length)
+                $scope.friendlySerch=$scope.friendlySerch.substr(0,$scope.friendlySerch.length-1);
+        })
+    
         $scope.SetLocation=function(ltln){
             if (ltln && !ltln.PERMISSION_DENIED && !ltln.POSITION_UNAVAILABLE && !ltln.TIMEOUT) {
                 ltln.coords=ltln.coords||{};

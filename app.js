@@ -34,6 +34,15 @@ var slides={
         endingtime:null,
         lasts:2,
         password:"unitedway112213"
+    },
+        fd:{
+        name:"Federation",
+        folder:"slides/fd",
+        authCookie:null,
+        startedtime:null,
+        endingtime:null,
+        lasts:2,
+        password:"federation121113"
     }
 }
 
@@ -95,7 +104,7 @@ app.get(/\/slides\/[a-z]+/,function(req, res) {
                 res.render(slides[path].folder+'/index.ejs',{
                     layout:false,
                     locals:{
-                        token:('http://'+req.host+req.url+"?t="+req.cookies.u4mslides+"&p=uw")
+                        token:('http://'+req.host+req.url+"?t="+req.cookies.u4mslides+"&p="+path)
                     }
                 });
                 res.end();

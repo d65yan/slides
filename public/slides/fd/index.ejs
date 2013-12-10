@@ -4,37 +4,50 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ABOUTPLACE.co. Relocate Smarter</title>
+  <title>Urban4M Reports Tool</title>
+        <link type="text/css" rel="stylesheet" href="../core/css/perfect-scrollbar.css"/>
+	<link type="text/css" rel="stylesheet" href="../core/css/angular-ui.css"/>
+	<link type="text/css" rel="stylesheet" href="../core/css/bootstrap.min.css"/>
+	<link type="text/css" rel="stylesheet" href="./css/animate.css"/>        
+        <link type="text/css" rel="stylesheet" href="../core/css/bootstrap-responsive.min.css"/> 
+	<link type="text/css" rel="stylesheet" href="../core/css/aboutplace.css"/>
         <script src="http://maps.google.com/maps/api/js?v=3.2&sensor=false"></script>
-        <link type="text/css" rel="stylesheet" href="css/perfect-scrollbar.css"/>
-	<link type="text/css" rel="stylesheet" href="css/angular-ui.css"/>
-	<link type="text/css" rel="stylesheet" href="css/bootstrap.min.css"/>
-        <link type="text/css" rel="stylesheet" href="css/bootstrap-responsive.min.css"/> 
-	<link type="text/css" rel="stylesheet" href="css/aboutplace.css"/>
-	<script type="text/javascript" src="js/maps/lib/OpenLayers.js"></script>
-	<script type="text/javascript" src="js/jquery.min.js"></script>
-	<script type="text/javascript" src="js/d3.v3.min.js"></script>
+	<script type="text/javascript" src="../core/js/maps/lib/OpenLayers.js"></script>
+	<script type="text/javascript" src="../core/js/jquery.min.js"></script>
+	<script type="text/javascript" src="../core/js/d3.v3.min.js"></script>
         
-        <script type="text/javascript" src="js/angular-1.2/angular.min.js"></script>
+        <script type="text/javascript" src="../core/js/angular-1.2/angular.min.js"></script>
 
-        <script type="text/javascript" src="js/angular-1.2/angular-route.min.js"></script>        
-        <script type="text/javascript" src="js/angular-1.2/angular-animate.min.js"></script>        
-        <script type="text/javascript" src="js/angular-1.2/angular-touch.min.js"></script>
-	<script type="text/javascript" src="js/angular-ui.js"></script>
-	<script type="text/javascript" src="js/ui-bootstrap-0.3.0.min.js"></script>
-        <script type="text/javascript" src="js/jquery.mousewheel.js"></script>
-        <script type="text/javascript" src="js/perfect-scrollbar.js"></script>
-	<script type="text/javascript" src="js/services.js"></script>
-	<script type="text/javascript" src="js/directives.js"></script>
-	<script type="text/javascript" src="js/aboutplace.js"></script>
-	<script type="text/javascript" src="js/filters.js"></script>
-	<script type="text/javascript" src="js/proj4js.js"></script>
-	<script type="text/javascript" src="js/urban.js"></script>
+        <script type="text/javascript" src="../core/js/angular-1.2/angular-route.min.js"></script>        
+        <script type="text/javascript" src="../core/js/angular-1.2/angular-animate.min.js"></script>        
+        <script type="text/javascript" src="../core/js/angular-1.2/angular-touch.min.js"></script>
+	<script type="text/javascript" src="../core/js/angular-ui.js"></script>
+	<script type="text/javascript" src="../core/js/ui-bootstrap-0.3.0.min.js"></script>
+        <script type="text/javascript" src="../core/js/jquery.mousewheel.js"></script>
+        <script type="text/javascript" src="../core/js/perfect-scrollbar.js"></script>
+	<script type="text/javascript" src="./js/services.js"></script>
+	<script type="text/javascript" src="./js/directives.js"></script>
+	<script type="text/javascript" src="./js/federation.js"></script>
+	<script type="text/javascript" src="./js/filters.js"></script>
+        <script type="text/javascript" src="../core/js/animations.js"></script>
+	<script type="text/javascript" src="../core/js/proj4js.js"></script>
+	<script type="text/javascript" src="../core/js/urban.js"></script>
 
 
 <style>
+
+*{
+    font-family: 'Open Sans', sans-serif;
+    color: #918e8e;
+}
+
+
     .*chevron{
     cursor:pointer;
+}
+
+.vector_map img{
+   max-width:none !important;
 }
    .action_pin{
         background-color:blue;
@@ -102,17 +115,17 @@ display:inline;}
 		opacity: 0.3;
 	}
 
-       header{
+                header{
             /*-moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
             -webkit-box-shadow:  #5a5a5a 1px 1px 10px -2px;
             box-shadow: #5a5a5a 1px 1px 10px -2px;*/
-           padding-top:8px;
-            height:54px;
-            background-color:#f37c20;
-            
+            /*height:30px;
+            padding-top:10px;*/
+            height:40px;
         }
 
-
+        
+        
             footer{
         background-color:white;
         line-height:35px;   
@@ -158,61 +171,12 @@ margin-right:0px;
 }
         
         
-        header .searching_bar{
-            margin-left:30px;
-            height:43px;
-           
-        }
-
-        header .global-search-submit-button{
-            width:45px;
-            height:45px;
-            background-image:url('img/buttons/search.png');
-            background-position:center center;
-            background-repeat:no-repeat;
-            background-size:cover;
-            cursor:pointer;
-        }
-
-        
-        
-        header .searching_bar .search_term.edit .term{
-            background-color:transparent;
-            font-size:16px;
-            margin-top:7px;
-        }
-
-        header .searching_bar .search_term.edit i{
-           
-            margin-top:7px;
-
-        }
-
-
-
-
-        header .searching_bar .search_term.edit .term-cont{
-            background-color: white;
-        }
-
-        header .searching_bar .search_term .term-cont{
-            background-color: #f69d58;
-            height:43px;
-            padding-right:8px;
-            border-radius:5px;
-            border:solid 1px #dcdcdc !important;
-        }
-
         header .header-menus{
           float:right;
-          margin-right:80px;
           text-align:right;
-          margin-top: 11px;
-        font-size: 16px;
-        color: white;
         }
         
-        header .header-menus>ul{
+        header .header-menus ul{
             display:block;
             margin-top:20px;
             margin-bottom:20px;
@@ -222,12 +186,12 @@ margin-right:0px;
             
         }
         
-        header .header-menus>ul>li{
+        header .header-menus ul li{
             padding:0;
             margin:0;
             padding-right:10px;
             margin-left:10px;
-            border-right:solid #ffa44b 1px;
+            border-right:solid black 1px;
             display:inline;
             position:relative;
             position:relative;
@@ -235,13 +199,10 @@ margin-right:0px;
                 
         }
         
-        header .header-menus ul>li:last-child{
+        header .header-menus ul li:last-child{
             border:none;
             padding-right:5px;
         }
-
-       
-
         
 	.highlight_true {
 		color: #f60;
@@ -272,11 +233,11 @@ margin-right:0px;
             /*position: absolute;*/
             top: -10px;/*7px*/
             /*background-color: white;*/
-            margin-left: 80px; 
+            left: 20px; 
             z-index:6001;
         }
         #main-logo-container #main-logo{
-            width:180px;
+            width:200px;
         }
         
         
@@ -289,7 +250,7 @@ margin-right:0px;
   *margin-right: .5em;
   line-height: 20px;
   vertical-align: text-top;
-  background-image: url("img/map_sprite.png");
+  background-image: url("../core/img/map_sprite.png");
   background-position: 0px 0px;
   background-repeat: no-repeat;
   cursor:pointer;
@@ -477,7 +438,7 @@ padding-top:6px;
     top:100%;
     width: 600px;
     z-index:4000;
-    background-color:#e5e5e5;
+    background-color:white;
     -moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
     -webkit-box-shadow:  #5a5a5a 1px 1px 10px -2px;
     box-shadow: #5a5a5a 1px 1px 10px -2px;
@@ -507,19 +468,14 @@ white-space:pre;
 border-bottom:solid #bbb 1px;
 cursor:pointer;
 padding-right:1em;
-color:black;
-height:34px;
-padding-top:10px;
-background-color:#e5e5e5;
-
 }
 
-.g-dropdown .content li.active{
-background-color:#f69d58;
-color:white;
-
+.g-dropdown .content li:after{
+content:">";
+font-weight:bold;
+position:absolute;
+right:0;
 }
-
 
 
 .header-lifestyle-selector{
@@ -527,107 +483,165 @@ color:white;
     padding-top:4px;
     padding-bottom:4px;
     line-height:1em;
-    font-size:16px;
+    font-size:14px;
    margin-left:6px;
 margin-right:6px;
-color:white;
-    margin-top:11px;
-    display: inline-block;
-    width: 190px;
-    
-    
-   
 }
 
-#header-lifestyle-selector_dropdown .icon-holder{
-   display: inline-block;
-    width: 28px;
-    height:28px;
-    background-image:url('img/icons/lfs_sprite.png');
-    background-repeat:no-repeat;
-    margin-top: -5px;
-margin-right:3px;
-    
-   
-}
-
-.active_lifestyle_{
-    background-position: 0px -27px;
-}
-
-.active_lifestyle_1201{
-    background-position: -27px -27px;
-}
-
-.active_lifestyle_1151{
-    background-position: -54px -27px;
-}
-
-.active_lifestyle_1152{
-    background-position: -81px -27px;
-}
-
-.active_lifestyle_1150{
-    background-position: -108px -27px;
-}
-
-.active_lifestyle_1202{
-    background-position: -135px -27px;
-}
-
-.active_lifestyle_1153{
-    background-position: -162px -27px;
-}
-
-.active_lifestyle_1325{
-    background-position: -189px -27px;
-}
-
-
-
-.lifestyle_{
-    background-position: 0px 0px;
-}
-.lifestyle_1201{
-    background-position: -27px -0px;
-}
-
-.lifestyle_1151{
-    background-position: -54px -0px;
-}
-
-.lifestyle_1152{
-    background-position: -81px -0px;
-}
-
-.lifestyle_1150{
-    background-position: -108px -0px;
-}
-
-.lifestyle_1202{
-    background-position: -135px -0px;
-}
-
-.lifestyle_1153{
-    background-position: -162px -0px;
-}
-
-.lifestyle_1325{
-    background-position: -189px -0px;
-}
 
 #header-lifestyle-selector_dropdown{
-    
-margin-right:10px;
-margin-left:10px;
-font-size: 16px;
-background-color: #f69d58;
-color: white;
-border-radius: 5px;
-width: 250px;
- border:solid 1px #e2731e !important;
-height:43px;
+    padding-top:3px;
+    padding-bottom:5px;
+margin-right:3px;
 }
+
+.view_slider{
+    position:fixed;
+    bottom:0;
+    width:80px;
+    opacity:0.01;
+    background:black;
+    z-index:6000;
+    transition:opacity 300ms ease;
+    background-repeat:no-repeat;
+    background-position:center center;
+
+    
+}
+
+
+.view_slider.ng-enter{
+        opacity:0.4 !important;
+        transition:opacity 800ms ease !important;
+    }
+    
+ .view_slider.ng-enter.ng-enter-active{
+       opacity:0
+    }
+    .view_slider.ng-leave{
+        position:absolute;
+        display:none
+    }
+    
+    .view_slider.ng-leave.ng-leave-active{
+        
+    }
+
+.view_slider:hover{
+
+    opacity:0.4;
+    cursor:pointer
+    
+}
+.view_slider.go_previous{
+    left:0;
+    
+            border-radius:0px 5px 5px 0px;
+        -moz-box-shadow: #5a5a5a 8px 0px 8px -2px;
+        -webkit-box-shadow: #5a5a5a 8px 0px 8px -2px;
+        box-shadow: #5a5a5a 8px 0px 8px -2px;
+        background-image:url('../core/img/prev_slide.png');
+}
+
+.view_slider.go_next{
+    right:0px;
+    
+            border-radius:5px 0px 0px 5px;
+        -moz-box-shadow: #5a5a5a -8px 0px 8px -2px;
+        -webkit-box-shadow:  #5a5a5a -8px 0px 8px -2px;
+        box-shadow: #5a5a5a -8px 0px 8px -2px;
+        background-image:url('../core/img/next_slide.png');
+}
+
+.control_contained{
+    margin-left:90px;
+    margin-right:90px;
+}
+
+section.text-slide{
+    width:960px;
+    display:block;
+    margin:auto;
+    margin-top:200px;
+}
+
+section.text-slide h1{
+    text-align:center;
+    font-size:350%;
+
+}
+
+section.text-slide h2{
+    text-align:center;
+    font-weight:normal;
+    font-size:250%;
+
+}
+
+section.text-slide ul li h3{
+    text-align:left;
+    font-weight:bold;
+    display:inline;
+    font-size:100%;
+
+}
+
+section.text-slide>ul {
+    margin-top:40px;
+}
+
+section.text-slide ul {
+    list-style-type:disc;
+    font-size:150%;
+
+}
+
+section.text-slide ul li{
+    line-height:1.5em
+
+}
+
+section.text-slide ul li ul{
+    list-style-type:circle;
+    padding-left:30px;
+    font-size:90%;
+
+}
+
+section.text-slide table{
+    width:100%;
+    border:none;
+    text-align:center;
+    font-size:150%;
+
+}
+
+section.text-slide table tr:nth-child(2){
+border-bottom:solid 1px black
+}
+
+section.text-slide table th{
+    background-color:#666;
+    color:white;
+}
+section.text-slide table tr:first-child th:first-child{
+    background-color:white;
+    
+}
+
+section.text-slide table tr td:first-child{
+    text-align:left;
+border-right:solid 1px black;
+}
+
+section.text-slide table td, section.text-slide table th{
+    padding:15px;
+}
+
+h1,h3,h5,p{
+text-align:center;
+}
+
 </style>
   <script>
       $(document).ready(function(){
@@ -645,80 +659,48 @@ height:43px;
 
   
 </head>
-<body   ng-controller="AppController" ng-init="authServer='<%= authServerURL %>/'; user=<%= user %>; logged=<%= logged %>" ng-click="CollapseAll()" class="mobile-touch" > 
-
-    
-<div id="upper_wrapper"  class="main_app1" ng-cloack update="{/{state}/}">
+<body   ng-controller="AppController"  ng-click="CollapseAll()" class="mobile-touch"  > 
+    <div id="upper_wrapper"  class="main_app1" ng-cloack update="{{state}}" style="font-size:{{fonts}}px">
         <header>
-<div class="header-row">
-    <div class="header-cell" >
-            <table style="float:left" cellpadding="0" cell spacing="0" border="0"><tr><td><span id="main-logo-container"><a href="#/home" class="mobile-touch" message="Let's Start all over again!!"><img id="main-logo" src="img/logo.png"></a></span></td>
-           <!--<span><span class="g-dropdown"><input type="text" placeholder="type in an address,city or zip code" ng-model="geo_filter" ng-change="FilterCitites()"><i class="icon-chevron-down" ng-click="ShowCities()"></i><div  ng-show="show_cities" class="content">
-                        <div ng-repeat="msa in geo.regions" class="msas-list" ng-show="msa.someSelected">
-                            <div class="msa-header">{/{msa.name}/}</div>
-                            <ul>
-                                <li ng-repeat="area in msa.groups" ng-click="$parent.$parent.SelectArea(area)" ng-show="area.selecteds">{/{area.name}/}</li>
-                            </ul>
-                        </div>
-                        
-                    </div></span> -->
-                  <td style="vertical-align:top">  <div style="width:250px; display:inline-block;" type="addr" class="search_bar" show_hidden="false" max_search="1" visibles="1" show_categories="false" base_url="http://api.urban4m.com:9200/data/business/_search?q=addr:" placeh="Address, City or Zip code"></div></td>
-                  <td style="vertical-align:top"><span class="g-drop" id="header-lifestyle-selector_dropdown"></span> </td>
-                    <td style="vertical-align:top">
-                        <div class="global-search-submit-button" ng-click="GoTo()"></div></span>
-                  </td>
-                  </tr>
-                  </table>
-                <!--<span class="sosial-container"><a><img src="img/facebook.png"/></a><a><img src="img/twitter.png"/></a><a><img src="img/pincterest.png"/></a></span>-->
+<div>
+            <span id="main-logo-container"><a href="http://www.urban4m.com" ><img id="main-logo" src="../core/img/logo.png"></a></span>
+            <span>Share Presentation: <%= token %></span>
+
             <span class="header-menus">
-                <ul >
-                <li>Upgrade to Premium</li><li>My Account</li></ul>
+                <ul>
+                    <li>Font Size:<input type="text"  placeholder="font-size" ng-model="fonts" style="width:30px"/>px</li>
+                </ul>
             </span>
             
           <div style="clear:both;"></div>  
 </div>
-<div>
         </header> 
-        <div id="main_view_wrapper">
+
+        <div class="view_slider go_previous resizeable take-pos " global="1" auto="self" height-adjust="header" ng-click="$parent.Go_Previous()" ng-if="counter>0"></div>
+        <div class="view_slider go_next resizeable take-pos static_element" global="1" auto="self" height-adjust="header" ng-click="$parent.Go_Next()" ng-if="(counter>=0 && counter<(slides.length-1))"></div>
+        <div id="main_view_wrapper" style="margin-lefty:60px; margin-righty:60px;">
             <div ng-view  class="move-view"></div>
         </div>
-        <div class="status-report reported_true fadeable" style="z-index:7001;" hide={/{status.length==0}/}>
-            <img src="images/loading.gif" style="margin-right:0.5em; width:2em;"><span id="status_message">{/{status}/}</span>
+        <div class="status-report reported_true" style="z-index:7001;" ng-hide=!status || status.length==0>
+            <img src="images/loading.gif" style="margin-right:0.5em; width:2em;"><span id="status_message">{{status}}</span>
         </div>
-        <div class="coverall_overlay1 " redim="{/{getJson(coverAll)}/}" ng-show="coverAll" style="z-index:7000"></div>
-    
-<!--    <footer class="ie_dim_adjust" iewidth="{/{footerState}/}">
-<div class="contained">
-<div style="float:right"><a style="font-weight:bold"> &copy;Copyright 2013 Information</a><a>Privacy Link</a><a>Terms & Conditions</a></div>
-        <div class="contact-block">
-            <a>Place Pulse</a>
-            <a>FAQs</a>
-            <a>Blog</a>
-            <a>About Us</a>
-            <a>Contact Us</a>
-            <a>API</a>
-        </div>
-      
-</div>
-    </footer>-->
+        <div class="coverall_overlay1 " redim="{{getJson(coverAll)}}" ng-show="coverAll" style="z-index:7000"></div>
 </div>
   
     <script type="text/javascript" src="js/reports.js"></script>
-<style type="text/css" media="screen, projection">
-    @import url(https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.css); 
-</style> 
-        <script type="text/javascript" src="https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.js"></script>
-<script type="text/javascript" src="https://s3.amazonaws.com/assets.freshdesk.com/widget/freshwidget.js"></script>
 <script type="text/javascript">
-  FreshWidget.init("", {"queryString": "&widgetType=popup", "widgetType": "popup", "buttonText": "Feedback? ", "buttonColor": "white", "buttonBg": "#FB5F00", "backgroundImage": "", "alignment": "2", "offset": "235px", "formHeight": "500px", "url": "http://aboutplace.freshdesk.com"} );
-    
-</script>
-
-
-
-
-  
-
+  WebFontConfig = {
+    google: { families: [ 'Open+Sans:400,400italic,700,700italic:latin' ] }
+  };
+  (function() {
+    var wf = document.createElement('script');
+    wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+      '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+  })(); </script>
 
    </body>
 </html>

@@ -2687,9 +2687,12 @@ border-top-width: 0;\
                 id:'=id',
                 valid:'=valid',
                 editable:'=editable',
-                active:'@active',
+                active:'=active',
                 autoCommit:'@autoCommit',
-                placeh:'@placeh'
+                placeh:'@placeh',
+                elast:'@elast',
+                method:'@method',
+                area:'@area'
             },
             link:function(scope,element,attrs,bar){
                 
@@ -2699,20 +2702,21 @@ border-top-width: 0;\
                     delimiter:bar.delimiter
                 };
                
+               
+               var call_body={"query":{"query_string":{"query":null}},"highlight":{"fields":{"name":{"content":{"type":"plain"}}}}};
+               
                scope.autoCommit1=!scope.autoCommit || !(!scope.autoCommit.replace(/false/i,''));
+               scope.elastic=!scope.elast || !(!scope.elast.replace(/false/i,''));
                var last_forced={id:-1, name:''};
                scope.scats=bar.showCats;
- //              var stateReg= /^(?-i:A[LKSZRAEP]|C[AOT]|D[EC]|F[LM]|G[AU]|HI|I[ADLN]|K[SY]|LA|M[ADEHINOPST]|N[CDEHJMVY]|O[HKR]|P[ARW]|RI|S[CD]|T[NX]|UT|V[AIT]|W[AIVY])$/i;
-               //var zipReg=/^(?!00000)(?<zip>(?<zip5>\d{5})(?:[ -](?=\d))?(?<zip4>\d{4})?)$/i;
-              /* var full_addressReg=new RegExp("^[a-zA-Z\\d]+(([\\'\\,\\.\\- #][a-zA-Z\\d ])?[a-zA-Z\\d]*[\\.]*)*$",'i');
-               var streetAddress=new RegExp('\\d{1,3}.?\\d{0,3}\\s[a-zA-Z]{2,30}\\s[a-zA-Z]{2,15}','i');*/
+
                 scope.searching=false;
-                //scope.active=false;
+
                 
                 var timeHandler=null;
                 
-                var input=$(element).children('input');
-                var close=$(element).children('div.close');
+                var input=$(element).find('input');
+                var close=$(element).find('div.close');
                 if(scope.active){
                     input.focus();
                 }
@@ -2727,15 +2731,6 @@ border-top-width: 0;\
                     var start=1;
                     var temp="";
                      var parts=config.delimiter?scope.value.split(config.delimiter):[scope.value];
-                    /*for(var i=0;i<parts.length;i++){
-                        var ltemp=temp+(temp.length?", ":"")+$.trim(parts[i]);
-                        if(ltemp.match(/^[ \w]{3,}([A-Za-z]\.)?([ \w]*\#\d+)?(\r\n| )[ \w]{3,},\x20[A-Za-z]{2}\x20\d{5}(-\d{4})?$/)){
-                            temp=ltemp;
-                            start++;
-                            if(parts[i].match(/^((\d{5}-\d{4})|(\d{5})|([A-Z]\d[A-Z]\s\d[A-Z]\d))$/))
-                                break;
-                        }
-                    }*/
                     temp=temp.length?temp:parts[0];
                     
                    
@@ -2752,7 +2747,7 @@ border-top-width: 0;\
                 
                 $(input).focus(function(){
                     scope.active=true;
-                    //scope.$apply();
+                    scope.$apply();
                 })
                 
                 $(input).blur(function(){
@@ -2799,7 +2794,7 @@ border-top-width: 0;\
                 
                 scope.submit=function(){
                     //submit();
-                    if(!scope.value && scope.value.length && scope.valid){
+                    if(scope.value && scope.value.length && scope.valid){
                         var subm=true;
                         if(scope.value!==last_forced.name || scope.id!== last_forced.id)
                             subm=ForceFirst();
@@ -2840,7 +2835,21 @@ border-top-width: 0;\
                 function Fetch(auto){
                     var l_auto=auto;
                       scope.searching=true;
-                        $http.get(config.url+scope.value).success(function(data){
+                      var callconfig={};
+                      
+                      //'{"query":{"query_string":{"query":"feline"}},"fields":["meta_"]}'
+                      
+                      var querys='{"fields": ["meta_" ],"query" : {"bool" : {"must" : [{ "match" : {"meta_" : "'+scope.value+'"}}], "should" : [{ "match" : {"msa_short" : "'+scope.area+'"}}],"minimum_should_match" : 0,"boost" : 1.0}},"highlight" : {"fields" : {"*" : {"fragment_size" : 50,"number_of_fragments" : 1}}}}';
+                      querys='{"query":{"query_string":{"query":"'+scope.value+'"}},"fields":["meta_"]}';
+                      
+                      
+                      
+                        var val=scope.elastic?querys:scope.value;
+                      callconfig.url=scope.method!='post'?(config.url+val):config.url
+                      callconfig.method=scope.method||'get';
+                      if(scope.method && scope.method=='post')
+                          callconfig.data=val;
+                      $http(callconfig).success(function(data){
                             scope.searching=false;
                                                    switch(bar.type){
                                 case 'addr':{
@@ -2853,7 +2862,23 @@ border-top-width: 0;\
                             }
                             
                             Validate(l_auto);
-                        })
+                        });
+                      
+                      
+                        /*$http.get(config.url+scope.value).success(function(data){
+                            scope.searching=false;
+                                                   switch(bar.type){
+                                case 'addr':{
+                                      res_list=TranslateAddress(data);
+                                        break;
+                                }
+                                default:{
+                                     res_list=Translate_temp(data);   
+                                }
+                            }
+                            
+                            Validate(l_auto);
+                        })*/
                 }
                 
                 
@@ -2874,7 +2899,7 @@ border-top-width: 0;\
                     for(var i=0;i<obj.hits.hits.length;i++){
                         
                         var nobj={
-                            name:$.trim(obj.hits.hits[i]._index),
+                            name:$.trim(obj.hits.hits[i].fields.meta_),
                             id:$.trim(obj.hits.hits[i]._id)
                             
                         }
@@ -2946,14 +2971,14 @@ border-top-width: 0;\
              }
         };
     }])
-    .directive('searchBar',['$timeout','SelectionService',function($timeout,SelectionService){
+    .directive('searchBar',['$timeout','SelectionService','$rootScope',function($timeout,SelectionService,$rootScope){
         return {
             restrict:'C',
             replace:true,
-            template:'<div class="searching_bar"><span class="searching_term"  ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}"></span>\
+            template:'<div class="searching_bar"><span class="searching_term"  ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}" elast="{/{elastic}/}" method="{/{method}/}" area="{/{area}/}"></span>\
                        <div class="hidden-terms-cont" ng-show="showHidden">\
                             <div class="arrow"></div>\
-                            <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="true"></span>\
+                            <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="true"  elast="{/{elastic}/}" method="{/{method}/}"  area="{/{area}/}"></span>\
                         </div></div>',
             scope:{
                 showHidden:"@showHidden",
@@ -2964,12 +2989,15 @@ border-top-width: 0;\
                 type:"@type",
                 autoCommit:'@autoCommit',
                 placeh:'@placeh',
-                lfs:'@lfs'
+                lfs:'@lfs',
+                elastic:'@elastic',
+                method:'@method',
+                area:'@area'
             },
             controller:function($scope){
                 $scope.showHidden=!$scope.showHidden.replace(/true/i,'');
-                $scope.searchTerms=[{id:"0_"+Date.now(),value:"",editable:true,valid:true}];
-                $scope.hiddenTerms=[];
+                this.searchTerms=$scope.searchTerms=[{id:"0_"+Date.now(),value:"",editable:true,valid:true}];
+                this.hiddenTerms=$scope.hiddenTerms=[];
                 $scope.visibleItems=+$scope.visibleItems;
                 var maxSearch=+$scope.maxSearch;
                 maxSearch=maxSearch?maxSearch:1;
@@ -2994,12 +3022,30 @@ border-top-width: 0;\
                     if(!obj.id){
                         obj.id=$scope.hiddenTerms.length+$scope.searchTerms.length+"_"+Date.now();
                     }
-                    if($scope.searchTerms.length>=$scope.visibleItems)
-                        $scope.hiddenTerms.unshift($scope.searchTerms.pop());
+                    if($scope.searchTerms.length>=$scope.visibleItems){
+                        var overflow=$scope.searchTerms.pop();
+                        $timeout(function(){$scope.hiddenTerms.unshift(overflow);});
+                    }
                     
                     
 
                        $scope.searchTerms.unshift(obj);
+                         $timeout(function(){
+                            var terms=[];
+                            for(var i=0;i<self.searchTerms.length;i++){
+                                if(!self.searchTerms[i].editable && self.searchTerms[i].valid){
+                                    terms.push({name:self.searchTerms[i].value,id:self.searchTerms[i].id});
+                                }
+                            }
+                            
+                            for(var i=0;i<self.hiddenTerms.length;i++){
+                                if(!self.hiddenTerms[i].editable && self.hiddenTerms[i].valid){
+                                    terms.push({name:self.hiddenTerms[i].value,id:self.hiddenTerms[i].id});
+                                }
+                            }
+                            if(!this.addr)
+                                $rootScope.$broadcast('searchChanged',terms);
+                        });
                 }
                 
                 this.RemoveTerm=function(id){
@@ -3013,6 +3059,23 @@ border-top-width: 0;\
                     }
                     if($scope.searchTerms.length<$scope.visibleItems && $scope.hiddenTerms.length)
                         $scope.searchTerms.push($scope.hiddenTerms.shift());
+                    
+                     $timeout(function(){
+                            var terms=[];
+                            for(var i=0;i<self.searchTerms.length;i++){
+                                if(!self.searchTerms[i].editable && self.searchTerms[i].valid){
+                                    terms.push({name:self.searchTerms[i].value,id:self.searchTerms[i].id});
+                                }
+                            }
+                            
+                            for(var i=0;i<self.hiddenTerms.length;i++){
+                                if(!self.hiddenTerms[i].editable && self.hiddenTerms[i].valid){
+                                    terms.push({name:self.hiddenTerms[i].value,id:self.hiddenTerms[i].id});
+                                }
+                            }
+                            if(!this.addr)
+                                $rootScope.$broadcast('searchChanged',terms);
+                        });
                 }
                 
                 function FindTerm(id){
@@ -3032,7 +3095,6 @@ border-top-width: 0;\
                     
                     if($scope.searchTerms &&(!$scope.searchTerms.length || !$scope.searchTerms[0].editable))
                         self.AddTerm({value:"",editable:true,valid:true});
-                        //$timeout(function(){self.AddTerm({value:"",editable:true,valid:true});});
                 })
                 
                 if(this.lfs){
@@ -3096,5 +3158,25 @@ border-top-width: 0;\
             }
         };
     }])
-
+    .directive('clicktale',['$timeout','$rootScope',function($timeout,$rootScope){
+        return {
+            restrict:'C',
+            replace:true,
+            link:function(scope,element,attrs){
+                $timeout(function(){
+                    $(element).append('<script type="text/javascript">\
+/* The ClickTale Balkan Tracking Code may be programmatically customized using hooks:\
+   function ClickTalePreRecordingHook() { }\
+ For details about ClickTale hooks, please consult the wiki page http://wiki.clicktale.com/Article/Customizing_code_version_2*/\
+document.write(unescape("%3Cscript%20src=\'"+(document.location.protocol==\'https:\'?"https://clicktalecdn.sslcs.cdngc.net/www02/ptc/1dccc9e8-b5b7-469c-bdde-bfe9b94e7431.js":"http://cdn.clicktale.net/www02/ptc/1dccc9e8-b5b7-469c-bdde-bfe9b94e7431.js")+"\'%20type=\'text/javascript\'%3E%3C/script%3E"));\
+</script>');
+                $(element).prepend('<script type="text/javascript">\
+var WRInitTime=(new Date()).getTime();\
+</script>');
+                });
+                
+                
+            }
+        };
+    }])
 ;

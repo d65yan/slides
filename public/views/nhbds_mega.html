@@ -535,7 +535,7 @@ margin-top: 2px;
         
         
         
-        .nbds_leftbar .main_container .searching_bar .search_term.accepted{
+        .nbds_leftbar .main_container .searching_bar .search_term.accepted, .nbds_leftbar .main_container .searching_bar .search_term.accepted-add{
             background-color:#eee;
             color:#949494;
             font-weight:200;
@@ -579,18 +579,22 @@ margin-top: 2px;
            
         }
         
-       .nbds_leftbar .main_container .searching_bar .search_term.accepted .term{
+       .nbds_leftbar .main_container .searching_bar .search_term.accepted .term, .nbds_leftbar .main_container .searching_bar .search_term.accepted-add .term{
             display:none;
            
         }
         
-       .nbds_leftbar .main_container .searching_bar .search_term.accepted .display{
+       .nbds_leftbar .main_container .searching_bar .search_term.accepted .display, .nbds_leftbar .main_container .searching_bar .search_term.accepted-add .display{
             display:inline;
            
         }
 
 
 
+        .nbds_leftbar .main_container .searching_bar .hidden-terms-cont .search-term.ng-enter{
+            display:none;
+        }
+        
         .nbds_leftbar .main_container .searching_bar .hidden-terms-cont{
             min-height:80px;
             background-color:#EEE;
@@ -640,7 +644,7 @@ border-top-width: 0;
        .add-cont{
            color:white;
            
-           width:50%;
+           width:25%;
            float:left;
        }
        
@@ -657,7 +661,7 @@ border-top-width: 0;
        }
 </style>
 <!-- with animation skips dimentioning whrn rendered<section  id="nhbd_page" class="content-section scrollable resizeable" global="1" auto="self" height-adjust="header" skip-render="true" style="width:100%; height:600px;">-->
-<div  id="nhbd_page" class="content-section scrollable resizeable take-pos" global="1" auto="self" height-adjust="header" style="width:100%; height:600px;" update="{/{updateMapSpace}/}" ng-class="{left_bar_hidden:menu_state==='short'}">
+<div  id="nhbd_page" class="content-section scrollable resizeable take-pos clicktale1" global="1" auto="self" height-adjust="header" style="width:100%; height:600px;" update="{/{updateMapSpace}/}" ng-class="{left_bar_hidden:menu_state==='short'}">
   <div class="shadowtop static_element"></div>
     <div class="nbds_leftbar {/{menu_state}/} mobile-touch" ng-click="CollapseAll()">
         <table style="height:100%; margin-left:5px; margin-right:5px">
@@ -668,24 +672,36 @@ border-top-width: 0;
             <br> 
             <img src="./img/buttons/wishlist.png">
              <h3>Add the amenities & criteria that matters most to you</h3>
-             <div class="search_bar" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="api/search?q=" auto_commit="false" placeh="e.g starbuks, coffeshops, retiree" lfs="true"></div>
+             <div class="search_bar" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="http://api.urban4m.com:9200/_all/_search?pretty=1' -d" auto_commit="false" placeh="e.g starbucks, coffeshops, retiree" lfs="true" elastic="true" method="post" area="{/{area.name}/}"></div>
         </div>
                 </td>
             </tr>
             <tr >
                 <td style="height:80px; background-color:red; vertical-align:top">
                     <div class="add-cont">
-                        <h4>Find Hotels</h4>
+                        <h4>Hotels</h4>
                         <a target="_blanck" href="http://www.hotels.com/search.do?destination={/{area.name}/}">Hotels.com</a>
                         <a target="_blanck" href="http://shop.travelocity.com/Hotel-Search#destination={/{area.name}/}">Travelocity.com</a>
                         
                     </div>
                     <div class="add-cont">
-                        <h4>Find Houses</h4>
-                        <a target="_blanck" href="http://www.trulia.com/for_rent/{/{bbox.top}/},{/{bbox.bottom}/},{/{bbox.left}/},{/{bbox.right}/}_xy/x_map/">trulia.com</a>
-                        <a target="_blanck" href="http://www.zillow.com/homes/for_rent/{/{bbox.top}/},{/{bbox.right}/},{/{bbox.bottom}/},{/{bbox.left}/}_rect">zillow.com</a>
+                        <h4>Houses</h4>
+                        <a target="_blanck" href="http://www.trulia.com/for_sale/{/{bbox.top}/},{/{bbox.bottom}/},{/{bbox.left}/},{/{bbox.right}/}_xy/x_map/">trulia.com</a>
+                        <a target="_blanck" href="http://www.zillow.com/homes/for_sale/{/{bbox.top}/},{/{bbox.right}/},{/{bbox.bottom}/},{/{bbox.left}/}_rect">zillow.com</a>
                         
                     </div>
+                    <div class="add-cont">
+                        <h4>Jobs</h4>
+                        <a target="_blanck" href="http://jobsearch.monster.com/search/?where={/{area.name}/}">Monster.com</a>
+                        <a target="_blanck" href="http://jobs.careerbuilder.com/Jobseeker/Jobs/JobResults.aspx?IPath=QH&qb=1&s_rawwords=&s_freeloc={/{area.name}/}&ch=al">CareerBuilder.com</a>
+                        
+                    </div>
+                    <div class="add-cont">
+                        <h4>Amenities</h4>
+                        <a target="_blanck" href="http://www.yelp.com/search?find_desc={/{friendlySerch}/}&find_loc={/{area.name}/}">Yelp.com</a>
+                   </div>
+                    
+                    
                 </td>
             </tr>
         </table>
