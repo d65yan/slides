@@ -1,5 +1,5 @@
 angular.module('Directives',['LocalServices'/*,'MapModule'*/])
-    .directive('slider',function(){
+    /*.directive('slider',function(){
         return{
             restrict:'AC',
             link:function(scope,element,attrs){
@@ -66,445 +66,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 })
             }
         }
-    })
-    .directive('vectorMap',['$timeout','$rootScope','$http',function($timeout,$rootScope,$http){
-        return{
-            restrict:'C',
-            replace:false,
-            template:'<div style="width:100%; height:100%" id="map"></div>\
-            <div class="map-status-report reported_true" ng-show="mapStatus.length>0" style="z-index:7001">\
-                <img src="public/images/loading.gif" style="margin-right:0.5em; width:2em;"><span id="map_status_message">{/{mapStatus}/}</span>\
-            </div>',
-            link:function(scope,element,attrs){
-                var map,projObject,layer,infoPop;
-                var fromProjection = new OpenLayers.Projection("EPSG:4326");   // Transform from WGS 1984
-                var googleProjection   = new OpenLayers.Projection("EPSG:900913"); // to Spherical Mercator Projection
-                //var usProjection   = new OpenLayers.Projection("EPSG:U4M"); // to
-                var data={type:"FeatureCollection", features:[]};
-                var citiesFt=[], cityCenterLayer,citiesLayer,markersLayer,cityMarker;
-                var highlightCtrl,selectCtrl,transfCtrl=null;
-                var self=this;
-                
-                var select = function(e,skipapply) {
-                        if(!e.layer)
-                            return;
-                        if(e.attributes.scaled){
-                            e.attributes.zIndex=1;
-                            e.attributes.scaled=false;
-                        }
-                         
-                         var city=scope.SelectCityById(e.attributes.id,true);
-                         if(infoPop)
-                             map.removePopup(infoPop);
-                         
-                         if(scope.hoveredCity>01){
-                             if(e.geometry.bounds.centerLonLat){
-                                infoPop=new OpenLayers.Popup.Anchored("city_detail",
-                                e.geometry.bounds.centerLonLat,
-                                new OpenLayers.Size(200,200),
-                                "example popup",null,
-                                true);
-                                infoPop.panMapIfOutOfView=false;
-                                //infoPop.keepInMap=true;
-                                map.addPopup(infoPop);
-                            }
-                         }
-                         scope.hoveredCity=-1;
-                        
-                       e.attributes.selected=true;
-                       e.layer.redraw();
-                      if(!skipapply && !scope.prgtely)
-                            scope.$apply();
-                    };
-                    
-                   var unselect = function(e,skipapply) {
-                       if(!e.layer)
-                            return;
-                       e.attributes.selected=false;
-                       if(infoPop)
-                             map.removePopup(infoPop);
-                       scope.SelectCityById(e.attributes.id,false)
-                          if(!skipapply && !scope.prgtely)
-                            scope.$apply();
-                    };
-                    
-                    var hover = function(e,skipapply) {
-                        if(!e.layer)
-                            return;
-                       if(cityMarker){
-                            citiesLayer.removeFeatures([cityMarker]);
-                            cityMarker.destroy();
-                            cityMarker=null;
-                        }
-                         var style_blue = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
-                            style_blue.strokeColor = "#777";
-                            style_blue.fillColor = "black";
-                            style_blue.graphicName = "star";
-                            style_blue.pointRadius = 3;
-                            style_blue.strokeWidth = 1;
-                            style_blue.graphicZIndex = 1;                            
-
-
-                            var point = new OpenLayers.Geometry.Point(e.geometry.getBounds().getCenterLonLat().lon,e.geometry.getBounds().getCenterLonLat().lat);//e.geometry.getCentroid();
-                            cityMarker = new OpenLayers.Feature.Vector(point/*,null,style_blue*/); 
-                            cityCenterLayer.addFeatures([cityMarker]);
-                        
-                        
-                        
-                       scope.hoveredCity=e.attributes.id*1;
-                      if(!e.attributes.scaled){
-                           e.attributes.zIndex=10;
-                       }
-                      
-                       e.attributes.scaled=true;
-                          highlightCtrl.highlight(e);
-                          if(!skipapply)
-                            scope.$apply();
-                    };
-                    
-                    var unhover = function(e,skipapply) {
-                        if(!e.layer)
-                            return;
-                        if(cityMarker){
-                            citiesLayer.removeFeatures([cityMarker]);
-                            cityMarker.destroy();
-                            cityMarker=null;
-                        }
-                       scope.hoveredCity=-1;
-                       if(e.attributes.scaled){
-                      }
-                       e.attributes.scaled=false;
-                       if(!e.attributes.selected)
-                            highlightCtrl.unhighlight(e);
-                        else {
-                            e.renderIntent='select';
-                            e.layer.redraw();
-                        }
-                        
-                        if(!skipapply)
-                            scope.$apply();
-                       
-                    };
-                
-                
-                
-                
-                scope.mapControl={
-                    SelectCityById:function(id,status,hoverOp){
-                        var idx=FindCityById(id);
-                        if(idx || idx===0)
-                        this.SelectCityByIdx(idx,status,hoverOp);
-                        return idx;
-                    },
-                    SelectCityByIdx:function(idx,status,hoverOp){
-                        if(!selectCtrl)
-                            return;
-                        if(hoverOp){
-                            if(status)
-                                hover(citiesFt[idx],true);
-                            else
-                               unhover(citiesFt[idx],true);
-                        }
-                    else
-                        {
-                            if(status)
-                                selectCtrl.select(citiesFt[idx],true);
-                            else
-                                selectCtrl.unselect(citiesFt[idx],true);
-                        }
-                    },
-                    AddCity:AddCity,
-                    geojson_format:new OpenLayers.Format.GeoJSON({internalProjection:fromProjection,externalProjection:fromProjection})
-                    
-                };
-                function FindCityById(id){
-                    if(!citiesFt)
-                        return;
-                    for(var i=0;i<citiesFt.length;i++){
-                        if(citiesFt[i].attributes.id*1===id*1)
-                            return i;
-                    }
-                    return false;
-                }
-                function resize() {
-                    if( !angular.isUndefined(map) && angular.isFunction(map.updateSize))
-                    map.updateSize();
-                }
-                function getData(msa){
-                    /*AddCities([]);
-                    return;*/
-                    $http.get(attrs.url).success(function(arr){
-                        data.features=[];
-                        arr=arr.length?arr:arr.cities;
-                        for(var i=0;i<arr.length;i++){
-                            var feat={"type":"Feature","properties":{id:arr[i].gid,name:arr[i].name},geometry:arr[i].shape};
-                            data.features.push(feat);
-                        }
-                        AddCities(data);
-                    }).error(
-                        function(){
-                            var padre=scope.$parent;
-                            padre.status='Failed loading Area Map';
-                            $timeout(
-                            function(){
-                                padre.status=''; 
-                                padre.$apply();
-                            },3000);
-                            /*scope.$parent.$apply();*/
-                        }
-                    )
-                    
-                }
-                
-               
-               function AddCity(city){
-                   
-                   //var vector=new OpenLayers.Feature.Vector(city.geometry,{name:city.name,id:city.id});
-                   citiesFt.push(city);
-                   citiesLayer.addFeatures([city]);
-               }
-               
-                this.ApplyGeoJson=function(data,features,layer,style,name){
-                    if(infoPop)
-                        
-                    if(citiesFt){
-                        for(var i=0;i<citiesFt.length;i++)
-                            citiesFt[i].destroy();
-                    }
-                 
-                    citiesFt=[];
-                    if(highlightCtrl){
-                        highlightCtrl.deactivate();
-                        selectCtrl.deactivate(); 
-                        map.removeControl(highlightCtrl);
-                        map.removeControl(selectCtrl);
-                        highlightCtrl.destroy();
-                        selectCtrl.destroy(); 
-                        highlightCtrl=selectCtrl=transfCtrl=null; 
-                   }
-                
-                    if(citiesLayer){
-                        map.removeLayer(citiesLayer);
-                        citiesLayer.destroy();
-                        citiesLayer=null;
-                    }
-                    
-                    
-                    
-                    var myStyles = style;
-                    citiesLayer = new OpenLayers.Layer.Vector(name,{
-                            styleMap: myStyles,
-                            rendererOptions:{zIndexig:true}
-                    });
-                    citiesLayer.isBaseLayer=true;
-                    map.addLayer(citiesLayer);
-                    
-
-                    
-                    highlightCtrl = new OpenLayers.Control.SelectFeature(citiesLayer, {
-                        hover: true,
-                        multiple:false,
-                        highlightOnly: true,
-                        renderIntent: "temporary",
-                        overFeature: hover,
-                        outFeature:unhover
-                   });
-
-
-                   selectCtrl = new OpenLayers.Control.SelectFeature(citiesLayer,{
-                        clickout:false,
-                        toggle:true,
-                        multiple:true,
-                        box:true,
-                        onSelect: select,
-                        onUnselect: unselect
-                  });
-                  selectCtrl.events.register('boxselectionstart',selectCtrl,function(){
-                        scope.boxSelect=true;
-                        scope.mapStatus='Processing your selection';
-                        scope.$apply();
-                  })
-                        
-                  selectCtrl.events.register('boxselectionend',selectCtrl,function(){
-                        scope.mapStatus='';
-                        scope.boxSelect=false;
-                        scope.msa.DeepCheckAll();
-                        scope.$apply();
-                  })
-                    
-                  map.addControl(highlightCtrl);
-                  map.addControl(selectCtrl);
-                  highlightCtrl.activate();
-                  selectCtrl.activate(); 
-                  
-                  citiesFt=scope.mapControl.geojson_format.read(data);
-                  map.zoomTo(0);
-                   citiesLayer.events.register('featuresadded',citiesLayer,function(){
-                    citiesLayer.setZIndex( 2 ); 
-                    var bounds=citiesLayer.getDataExtent();
-                    var z=map.getZoomForExtent(bounds);
-                     z-=0.1;
-                     
-
-                    map.zoomTo(z);
-                        map.panTo(bounds.getCenterLonLat());
-                        map.raiseLayer(citiesLayer,5);
-                    //z=Math.floor(z);
-                   
-                    //map.zoomToExtent(bounds);
-                      for(var gidx in scope.msa.groups){
-                        var g=scope.msa.groups[gidx];
-                        if(!g.cities)
-                            continue;
-                        for(var cidx in g.cities){
-                            var c=g.cities[cidx];
-                            if(!c.selected || !c.ToggleSelect)
-                                continue;
-                            c.ToggleSelect(true);
-                        }
-                    }
-                        $rootScope.$$childHead.status='';
-                        $rootScope.$$childHead.$apply();
-                   })
-                   if(citiesFt)
-                 // citiesLayer.addFeaturesSync(citiesFt); 
-              citiesLayer.addFeatures(citiesFt); 
-              else
-                  citiesFt=[];
-                  //citiesLayer.isBaseLayer=true;
-                  
-                 
-            }
-           
-           
-        this.AddCities=function(data){
-            this.labelDeltaPixels = function (f) {
-                var vert = f.geometry.getVertices();
-                var startPoint = vert[0];
-                var middlePoint = vert[Math.floor(vert.length/2)];
-                var pixelStart = self.mapPanel.map.getPixelFromLonLat(new      OpenLayers.LonLat(startPoint.x, startPoint.y));
-                var pixelMiddle = self.mapPanel.map.getPixelFromLonLat(new OpenLayers.LonLat(middlePoint.x, middlePoint.y));
-                var deltaX = pixelMiddle.x - pixelStart.x;
-                var deltaY = pixelStart.y - pixelMiddle.y;
-                return {x: deltaX, y: deltaY};
-            }
-            
-            var context = {
-                getLableOffsetX: function(f) {
-                var zoom = self.mapPanel.map.getZoom();
-                if (zoom < self.centreLabelsZoom) {
-                    return 0;
-                }
-
-                    if (f.geometry) {
-                        if (!self.centrelineMiddleCoordsMap[zoom]) {
-                         self.centrelineMiddleCoordsMap[zoom] = {};
-                        }
-                        if (!self.centrelineMiddleCoordsMap[zoom][f.id]) {
-                            self.centrelineMiddleCoordsMap[zoom][f.id] =     self.labelDeltaPixels(f);
-                        }
-                        return self.centrelineMiddleCoordsMap[zoom][f.id].x+10;
-                            return 0;
-                    } else {
-                        return 0;
-                    }
-                }
-            }
-            var template = {
-                    fillColor:"#f60",
-                    label:'${name}',
-                    labelXOffset: 5,
-                    labelAlign:'lm',
-                    graphic:true,
-                    pointRadius:20,
-                    graphicName:"circle",
-                    graphicZIndex:10,
-                    fillOpacity:0.5
-
-            };
-            var style0 = new OpenLayers.Style(template, {context: context}); 
-            var style=new OpenLayers.StyleMap({
-                "default": new OpenLayers.Style({
-                    fillColor:'#CCC',
-                    strokeColor:"#FFFFFF",
-                    
-                    strokeWidth:"1.5"
-
-                }),
-                "select": new OpenLayers.Style({
-                    zIndex:4,
-                    fillColor:"#666"
-                }),
-                "temporary":style0
-            }); 
-            this.ApplyGeoJson(data,citiesFt,citiesLayer,style,'Cities');
-        };
-  
-                
-        function drawMap(){
-            
-            var mapOpt={
-                projection: fromProjection,
-                displayProjection: fromProjection,
-                minScale:50,
-                maxScale:100000000000000,
-                units: "m",
-                fractionalZoom:true,
-                allOverlays:true,
-                controls:[
-                    /*new OpenLayers.Control.Navigation(),
-                    new OpenLayers.Control.PanZoomBar(),
-                    new OpenLayers.Control.LayerSwitcher()*/
-                ]
-            };
-
-            map = new OpenLayers.Map($(element).find('#map')[0], mapOpt);
-            layer = new OpenLayers.Layer.Google("Google");
-
-            
-            
-            
-            
-                    cityCenterLayer = new OpenLayers.Layer.Vector('cityCenter',{
-                            styleMap: new OpenLayers.StyleMap({
-                                "default": new OpenLayers.Style({
-                                    strokeColor : "#777",
-                                    fillColor : "black",
-                                    graphicName : "star",
-                                    pointRadius : 3,
-                                    strokeWidth : 1,
-                                    graphicZIndex : 1   
-                                })
-                            })  ,
-                            renderOptions:{zIndexig:true},
-                            isBaseLayer:true
-                    });
-                    
-                    var point = new OpenLayers.Geometry.Point(0, 0);
-                            cityMarker = new OpenLayers.Feature.Vector(point/*,null,style_blue*/); 
-                            cityCenterLayer.addFeatures([cityMarker]);
-                    map.addLayers([/*layer,*/cityCenterLayer]);
-
-                    
-            
-            
-    }
-        scope.$watch(function(){return attrs.url},function(newval, oldval){
-            if(!scope.msa)
-                return false;
-            resize();
-            if(!newval || !newval.length || newval.match(/null|undefined/i))
-                return;
-        
-            getData(newval);
-    
-         });
-    
-        drawMap();
-    }
-}
-        
-    }])
+    })*/
     .directive('mainApp',function(){
         return{
             restrict:'C',
@@ -676,7 +238,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         }
         
     })
-    .directive('expandableContent1',['$timeout',function($timeout){
+    /*.directive('expandableContent1',['$timeout',function($timeout){
         return{
             restrict:'AC',
             replace:false,
@@ -711,8 +273,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 });
             }
         };
-    }])
-    .directive('cityDetails',['$timeout','$location','$rootScope',function($timeout,$location,$rootScope){
+    }])*/
+    /*.directive('cityDetails',['$timeout','$location','$rootScope',function($timeout,$location,$rootScope){
         return{
             restrict:'C',
             replace:false,
@@ -763,7 +325,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
 
             }
         }
-    }])
+    }])*/
     .directive('mainMap',['$timeout','SelectionService','GeograficService','$location','$rootScope',function($timeout,SelectionService,GeograficService,$location,$rootScope){
         return{
             restrict:'C',
@@ -1550,8 +1112,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
     scope.$on('addressSelected',function($event,location){
             if(scope.stage<3){
                 m2loc(location);
-                if(!mrid)
-                    $timeout(rotateMap,400);
+               /* if(!mrid)
+                    $timeout(rotateMap,400);*/
             }
             selLoc=true;
             
@@ -1603,16 +1165,6 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         }
         
     }])
-    .directive('u4mPulse',function(){
-        return{
-            restrict:'C',
-            replace:true,
-            scope:{
-                pulse:'@pulse'
-            },
-            template:'<div class="pulse-logo"><div class="first"><div>{/{pulse}/}</div></div></div>'
-        }
-    })
     .directive('nhbdResume',function(){
         return{
             restrict:'C',
@@ -2567,30 +2119,6 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                
         };
     }])
-    .directive('marketSpace',['$timeout',function($timeout){
-        return {
-            restrict:'C',
-            scope:{},
-            link:function(scope,element,attrs){
-                scope.setHidden=function($event,st){
-                    if($event){
-                        $event.preventDefault();
-                        $event.stopPropagation();
-                        $event.stopImmediatePropagation();
-                    }
-                    scope.hidden=st;
-                    $timeout(function(){
-                        $timeout(function(){
-                           $timeout(function(){
-                                $(window).trigger('resize');
-                            })
-                        });
-                    })
-                    
-                };
-            }
-        };
-    }])
     .directive('shareItem',['$timeout',function($timeout){
         return {
             restrict:'C',
@@ -2679,7 +2207,10 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         }\
         \
                 \
-.searching_bar .search_term.edit .term{\
+.searching_bar .search_term.edit .icon-remove{\
+           display:none;\
+        }\
+        .searching_bar .search_term.edit .term{\
            display:inline-block;\
            margin-bottom:0px;\
            /* line-height:1em;\
@@ -3093,6 +2624,7 @@ border-top-width: 0;\
             template:'<div class="searching_bar"><span class="searching_term"  ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}" elast="{/{elastic}/}" method="{/{method}/}" area="{/{area}/}" log="{/{log}/}"  extra="{/{extra}/}"></span>\
                        <div class="hidden-terms-cont" ng-show="showHidden">\
                             <div class="arrow"></div>\
+                            <h4 ng-hide="hiddenTerms.length">Add a wish list to refine your search</h4>\
                             <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="true"  elast="{/{elastic}/}" method="{/{method}/}"  area="{/{area}/}"  log="{/{log}/}" extra="{/{extra}/}"></span>\
                         </div></div>',
             scope:{
@@ -3275,25 +2807,33 @@ border-top-width: 0;\
         return {
             restrict:'C',
             replace:true,
-            template:'<span class="g-dropdown"  ng-click="ToggleView($event)" style="cursor:pointer"><div class="icon-holder active_lifestyle_{/{selection.activeLifeStyle.id}/}"></div><span class="header-lifestyle-selector"><span ng-hide="selection.activeLifeStyle.id" >Custom</span>{/{selection.activeLifeStyle.name}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">\
+            template:'<span class="g-dropdown"  ng-click="ToggleView($event)" style="cursor:pointer"><div class="icon-holder active_lifestyle_{/{selId}/}"></div><span class="header-lifestyle-selector"><span ng-hide="selId" >Custom</span>{/{selName}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">\
                         <ul>\
-                            <li ng-repeat="lfs in selection.lifestyles" ng-click="$parent.SelectLifeStyle(lfs)" ng-class="{active:(lfs.id===$parent.selection.activeLifeStyle.id)}"><div class="icon-holder {/{(lfs.id===$parent.selection.activeLifeStyle.id)?\'active_\':\'\'}/}lifestyle_{/{lfs.id}/}" ></div>{/{lfs.name}/} <div class="indication_button"></div></li>\
-                            <li  ng-click="ClearLifeStyle()" ng-class="{active:(!selection.activeLifeStyle.id)}"><div class="icon-holder {/{(!selection.activeLifeStyle.id)?\'active_\':\'\'}/}lifestyle_" ></div>Custom<div class="indication_button"></div></li>\
+                            <li ng-repeat="opt in options" ng-click="$parent.SelectItem(opt)" ng-class="{active:(opt.id===$parent.selId)}"><div class="icon-holder {/{(lfs.id===$parent.selId)?\'active_\':\'\'}/}lifestyle_{/{opt.id}/}" ></div>{/{opt.name}/} <div class="indication_button"></div></li>\
+                            <li  ng-click="SelectItem()" ng-class="{active:(!selId)}"><div class="icon-holder {/{(!selId)?\'active_\':\'\'}/}lifestyle_" ></div>Custom<div class="indication_button"></div></li>\
                         </ul>\
                     </div></span>',
             scope:{
-               
+               options:'=options'
                 
             },
             link:function(scope,element,attrs){
                 scope.selection=SelectionService;
-                scope.SelectLifeStyle=function(lfs){
-                    $rootScope.$broadcast('lifestyleChanged',lfs.id);
+                scope.selId=null;
+                scope.SelectItem=function(item){
+                    if(!item){
+                        scope.selId=null;
+                        scope.selName='';
+                    }
+                    else{
+                        
+                        scope.selId=item.id;
+                        scope.selName=item.name;
+                    
+                    }
+                        $rootScope.$broadcast('elementSelected',{id:element.id,value:scope.selId});
                 }
 
-                scope.ClearLifeStyle=function(){
-                    $location.search('l',null);
-                }
                 
                 scope.ToggleView=function($event){
                     $event.stopPropagation();
@@ -3316,8 +2856,8 @@ border-top-width: 0;\
                 $(element).children('.state-toggler').on('click',function(){
                     scope.Toggle();
                 })
-                scope.expanded=!(attrs.exp||'').toString().replace(/true/i,'');
                 var Ggroup=attrs.group;
+                scope.expanded=false;
                 scope.$on('collapse',function($event,id,group){
                     if(id!==scope.$id && group===Ggroup)
                         scope.expanded=false;
@@ -3339,6 +2879,13 @@ border-top-width: 0;\
                         element.addClass('collapsed');
                     }
                 })
+                
+                scope.$watch(function(){return attrs.lfs;},function(val){
+                     if(+val>0)
+                         return;
+                     else if(val!==undefined)
+                        scope.expanded=true;
+                });
             }
         };
     }])
@@ -3372,7 +2919,7 @@ border-top-width: 0;\
             <h5 class="score-rank-{/{item.rank}/}">{/{item.value}/}</h5>\
         </div>\
         <div class="score-spot">\
-            For even more information about neighborhoods<br>try Premium\
+            For even more information about neighborhoods<br><span class="action-text">try Premium</span>\
         </div>\
     </div>\
         <a class="redir-links"  target="_blanck" href="http://www.yelp.com/search?find_desc={/{$parent.friendlySerch}/}&find_loc={/{spot.name}/}">Find top-rated atractions with Yelp<i class="icon-white icon-chevron-right"></i></a>\

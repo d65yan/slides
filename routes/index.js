@@ -166,7 +166,10 @@ function hotspots(){
 
 exports.hotspot = function (req, res) {
             
-         
+            if(!req.body.actualSystems.length){
+                respond(res,JSON.stringify({historic_id:1,hotspots:[]}));
+                return;
+            }
             var shasum = crypto.createHash('sha1');
             shasum.update(JSON.stringify(req.body));
             var h=hotspots();

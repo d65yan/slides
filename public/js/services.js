@@ -152,6 +152,7 @@ angular.module('LocalServices',[])
         SelectionService.lastQuery="";
         SelectionService.spots=[];
         SelectionService.actualSystems=[];
+        SelectionService.terms=[];
         var activeRequest=0;
         
         SelectionService.Clear=function(){
@@ -194,15 +195,18 @@ angular.module('LocalServices',[])
 
                 }
             }
+            UpdateSystems();
             if(!skip){
                 UpdateQuery();
                 $rootScope.$broadcast('selectedSystemsChanged');
             }
+             $rootScope.$broadcast('lifestylesUpdated');
             return SelectionService.activeLifeStyle;
         }
 
         SelectionService.UnselectLifeStyle=function(id){
-            var lfs=GetLifeStyle(id||SelectionService.activeLifeStyle.id);
+            id=id||SelectionService.activeLifeStyle.id;
+            var lfs=GetLifeStyle(id);
             if(!lfs)
                 return false;
             
@@ -216,6 +220,7 @@ angular.module('LocalServices',[])
             }
             delete SelectionService.activeLifeStyle;
             SelectionService.activeLifeStyle={};
+            $rootScope.$broadcast('lifestylesUpdated');
             return true;
         }
         
@@ -404,14 +409,14 @@ angular.module('LocalServices',[])
                         
                 }
                 var count=0;
-                do{
+                while(gids.length!==SelectionService.spots.length){
                     if(gids.indexOf(SelectionService.spots[count].gid)<0){
                         count--;
                         SelectionService.spots.splice(count,1);
                     }
                     count++;
                 }
-                while(gids.length!==SelectionService.spots.length);
+                
                     
                 SelectionService.spots.sort(function(b,a){return((a.pulse-b.pulse)/Math.abs(a.pulse-b.pulse))});
         }
@@ -500,19 +505,20 @@ angular.module('LocalServices',[])
         
         $rootScope.$on('searchChanged',function($event,terms){
             SelectionService.terms=[];
-            SelectionService.actualSystems=SelectionService.usedSystems.slice(0,SelectionService.usedSystems.length);
-
             SelectionService.terms=terms;
-            for(var i=0;i<terms.length; i++){
-                if(SelectionService.actualSystems.indexOf(terms[i].id)<0)
-                    SelectionService.actualSystems.push(terms[i].id);
-            }
-            
-            
+            UpdateSystems();
             SelectionService.RequestPlaces();
             $rootScope.$broadcast('ForceUpdate');
             
         });
+
+        function UpdateSystems(){
+            SelectionService.actualSystems=SelectionService.usedSystems.slice(0,SelectionService.usedSystems.length);
+            for(var i=0;i<SelectionService.terms.length; i++){
+                if(SelectionService.actualSystems.indexOf(SelectionService.terms[i].id)<0)
+                    SelectionService.actualSystems.push(SelectionService.terms[i].id);
+            }
+        }
 
         $rootScope.$on('boundboxChanged',function($event,bound){
             SelectionService.boundBox=bound;

@@ -39,7 +39,12 @@
           };
           $scope.addressChanged=false;
           $scope.UpdateSpots=function(){
-               
+              if(!$scope.geoLoc){
+                 $scope.$broadcast('submitionError','address');
+                 return;
+              }
+                  
+               $scope.selection.SelectLifeStyle($scope.selectedLifeStyle);
                if($scope.addressChanged)
                 $rootScope.$broadcast('locationChange',$scope.geoLoc);
             
@@ -100,15 +105,7 @@
               
           }
 
-          $scope.SelectLifeStyle=function(lfs){
-              //$scope.selection.SelectLifeStyle(lfs.id);
-              $location.search('l',lfs.id);
-          }
 
-          $scope.ClearLifeStyle=function(){
-              //$scope.selection.SelectLifeStyle(lfs.id);
-              $location.search('l',null);
-          }
 
             $scope.failedSearchOpts = {
                 backdrop: true,
@@ -282,7 +279,11 @@
           $scope.$on('addressSelected',function($event,location){
               $scope.geoLoc=location;
               $scope.addressChanged=true;
-          })
+          });
+          
+          $scope.$on('elementSelected',function($event,elem){
+              $scope.selectedLifeStyle=elem.value;
+           });
 
     }
       AppController.$inject=['$scope','$window','$http','$timeout','SelectionService','GeograficService','SystemsFilters','$rootScope','$dialog','$routeParams','$location'];
@@ -1019,7 +1020,7 @@
                 $scope.friendlySerch=$scope.friendlySerch.substr(0,$scope.friendlySerch.length-1);
         })
 
-        $scope.$on('lifestyleChanged',function($event,id){
+        $scope.$on('lifestylesUpdated',function($event,id){
             SelectLifeStyle(id,true);
         });
          
@@ -1079,11 +1080,12 @@
               return false;
         }
 
-        function SelectLifeStyle(id){
-            if(id>0)
+        function SelectLifeStyle(id,skip){
+            /*if(id!=null && id>0)
             $scope.s.SelectLifeStyle(id,true);
             else
                 $scope.s.UnselectLifeStyle();
+            if(skip)*/
             $scope.lifeStyle=angular.extend({},SelectionService.activeLifeStyle);
         }
           
