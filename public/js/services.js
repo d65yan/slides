@@ -135,15 +135,14 @@ angular.module('LocalServices',[])
        
         return SystemsFilters;
     }])
-    .factory('SelectionService',['SystemsFilters','$http','$timeout','$rootScope',function(SystemsFilters,$http,$timeout,$rootScope) {
+    .factory('SelectionService',['SystemsFilters','$http','$timeout','$rootScope','$location',function(SystemsFilters,$http,$timeout,$rootScope,$location) {
         var SelectionService = {};
         SelectionService.cities={};  
         SelectionService.area;  
-        SelectionService.usedFilters=[];
         SelectionService.usedSystems=[]; 
         SelectionService.usedGroups={};
-        SelectionService.filters=[];
         SelectionService.systems=[];        
+        SelectionService.selections=[];         
         SelectionService.systemsSet=[];
         SelectionService.hp=[];
         SelectionService.activeLifeStyle={};
@@ -152,8 +151,7 @@ angular.module('LocalServices',[])
           SelectionService.map_query='';
         SelectionService.lastQuery="";
         SelectionService.spots=[];
-        SelectionService.priorities=[];
-        SelectionService.prioritiesHash={};
+        SelectionService.actualSystems=[];
         var activeRequest=0;
         
         SelectionService.Clear=function(){
@@ -171,42 +169,6 @@ angular.module('LocalServices',[])
 
         }
         
-        SelectionService.AddCity=function(city,skip){
-            if(SelectionService.cities[city.id])
-                return false;
-            SelectionService.cities[city.id]=city;
-            SelectionService.area=city.parent;
-            if(!skip){
-                //UpdateServer();
-                $rootScope.$broadcast('citiesSelectionChanged');
-            }
-            
-            return true;
-        }
-   
-        SelectionService.SetArea=function(area){
-
-            SelectionService.area=area;
-
-        }
-   
-   
-        SelectionService.AddCities=function(cities){
-            SelectionService.cities={};  
-            SelectionService.usedFilters=[];
-            for(var i=0;i<cities.length;i++)
-                SelectionService.AddCity(cities[i],true);
-            
-            //UpdateServer();
-        }
-   
-        SelectionService.RemoveCity=function(id){
-
-            delete SelectionService.cities[id];
-            //UpdateServer();
-            $rootScope.$broadcast('citiesSelectionChanged');
-            return true;
-        }
         
         SelectionService.SelectLifeStyle=function(id,skip){
             var lfs=GetLifeStyle(id);
@@ -240,7 +202,7 @@ angular.module('LocalServices',[])
         }
 
         SelectionService.UnselectLifeStyle=function(id){
-            var lfs=GetLifeStyle(id);
+            var lfs=GetLifeStyle(id||SelectionService.activeLifeStyle.id);
             if(!lfs)
                 return false;
             
@@ -308,9 +270,9 @@ angular.module('LocalServices',[])
             if(idx<0)
                 return false;
             SelectionService.usedSystems.splice(idx,1);
-            var idx1=SelectionService.priorities.indexOf(s.code);
+            /*var idx1=SelectionService.priorities.indexOf(s.code);
             if(idx1>=0)
-            SelectionService.priorities.splice(idx1,1);
+            SelectionService.priorities.splice(idx1,1);*/
             if(!skipS){
                 UpdateQuery();
             $rootScope.$broadcast('selectedSystemsChanged');
@@ -359,8 +321,100 @@ angular.module('LocalServices',[])
             return SelectionService.priorities.indexOf(id)>=0;
         };
         
-
+        SelectionService.FetchId=function(id){
+            return $http.get('api/hotspot/'+encodeURIComponent(id)).success(function(data){
+                if(data.failure)
+                    return;
+                mergeHotspots(data.hotspots||[]);
+                SelectionService.activeSearch=id;
+                var q=data.query;
+                SelectionService.actualSystems=q.actualSystems||[];
+                SelectionService.usedSystems=q.usedsystems||[];
+                SelectionService.terms=q.terms||[];
+                SelectionService.SelectLifeStyle(data.lifestyleid,true);
+                $rootScope.$broadcast("PlacesReceived",SelectionService.spots);
+                q.bounds.msa=data.msaid;
+                UpdateQuery();
+                $timeout(function(){
+                    $rootScope.$broadcast("locationChange",q.bounds);
+                },100);
+                $rootScope.$broadcast("forceUpdate");
+                $rootScope.$broadcast("forceTerms",q.terms);
+                
+            });
+            
+        };
         
+       SelectionService.RequestPlaces=function(fn){
+            UpdateQuery();
+            if( SelectionService.lastQuery===SelectionService.map_query && SelectionService.spots.length){
+                if(angular.isFunction(fn))
+                    fn(SelectionService.spots);
+                 $rootScope.$broadcast("PlacesReceived",SelectionService.spots)
+                return;
+            }
+            SelectionService.lastQuery=SelectionService.map_query;
+            
+            
+                       var reqObj={
+               msa:SelectionService.msaid,
+               bounds:SelectionService.boundBox,
+               usedSystems:SelectionService.usedSystems,
+               actualSystems:SelectionService.actualSystems,
+               terms:SelectionService.terms,
+               lifestyle:SelectionService.activeLifeStyle.id||-1
+           }
+            
+            $http({
+                url:'api/hotspot',
+                method:'post',
+                data:reqObj
+            }).success(function(data){
+                var spots=data.hotspots;
+                    
+                SelectionService.activeSearch=data.historic_id;
+                $location.search('s',data.historic_id);
+                
+               mergeHotspots(spots);
+                
+               if(angular.isFunction(fn))
+                 fn(SelectionService.spots);
+              $rootScope.$broadcast("PlacesReceived",SelectionService.spots)
+            });
+            
+            
+           
+        };
+        
+        
+        function mergeHotspots(spots){
+            var gids=[];
+                for(var i =0;i<spots.length;i++){
+                    gids.push(spots[i].gid);
+                    var esta=false;
+                    for(var j=0;j<SelectionService.spots.length;j++){
+                        if(spots[i].gid===SelectionService.spots[j].gid){
+                            esta=true;
+                            SelectionService.spots[j].pulse=spots[i].pulse;
+                            break;
+                        }
+                    }
+                    if(!esta)
+                        SelectionService.spots.push(spots[i]);
+                        
+                }
+                var count=0;
+                do{
+                    if(gids.indexOf(SelectionService.spots[count].gid)<0){
+                        count--;
+                        SelectionService.spots.splice(count,1);
+                    }
+                    count++;
+                }
+                while(gids.length!==SelectionService.spots.length);
+                    
+                SelectionService.spots.sort(function(b,a){return((a.pulse-b.pulse)/Math.abs(a.pulse-b.pulse))});
+        }
         
         function UpdateQuery(){
                         SelectionService.map_query='';
@@ -373,72 +427,33 @@ angular.module('LocalServices',[])
            }
             cities=cities.substr(0,cities.length-1);
 
-           
-           SelectionService.usedSystems=SelectionService.usedSystems.sort(function(a,b){
+           SelectionService.actualSystems=SelectionService.actualSystems.sort(function(a,b){
                var res=a-b;
                res=(res===0?0:(res/Math.abs(res)));
                return res;
            });
-           
-           SelectionService.priorities=SelectionService.priorities.sort(function(a,b){
+           /*SelectionService.usedSystems=SelectionService.usedSystems.sort(function(a,b){
                var res=a-b;
                res=(res===0?0:(res/Math.abs(res)));
                return res;
-           });
+           });*/
            
-           SelectionService.map_query+=(SelectionService.area?('area='+SelectionService.area.id+'&'):'')+(SelectionService.activeLifeStyle.id?('lifestyle='+SelectionService.activeLifeStyle.id+'&'):'')+(SelectionService.usedSystems.length?('subgroup='+SelectionService.usedSystems.join(',')+'&'):'')+(SelectionService.priorities.length?('pri='+SelectionService.priorities.join(',')+'&'):'');//+'&gid='+SelectionService.cities.join(',');
+           /*SelectionService.priorities=SelectionService.priorities.sort(function(a,b){
+               var res=a-b;
+               res=(res===0?0:(res/Math.abs(res)));
+               return res;
+           });*/
+           
+           SelectionService.map_query+=(SelectionService.area?('area='+SelectionService.area.id+'&'):'')+(SelectionService.activeLifeStyle.id?('lifestyle='+SelectionService.activeLifeStyle.id+'&'):'')+(SelectionService.actualSystems.length?('subgroup='+SelectionService.actualSystems.join(',')+'&'):'');
            //SelectionService.map_query=SelectionService.map_query.substr(0,SelectionService.map_query-1);
-           SelectionService.query=SelectionService.map_query+cities;
+           
+
+            
 
            $rootScope.$broadcast('updateQuery');
            return SelectionService.map_query;
         }
         
-        function UpdateServer(){
-            UpdateQuery();
-            d3.tsv('pulse.tsv?'+SelectionService.query,function(data){
-            ClearNhbds();
-            activeRequest++;
-                for(var i=0;i<data.length;i++){
-                    data[i].id=data[i].id||data[i].gid;
-                    delete data[i].gid;
-                    data[i].id*=1;
-                    data[i].systems=data[i].systems.split(',');
-
-                    SelectionService.nhbds.push(data[i]);
-                    if(data[i].pinned)
-                        SelectionService.pNhbds.push(data[i].id);
-                    
-                   if(data[i].compare)
-                        CompareService.add(data[i]);
-                    
-                    var call=(function(){
-                        var lActiveCall=activeRequest;
-                        return function(){
-                            $http('zones/'+data[i].id+'.json',function(data){
-                                if(lActiveCall!==activeRequest)
-                                    return;
-                                $rootScope.broadcast('receivedNeighborhood',data);
-                            });
-                        }
-                    }())
-                    call();
-                }
-              if(angular.isFunction(fn))
-                 fn(SelectionService.nhbds);
-             
-             $rootScope.broadcast('receivedPlaces');
-             
-             
-                    
-            });
-            
-            
-
-           
-        }
-
-    
         function GetLifeStyle(id){
             if (!SelectionService.lifestyles)
                 return false;
@@ -478,86 +493,34 @@ angular.module('LocalServices',[])
 
             return selected;
         }
+ 
         
+        
+        
+        
+        $rootScope.$on('searchChanged',function($event,terms){
+            SelectionService.terms=[];
+            SelectionService.actualSystems=SelectionService.usedSystems.slice(0,SelectionService.usedSystems.length);
 
-        
-        /*function CheckActiveLifeStyle(){
-            if(!SelectionService.activeLifeStyle || angular.isUndefined(SelectionService.activeLifeStyle.id))
-                return false;
-            
-            SelectionService.activeLifeStyle.active=IsSystemSelected(SelectionService.activeLifeStyle);
-            return SelectionService.activeLifeStyle.active
-        }*/
-
-        
-        SelectionService.RequestPlaces=function(fn){
-            UpdateQuery();
-            if( SelectionService.lastQuery===SelectionService.query && SelectionService.spots.length){
-                if(angular.isFunction(fn))
-                    fn(SelectionService.spots);
-                 $rootScope.$broadcast("PlacesReceived",SelectionService.spots)
-                return;
+            SelectionService.terms=terms;
+            for(var i=0;i<terms.length; i++){
+                if(SelectionService.actualSystems.indexOf(terms[i].id)<0)
+                    SelectionService.actualSystems.push(terms[i].id);
             }
-            SelectionService.lastQuery=SelectionService.query;
-            
-            $http({
-                url:'api/places?'+SelectionService.query,
-                method:'get'
-            }).success(function(data){
-                var spots=data.hotspots;
-                SelectionService.spots=spots;
-               
-                
-               if(angular.isFunction(fn))
-                 fn(SelectionService.spots);
-              $rootScope.$broadcast("PlacesReceived",SelectionService.spots)
-            });
             
             
-            /*d3.tsv('/pulse.tsv?'+SelectionService.query,function(data){
-            ClearNhbds();
-            activeRequest++;
-                if(!data || !data.length)
-                    return;
-                for(var i=0;i<data.length;i++){
-                    data[i].id=data[i].id||data[i].gid;
-                    delete data[i].gid;
-                    data[i].id*=1;
-                    data[i].systems=data[i].systems.split(',');
+            SelectionService.RequestPlaces();
+            $rootScope.$broadcast('ForceUpdate');
+            
+        });
 
-                    SelectionService.nhbds.push(data[i]);
-                    if(data[i].pinned)
-                        SelectionService.pNhbds.push(data[i].id);
-                    
-                   if(data[i].compare)
-                        CompareService.add(data[i]);
-                    
-                    var call=(function(){
-                        var lActiveCall=activeRequest;
-                        return function(){
-                            $http({
-                                method:'GET',
-                                url:'/zones/'+data[i].id+'.json'
-                            }).success(function(data){
-                                if(lActiveCall!==activeRequest)
-                                    return;
-                                $rootScope.broadcast('receivedNeighborhood',data);
-                            });
-                        };
-                    }());
-                    call();
-                }
-              if(angular.isFunction(fn))
-                 fn(SelectionService.nhbds);
-             
-             $rootScope.broadcast('receivedNeighborhoodsList');
-             
-             
-                    
-            });*/
-        }
-
-
+        $rootScope.$on('boundboxChanged',function($event,bound){
+            SelectionService.boundBox=bound;
+        })
+        
+        $rootScope.$on('locationChange',function($event,loc){
+            SelectionService.msaid=loc.msa;
+        })
        
        $rootScope.$on('lifestylesLoaded',function(){
                 SelectionService.lifestyles=SystemsFilters.lifestyles;
@@ -573,166 +536,7 @@ angular.module('LocalServices',[])
         var GeograficService = {};
         GeograficService.regions=[];
         
-        GeograficService.pulses=[
-              {
-                  center:{
-                      lon:"-80.26",
-                      lat:"25.81"
-                              
-                  },
-                  gid:7,
-                  pulses:{
-                      "1201":"6.5",
-                      "1151":"5.2",
-                      "1152":"4.8",
-                      "1150":"5.5",
-                      "1202":"6.0",
-                      "1153":"5.9",
-                      "1325":"4.3"
-                  },
-                  children:[
-                      {
-                         center:{
-                            lon:"-80.2264393",
-                            lat:"25.7889689"
-                              
-                        },
-                        gid:3003,
-                        pulses:{
-                            "1201":"6.5",
-                            "1151":"5.2",
-                            "1152":"4.8",
-                            "1150":"5.5",
-                            "1202":"6.0",
-                            "1153":"5.9",
-                            "1325":"4.3"
-                        }
-                      },
-                      {
-                         center:{
-                            lon:"-80.1433786",
-                            lat:"26.1223084"
-                        },
-                        gid:3004,
-                        pulses:{
-                            "1201":"6.5",
-                            "1151":"5.2",
-                            "1152":"4.8",
-                            "1150":"5.5",
-                            "1202":"6.0",
-                            "1153":"5.9",
-                            "1325":"4.3"
-                        }
-                      },
-                      {
-                         center:{
-                            lon:"-80.0533746",
-                            lat:"26.7153424"
-                              
-                        },
-                       gid:3005,
-                        pulses:{
-                            "1201":"6.5",
-                            "1151":"5.2",
-                            "1152":"4.8",
-                            "1150":"5.5",
-                            "1202":"6.0",
-                            "1153":"5.9",
-                            "1325":"4.3"
-                        }
-                      }
-                  ]
-              },
-              {
-                  center:{
-                      lon:"-71.0597732",
-                      lat:"42.3584308"
-                              
-                  },
-                  pulses:{
-                      "1201":"6.6",
-                      "1151":"5.3",
-                      "1152":"4.9",
-                      "1150":"5.4",
-                      "1202":"6.1",
-                      "1153":"5.7",
-                      "1325":"4.5"
-                  },
-                  children:[
-                      {
-                          center:{
-                               lon:"-71.2092214",
-                               lat:"42.3370413"
-                              
-                            },
-                            gid:3001,
-                            pulses:{
-                                "1201":"6.6",
-                                "1151":"5.3",
-                                "1152":"4.9",
-                                "1150":"5.4",
-                                "1202":"6.1",
-                                "1153":"5.7",
-                                "1325":"4.5"
-                            }
-                      },
-                      {
-                          center:{
-                               lon:"-71.1097335",
-                               lat:"42.3736158"
-                              
-                            },
-                            gid:3002,
-                            pulses:{
-                                "1201":"6.6",
-                                "1151":"5.3",
-                                "1152":"4.9",
-                                "1150":"5.4",
-                                "1202":"6.1",
-                                "1153":"5.7",
-                                "1325":"4.5"
-                            }
-                      }
-                  ]
-              },
-              { 
-                  center:{
-                      lon:"-97.7430608",
-                      lat:"30.267153",
-                              
-                  },
-                  pulses:{
-                      "1201":"6.2",
-                      "1151":"5.8",
-                      "1152":"5.8",
-                      "1150":"6.5",
-                      "1202":"5.0",
-                      "1153":"5.4",
-                      "1325":"6.4"
-                  },
-                  children:[
-                      {
-                          center:{
-                            lon:"-97.7430608",
-                            lat:"30.267153",
-                              
-                        },
-                        gid:3000,
-                        pulses:{
-                            "1201":"6.2",
-                            "1151":"5.8",
-                            "1152":"5.8",
-                            "1150":"6.5",
-                            "1202":"5.0",
-                            "1153":"5.4",
-                            "1325":"6.4"
-                        }
-                    }
-                  ]
-              },
-          ];
-        GeograficService.activeRegion=null;
-        
+      
         GeograficService.GetRegionById=function(id){
             if(!id && id!==0)
                 return null;
@@ -743,93 +547,42 @@ angular.module('LocalServices',[])
         }
         
         GeograficService.GetRegionAreaById=function(midx,id){
-            if(!id && id!==0)
-                return null;
-            
-           
-            if(midx && midx>=0){
-                for(var i=0;i<GeograficService.regions[midx].groups.length;i++)
-                    if(GeograficService.regions[midx].groups[i].id.toString()==id.toString())
-                        return GeograficService.regions[midx].groups[i];
-            }
-        
-          else{
-              for(midx=0;midx<GeograficService.regions.length;midx++)
-                for(var i=0;i<GeograficService.regions[midx].groups.length;i++)
-                    if(GeograficService.regions[midx].groups[i].id.toString()==id.toString())
-                        return GeograficService.regions[midx].groups[i];
-          }
+
         }   
             
         GeograficService.LocateArea= function(lnlt,fn){
             $http.get('api/geocoder.json?lnlt='+lnlt).success(function(res){
-                    if(res.gid){
+                    if(res.msaid){
                        if(fn && angular.isFunction(fn))
-                           fn(res.gid);
+                           fn(res);
                     }
                         
                 }
            );
         };
         
-        GeograficService.GetregionAreaCenterById  =function(id){
-             for(var i=0;i< GeograficService.pulses.length;i++){
-                 var pulse=GeograficService.pulses[i];
-                 if(!pulse.children)
-                     continue;
-                 for(var j=0;j< pulse.children.length;j++){
-                     var area=pulse.children[j];
-                     if(area.gid && area.gid===id)
-                         return area.center;
-                 }
-             }
-         } 
-            
-        GeograficService.SelectRegion=function(idx){
-            GeograficService.activeRegion=GeograficService.regions[idx];
-            $rootScope.$broadcast('regionSelected');
-            return  GeograficService.activeRegion;
-        }
-        
+
+      
         
         GeograficService.GetRegions=function(f){
-            d3.json('api/region',function(data){
-                if(data.results)
-                    data=data.results;
+            
+            
+            $http.get('http://10.1.10.91:3000/places/regions').success(function(data){
+                if(data.result)
+                    data=data.result;
                 for(var i=0;i<data.length;i++){
-                    data[i].idx=i;
-                    data[i].id=data[i].regionid || data[i].gid;
-                    delete data[i].regionid;
-                    delete data[i].gid;
-                   GeograficService.regions.push(new Region(data[i])) ;
-                   if(data[i].areas && data[i].areas.length){
-                       for(var j=0;j<data[i].areas.length;j++){
-                           data[i].areas[j].id=data[i].areas[j].areaid||data[i].areas[j].gid;
-                           data[i].areas[j].idx=j;
-                           delete data[i].areas[j].areaid;
-                           delete data[i].areas[j].gid;
-                           var gobj=new Group(data[i].areas[j]);
-                            if(data[i].areas[j].cities && data[i].areas[j].cities.length){
-                                data[i].areas[j].cities.sort(function(a,b){return a.name>b.name?1:-1;});
-                                for(var k=0;k<data[i].areas[j].cities.length;k++){
-                                    data[i].areas[j].cities[k].id=data[i].areas[j].cities[k].id || data[i].areas[j].cities[k].cityid || data[i].areas[j].cities[k].gid;
-                                    delete data[i].areas[j].cities[k].cityid;
-                                    delete data[i].areas[j].cities[k].gid;
-                                    var val1=(Math.random()*1000000),
-                                        val2=(Math.random()*1000000);
-                                     data[i].areas[j].cities[k].hp=[data[i].areas[j].cities[k].lo_price,data[i].areas[j].cities[k].hi_price];//data[i].areas[j].cities[k]['price-range'];
-                                    delete data[i].areas[j].cities[k].lo_price;
-                                    delete data[i].areas[j].cities[k].hi_price;
-                                    
-                                    var cobj=new City(data[i].areas[j].cities[k]);
-                                    gobj.AddCity(cobj);
-                                }
-                            }
-                           GeograficService.regions[i].AddGroup(gobj); 
-                       }
-                   }
-                       
+                    var centroid=JSON.parse(data[i].centroid);
+                    data[i].location={
+                        long:centroid.coordinates[0],
+                        lat:centroid.coordinates[1]        
+                    }
+                    delete data[i].centroid;
                 }
+                
+                GeograficService.regions=data;
+               
+               
+               
                
               if(!angular.isUndefined (f) && angular.isFunction(f))
                 f(data)

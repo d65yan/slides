@@ -411,14 +411,34 @@ OpenLayers.Util.modifyAlphaImageDiv = function(div, id, px, sz, imgURL,
  */ 
 OpenLayers.Util.createAlphaImageDiv = function(id, px, sz, imgURL, 
                                                position, border, sizing, 
-                                               opacity, delayDisplay) {
+                                               opacity, delayDisplay,vector,text) {
     
     var div = OpenLayers.Util.createDiv();
-    var img = OpenLayers.Util.createImage(null, null, null, null, null, null, 
-                                          null, delayDisplay);
+    if(!vector){
+    var img = OpenLayers.Util.createImage(null, null, null, null, null, null,null, delayDisplay);
     img.className = "olAlphaImg";
     div.appendChild(img);
-
+    }
+    else
+        
+        var color='#f4'+Math.ceil((255+1.25)-13.75*(+text)).toString(16)+Math.ceil((133)-10.17*(+text)).toString(16);
+        
+    div.innerHTML='<svg >\
+     <g transform="translate(8,2)">\
+    <path\
+       style="fill:'+color+';stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"\
+       d="m 22.86161,57.55804 c 0,0 -22.14286,-19.5534 -22.14286,-33.61953 0,-4.93124 4.10714,-22.4519 22.14286,-22.4519 18.03572,0 22.5,14.0866 22.5,22.5 0,13.47133 -22.5,33.57143 -22.5,33.57143 z"/>\
+    <text\
+       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"\
+       x="11.433043"\
+       y="28.450891"\
+       id="text5155"\
+       sodipodi:linespacing="125%"><tspan\
+         x="11.433043"\
+         y="28.450891"\
+         style="font-size:14px">'+text+'</tspan></text>\
+  </g>\
+</svg>'
     OpenLayers.Util.modifyAlphaImageDiv(div, id, px, sz, imgURL, position, 
                                         border, sizing, opacity);
     

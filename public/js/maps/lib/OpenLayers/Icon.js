@@ -74,15 +74,15 @@ OpenLayers.Icon = OpenLayers.Class({
      *                                      properties.
      * calculateOffset - {Function} 
      */
-    initialize: function(url, size, offset, calculateOffset,text,clase,attrs,clickImg) {
+    initialize: function(url, size, offset, calculateOffset,text,clase,attrs,clickImg,vector) {
         this.url = url;
         this.size = size || {w: 20, h: 20};
         this.offset = offset || {x: -(this.size.w/2), y: -(this.size.h/2)};
         this.calculateOffset = calculateOffset;
 
         var id = OpenLayers.Util.createUniqueID("OL_Icon_");
-        this.imageDiv = OpenLayers.Util.createAlphaImageDiv(id);
-        if(text && text.length){
+        this.imageDiv = OpenLayers.Util.createAlphaImageDiv(id,null,null,null,null,null,null,null,null,vector,text);
+        if(text && text.length && !vector){
             var div=document.createElement('div');
             div.className='marker-text';
             

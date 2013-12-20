@@ -60,13 +60,11 @@ app.get('/',function(req, res) {
     return;
 });
 
-app.get('/api/search',function(req, res) {
-    
-     if(req.query.q==="doubletree")   
-        res.sendfile('public/api/search/doubletree.json');
-    else
-        res.sendfile('public/api/search/empty.json');
-});
+app.get('/api/search/:q',routes.search);
+app.post('/api/search',routes.log);
+app.get('/api/address/:q',routes.address);
+app.get('/api/hotspot/:id',routes.state);
+app.post('/api/hotspot',routes.hotspot);
 
 
 

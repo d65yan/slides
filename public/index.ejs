@@ -14,9 +14,7 @@
 	<script type="text/javascript" src="js/maps/lib/OpenLayers.js"></script>
 	<script type="text/javascript" src="js/jquery.min.js"></script>
 	<script type="text/javascript" src="js/d3.v3.min.js"></script>
-        
         <script type="text/javascript" src="js/angular-1.2/angular.min.js"></script>
-
         <script type="text/javascript" src="js/angular-1.2/angular-route.min.js"></script>        
         <script type="text/javascript" src="js/angular-1.2/angular-animate.min.js"></script>        
         <script type="text/javascript" src="js/angular-1.2/angular-touch.min.js"></script>
@@ -30,6 +28,8 @@
 	<script type="text/javascript" src="js/filters.js"></script>
 	<script type="text/javascript" src="js/proj4js.js"></script>
 	<script type="text/javascript" src="js/urban.js"></script>
+        <script type="text/javascript" src="js/strategy_tfs.js"></script>
+        <script type="text/javascript" src="js/protocol_tfs.js"></script>
 
 
 <style>
@@ -161,7 +161,108 @@ margin-right:0px;
         header .searching_bar{
             margin-left:30px;
             height:43px;
+
            
+        }
+
+        header .searching_bar .search_term.accepted .display {
+            /*display: table-cell !important;
+            padding-left: 10px;
+            height: 40px;
+            padding-top: 5px;
+            width: 320px;
+            padding-bottom: 0px;
+            vertical-align: middle;
+            color:white;*/
+            display:none !important;
+        }
+
+        header .searching_bar .search_term.accepted .term {
+            display:inline-block !important;
+
+        }
+
+        header .searching_bar.covered-remove{
+            transition:all 300ms linear 1s;
+           
+        }
+
+
+        header .g-dropdown.covered,  header .g-dropdown.covered-add, header .g-dropdown.covered-add.covered-remove, header .g-dropdown.covered-add.covered-remove-active,  header .g-dropdown.covered-remove{
+            position:absolute  !important;
+            top:250px !important; 
+            left:50% !important;
+            margin-left:-25px !important;
+            z-index:8000;
+        }
+
+
+        #header-lifestyle-selector_dropdown.covered, #header-lifestyle-selector_dropdown.covered-add, #header-lifestyle-selector_dropdown.covered-add.covered-remove, #header-lifestyle-selector_dropdown.covered-add.covered-remove-active, #header-lifestyle-selector_dropdown.covered-remove{
+            width: 350px !important;
+            height:49px  !important;
+        }
+
+
+        #header-lifestyle-selector_dropdown.covered .header-lifestyle-selector, #header-lifestyle-selector_dropdown.covered-add .header-lifestyle-selector, #header-lifestyle-selector_dropdown.covered-add.covered-remove .header-lifestyle-selector, #header-lifestyle-selector_dropdown.covered-add.covered-remove-active .header-lifestyle-selector{
+            padding-top:7px  !important;
+            padding-bottom:7px  !important;
+            width: 280px  !important;
+    
+    
+   
+        }
+
+
+        header .searching_bar.covered,header .searching_bar.covered-add,header .searching_bar.covered-add.covered-remove-active,header .searching_bar.covered-remove{
+            position:absolute;
+            z-index:8000;
+            top:250px  !important;
+            left:50%  !important;
+            margin-left:-415px  !important;
+           
+        }
+
+        header .searching_bar.covered .search_term .term,header .searching_bar.covered-add .search_term .term,header .searching_bar.covered-add.covered-remove-active .search_term .term{
+           margin-top:10px !important;
+           width:320px !important;
+           
+        }
+
+        header .searching_bar.covered .term-cont,header .searching_bar.covered-add .term-cont,header .searching_bar.covered-add.covered-remove-active .term-cont{
+            height:49px !important;
+            width:350px !important;
+           
+        }
+
+
+
+         header .global-search-submit-button.covered-remove{
+
+            transition:all 300ms linear 1s;
+        }
+
+        header .global-search-submit-button.covered-remove-active{
+            width:45px !important;
+            height:45px !important;
+            top:20px !important;
+            left:850px !important;
+            margin-left:0 !important;
+        }
+
+        header .searching_bar.covered-remove-active{
+            height:43px !important;
+            width:247px !important;
+            top:20px !important;
+            left:250px !important;
+            margin-left:0 !important;
+        }
+
+         header .g-dropdown.covered-remove-active{
+            height:45px !important;
+            width:250px !important;
+            top:20px !important;
+            left:600px !important;
+            margin-left:0 !important;
         }
 
         header .global-search-submit-button{
@@ -170,33 +271,47 @@ margin-right:0px;
             background-image:url('img/buttons/search.png');
             background-position:center center;
             background-repeat:no-repeat;
-            background-size:cover;
+            background-size:contain;
             cursor:pointer;
+            
         }
 
+                header .global-search-submit-button.covered,header .global-search-submit-button.covered-add,header .global-search-submit-button.covered-add.covered-remove-active{
+            width:49px  !important;
+            height:49px  !important;
+            position:absolute  !important;
+            left:50%  !important;
+            margin-left:355px  !important;
+            top:250px  !important;
+            z-index:8000;
+        }
         
-        
-        header .searching_bar .search_term.edit .term{
+        header .searching_bar .search_term .term{
             background-color:transparent;
             font-size:16px;
             margin-top:7px;
         }
 
-        header .searching_bar .search_term.edit i{
+        header .searching_bar .search_term i{
            
             margin-top:7px;
 
         }
 
+                header .searching_bar .search_term.accepted i{
+           
+            margin-top:2px;
 
-
-
-        header .searching_bar .search_term.edit .term-cont{
-            background-color: white;
         }
 
+
+
+
+
+
         header .searching_bar .search_term .term-cont{
-            background-color: #f69d58;
+            /*background-color: #f69d58;*/
+            background-color: white;
             height:43px;
             padding-right:8px;
             border-radius:5px;
@@ -274,6 +389,9 @@ margin-right:0px;
             /*background-color: white;*/
             margin-left: 80px; 
             z-index:6001;
+            display:inline-block;
+            height:35px;
+            padding-top:10px;
         }
         #main-logo-container #main-logo{
             width:180px;
@@ -439,7 +557,7 @@ margin-right:0px;
 	}
 
 #upper_wrapper{
-min-width:900px
+min-width:1204px
 }
 
 
@@ -448,6 +566,11 @@ min-width:900px
     display:inline-block;
     border:solid 1px #ccc;
     padding-right:3px;
+}
+
+.g-dropdown.covered-remove{
+
+    transition:all 300ms linear 1s;
 }
 
 .g-dropdown i{
@@ -473,9 +596,9 @@ box-shadow:none !important;
 .g-dropdown .content{
     position:absolute;
 padding-top:6px;
-    left:0;
-    top:100%;
-    width: 600px;
+    left:-1px;
+    top:94%;
+    min-width: 99%;
     z-index:4000;
     background-color:#e5e5e5;
     -moz-box-shadow: #5a5a5a 1px 1px 10px -2px;
@@ -530,7 +653,8 @@ color:white;
     font-size:16px;
    margin-left:6px;
 margin-right:6px;
-color:white;
+/*color:white;*/
+color:#666;
     margin-top:11px;
     display: inline-block;
     width: 190px;
@@ -621,13 +745,38 @@ margin-right:3px;
 margin-right:10px;
 margin-left:10px;
 font-size: 16px;
-background-color: #f69d58;
-color: white;
+/*background-color: #f69d58;*/
+background-color: white;
+/*color: white;*/
+color:#ddd;
 border-radius: 5px;
 width: 250px;
- border:solid 1px #e2731e !important;
+ /*border:solid 1px #e2731e !important;*/
+border:solid 1px #eee !important;
 height:43px;
+
 }
+
+.coverall_overlay{
+    height:100%;
+    position:fixed;
+    top:0px;
+    left:0px;
+    width:100%;
+    
+}
+
+.coverall_overlay.ng-hide-add{
+    position:fixed !important;
+    opactity:0.4;
+    transition:opacity 500ms linear 1400ms;
+}
+
+.coverall_overlay.ng-hide-add-active{
+    opacity:0 !important;
+}
+
+
 </style>
   <script>
       $(document).ready(function(){
@@ -653,19 +802,11 @@ height:43px;
 <div class="header-row">
     <div class="header-cell" >
             <table style="float:left" cellpadding="0" cell spacing="0" border="0"><tr><td><span id="main-logo-container"><a href="#/home" class="mobile-touch" message="Let's Start all over again!!"><img id="main-logo" src="img/logo.png"></a></span></td>
-           <!--<span><span class="g-dropdown"><input type="text" placeholder="type in an address,city or zip code" ng-model="geo_filter" ng-change="FilterCitites()"><i class="icon-chevron-down" ng-click="ShowCities()"></i><div  ng-show="show_cities" class="content">
-                        <div ng-repeat="msa in geo.regions" class="msas-list" ng-show="msa.someSelected">
-                            <div class="msa-header">{/{msa.name}/}</div>
-                            <ul>
-                                <li ng-repeat="area in msa.groups" ng-click="$parent.$parent.SelectArea(area)" ng-show="area.selecteds">{/{area.name}/}</li>
-                            </ul>
-                        </div>
-                        
-                    </div></span> -->
-                  <td style="vertical-align:top">  <div style="width:250px; display:inline-block;" type="addr" class="search_bar" show_hidden="false" max_search="1" visibles="1" show_categories="false" base_url="http://api.urban4m.com:9200/data/business/_search?q=addr:" placeh="Address, City or Zip code"></div></td>
-                  <td style="vertical-align:top"><span class="g-drop" id="header-lifestyle-selector_dropdown"></span> </td>
-                    <td style="vertical-align:top">
-                        <div class="global-search-submit-button" ng-click="GoTo()"></div></span>
+
+                  <td style="vertical-align:top">  <div style="width:250px; display:inline-block;" type="addr" class="search_bar"  ng-class="{covered:$parent.coverAll}" show_hidden="false" max_search="1" visibles="1" show_categories="false" base_url="api/address/" placeh="Address, City or Zip code" elastic="false"></div></td>
+                  <td style="vertical-align:top"><span class="g-drop" id="header-lifestyle-selector_dropdown" ng-class="{covered:$parent.coverAll}"></span> </td>
+                  <td style="vertical-align:top">
+                        <div class="global-search-submit-button" ng-click="UpdateSpots()" ng-class="{covered:coverAll}"></div></span>
                   </td>
                   </tr>
                   </table>
@@ -685,7 +826,7 @@ height:43px;
         <div class="status-report reported_true fadeable" style="z-index:7001;" hide={/{status.length==0}/}>
             <img src="images/loading.gif" style="margin-right:0.5em; width:2em;"><span id="status_message">{/{status}/}</span>
         </div>
-        <div class="coverall_overlay1 " redim="{/{getJson(coverAll)}/}" ng-show="coverAll" style="z-index:7000"></div>
+        <div class="coverall_overlay"  ng-show="coverAll" style="z-index:7000"></div>
     
 <!--    <footer class="ie_dim_adjust" iewidth="{/{footerState}/}">
 <div class="contained">

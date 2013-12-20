@@ -785,12 +785,29 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 var markersSpotArr=[];
                 var zoomControl=new OpenLayers.Control.Zoom();
                 var lineLayer = new OpenLayers.Layer.Vector("Line Layer");
+                 var strTFS,prtTFS=null;
                 scope.hasFeatures=false;
                                       
                                  var out_options = {
                 'internalProjection': toProjection,
                 'externalProjection': fromProjection
             };
+            
+            var selLoc=false;
+            var mrid=null;
+            var mpid=null;
+            var currentRegion=-1;
+            var currentHeat=-1;
+            var urls=[
+                'http://demo-maps.aboutplace.co/1468',
+                'http://demo-maps.aboutplace.co/1466',
+                'http://demo-maps.aboutplace.co/1438',
+                'http://demo-maps.aboutplace.co/1438z',
+                'http://demo-maps.aboutplace.co/1455',
+                'http://demo-maps.aboutplace.co/1373',
+                'http://demo-maps.aboutplace.co/1377'
+            ];
+            
             
             var gjParser=new OpenLayers.Format.GeoJSON(out_options);
                 
@@ -863,6 +880,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
                 var mapserver='http://demo-maps.aboutplace.co/heat';
                 //var mapserver='http://geo.urban4m.com/heat';
+                //var mapserver1='http://geo.urban4m.com/poly/';
                 var strTFS,prtTFS=null;
                 var geo=GeograficService;
                 var select=SelectionService;
@@ -933,18 +951,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         /*onSelect: select,
                         onUnselect: unselect*/
                   });
-                  /*selectCtrl.events.register('boxselectionstart',selectCtrl,function(){
-                        scope.boxSelect=true;
-                        scope.mapStatus='Processing your selection';
-                        scope.$apply();
-                  })
-                        
-                  selectCtrl.events.register('boxselectionend',selectCtrl,function(){
-                        scope.mapStatus='';
-                        scope.boxSelect=false;
-                        scope.msa.DeepCheckAll();
-                        scope.$apply();
-                  })*/
+
                     
                   map.addControl(this.sCtrl);
                   map.addControl(this.hCtrl);
@@ -999,7 +1006,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 };
                 
                 scope.UpdateUrl=function(partq){
-                   // strTFS.url='api.urban4m.com/heat'+partq;
+                   //strTFS.url=mapserver1+partq;
                 }
                 
                 function ChangeOverlay(lpath,fend){
@@ -1047,12 +1054,12 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             };
                 
                 var placeMarker=function (ltln,icon,text,clase) {
-                    var size = new OpenLayers.Size(60,65);
+                    var size = new OpenLayers.Size(62,62);
                     var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
                     var tclase='pulse-marker';
                     if(clase && clase.length)
                         tclase+=" "+clase
-                    var  marker_icon = new OpenLayers.Icon(icon||'http://www.openlayers.org/dev/img/marker.png', size, offset,null,text+'',tclase);
+                    var  marker_icon = new OpenLayers.Icon(icon||'http://www.openlayers.org/dev/img/marker.png', size, offset,null,text+'',tclase,null,null,true);
        
                     var marker=new OpenLayers.Marker(ltln,marker_icon,text);
                     markersLayer.addMarker(marker);
@@ -1070,7 +1077,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 }
                 
                 function AddSpot(lnlt,text,clase){
-                    markersSpotArr.push(placeMarker(lnlt,"img/pointers/pointer_3_1.png",text,clase));
+                    markersSpotArr.push(placeMarker(lnlt,"img/pointers/pointer_3_1.png",(text||'?.?'),clase));
                 }
                 
                 function resize() {
@@ -1087,7 +1094,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     maxZoomlevel:14,
                     tilesize:OpenLayers.Size(256,256),
                     projection:"EPSG:4326",
-                    fractionalZoom:true,
+                    fractionalZoom:false,
                     displayProjection: fromProjection,
                     units: "m",
                     /*maxResolution: 156543.0339,
@@ -1112,6 +1119,12 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 };
 
 
+                /*strTFS = new OpenLayers.Strategy.TFS({resFactor: 1,ratio:1,format: new OpenLayers.Format.GeoJSON()});
+		prtTFS = new OpenLayers.Protocol.TFS({ url: "./php/TFS.php",last:false,
+								format: new OpenLayers.Format.GeoJSON()  });*/
+
+			
+
                 map = new OpenLayers.Map($(element).find('#main-map')[0], mapOpt);
                 nLayer=new OpenLayers.Layer.OSM('U4M',[
                     mapserver+"/${z}/${x}/${y}.png?"+select.map_query
@@ -1131,9 +1144,22 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                        
                 })
                 
+
+		scope.UpdateUrl('');
+                /*$timeout(function(){
+                  var layer = new OpenLayers.Layer.Vector("Line",{
+						        strategies: [strTFS],
+						         protocol:prtTFS,
+					 			projection: new OpenLayers.Projection("EPSG:4326"),
+							});
+                    map.addLayer(layer);
+                scope.UpdateUrl('');
+                },100)*/
                 nLayer.events.register('moveend',nLayer,function(){
-                   $rootScope.$broadcast('boundboxChanged',map.getExtent().transform(toProjection,fromProjection));
-                     console.log(map.getExtent().transform(toProjection,fromProjection));  
+                    var bound=map.getExtent().transform(toProjection,fromProjection);
+                    var lbound={bottom:bound.bottom, left:bound.left,top:bound.top,right:bound.right};
+                   $rootScope.$broadcast('boundboxChanged',lbound);
+                     console.log(lbound);  
                 })
                      
                     map.addLayer(nLayer); 
@@ -1204,6 +1230,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
 
     
     drawMap();
+    map.zoomToExtent(Stage1Bounds,true);
     map.zoomToProxy = map.zoomTo;
     map.zoomTo =  function (zoom,xy){
         if(zoom<min_zoom)
@@ -1262,13 +1289,35 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                          var beta=alpha/2;
                          var hip=20/Math.sin(beta);
                          var c=markersLayer.getViewPortPxFromLonLat(clustersArr[k][0].marker.lonlat);
+                        var ref=$.extend({},clustersArr[k][0].marker.lonlat);
+                         clustersArr[k].sort(function(a,b){
+                             /*a calculations*/
+                             var aA=a.marker.lonlat.lon-ref.lon;
+                             var aB=a.marker.lonlat.lat-ref.lat;
+                             var aAng=Math.atan((aA+0.00000000000000000001)/(aB+0.00000000000000000001));
+                             /*b calculations*/
+                             var bA=b.marker.lonlat.lon-ref.lon;
+                             var bB=b.marker.lonlat.lat-ref.lat;
+                             var bAng=Math.atan((bA+0.00000000000000000001)/(bB+0.00000000000000000001));
+                             
+                             return (aAng-bAng)/Math.abs(aAng-bAng);
+                         })
                          
                          for(var l=0; l<len;l++){
                              var marker=clustersArr[k][l];
                             
+                            var angles=[
+                                [0],
+                                [-45,45],
+                                [-90,0,90],
+                                [-90,0,90,180]
+                            ]
+                            
+                            
                              if(len<5){
                                   $('.marker_'+marker.idx).addClass("cluster_"+len+"_"+l);
-                                 marker.marker.icon.setUrl('img/pointers/pointer_'+len+'_'+l+'.png');
+                                  $('.marker_'+marker.idx+' svg>g').attr('transform','translate(8,2) rotate('+angles[len-1][l]+',23,29)')
+                                // marker.marker.icon.setUrl('img/pointers/pointer_'+len+'_'+l+'.png');
                              }
                              else{
                                   $('.marker_'+marker.idx).addClass("cluster_gt_4");
@@ -1286,17 +1335,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                      }
     }
     
-    
-    scope.$watch(function(){return attrs.resize},function(value){
-        /*if(value && value.length && value!='false' && map && !angular.isUndefined(map.updateSize))
-            $timeout(function(){
-                map.updateSize();
-                if(marker)
-                    map.setCenter(marker.lonlat)
-            })*/
-            
-    })
-    
+   
 
         scope.$watch('stage',function(nv, ov){
            
@@ -1305,10 +1344,11 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 
         
         if(+nv===3){
+            clearAnims();
             min_zoom=6;
             max_zoom=14;
            //map.setCenter(miamiCenter,12);
-            //map.addControl(zoomControl);
+            map.addControl(zoomControl);
             map.zoomTo(12);
         }
         else{ 
@@ -1317,84 +1357,79 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             }
             $(".pulse-marker").off('click');
             markersSpotArr=[];
-            /*if(+ov===3)
-                map.removeControl(zoomControl);*/
+            map.removeControl(zoomControl);
             if(+nv===1){
                 min_zoom=4;
-                max_zoom=10;
+                max_zoom=14;
                 var zoom=map.getZoomForExtent(Stage1Bounds);
                map.zoomTo(Math.round(zoom));
                var h1=Stage1Bounds.getCenterLonLat();
                map.setCenter(h1);
-               for(var i=0;i<geo.pulses.length;i++){
-                   for(var j=0;j<geo.pulses[i].children.length;j++)
-                        AddSpot(new OpenLayers.LonLat(geo.pulses[i].children[j].center.lon,geo.pulses[i].children[j].center.lat).transform(fromProjection, map.getProjectionObject()),geo.pulses[i].children[j].pulses[scope.lfs],"marker_"+markersSpotArr.length+" "+"area_"+geo.pulses[i].children[j].gid);
-               }
+               //$timeout(panMap,400);
                
-               $(".pulse-marker").on('click',function(event){
-                   event.stopPropagation();
-                    event.preventDefault();
-                    var cname=$.trim(this.className);
-                   var area=geo.GetRegionAreaById(null, +cname.split(' ')[2].split('_')[1]);
-                   var idx=+cname.split(' ')[1].split('_')[1];
-                     $("#gotoArea").off('click');  
-                 if(infoPop)
-                      map.removePopup(infoPop);
-                 infoPop=new OpenLayers.Popup.Anchored("city_detail",
-                 markersSpotArr[idx].lonlat,
-                 new OpenLayers.Size(200,200),
-                 'BLA BLA BLA '+area.name+' <br/><button class="btn" id="gotoArea">go</button>',
-                 null,
-                 true);
-                 infoPop.panMapIfOutOfView=true;
-                 //infoPop.keepInMap=true;
-                  map.addPopup(infoPop);
-                  $('#gotoArea').on('click',function(){
-                      map.removePopup(infoPop);
-                      $location.search('c',area.id);
-                      scope.$apply();
-                  })
-                         
-                   
-               });
+                  
                
-               $timeout(function(){
-                  ApplyCluster();
-                   
-               });
-                   
-               
-           }
-            else if(nv==2){
-                /*min_zoom=7;
-                max_zoom=9;
-                map.setCenter(miamiCenter,8);*/
-               //map.zoomTo(8);
            }
         }
         });
-    })
+    });
+    
+    function panMap(){
+        if(selLoc){
+            $timeout.cancel(mpid);
+            return;
+        }
+        currentRegion=generateRandom(currentRegion,geo.regions.length-1);
+        
+        var loc={
+            location:{
+                long:geo.regions[currentRegion].location.long,
+                lat:geo.regions[currentRegion].location.lat
+            }
+        }
+        
+        m2loc(loc);
+        
+        mpid=$timeout(panMap,11000);
+    }
+    
+   function rotateMap(){
+
+        currentHeat=generateRandom(currentHeat,6);
+        
+        nLayer.url=[urls[currentHeat]+"/${z}/${x}/${y}.png"];
+            nLayer.redraw();
+        
+        mrid=$timeout(rotateMap,7000);
+    }
+    
+    function generateRandom(num,max){
+        
+        var nnum=Math.floor(Math.random()*(max+1));
+        nnum=nnum>max?max:nnum;
+        nnum=nnum!=num?nnum:generateRandom(num,max);
+        return nnum;        
+    }
+    
+    function clearAnims(){
+         $timeout.cancel(mpid);
+         mpid=null;
+          $timeout.cancel(mrid);
+          mrid=null;
+    }
     
     
-    /*scope.$watch('center',function(){
-       if(!scope.center || !scope.center.length)
-           return;
-       var lnlt=scope.center.split(',');
-       var nCenter=new OpenLayers.LonLat(+lnlt[0], +lnlt[1]).transform(fromProjection,map.getProjectionObject());
-       map.setCenter(nCenter);
-    });*/
-    
-   scope.$watch('area',function(){
+   /*scope.$watch('area',function(){
          if(!scope.area || !scope.area.length || +scope.area<0)
            return;
        var center=geo.GetregionAreaCenterById(+scope.area);
        var nCenter=new OpenLayers.LonLat(center.lon, center.lat).transform(fromProjection,map.getProjectionObject());
        map.setCenter(nCenter);
-    });
+    });*/
     
     
     
-    scope.$watch('lfs',function(){
+    /*scope.$watch('lfs',function(){
         if(scope.stage>1)
             return;
         $(".pulse-marker").off('click');
@@ -1434,17 +1469,32 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                          
                    
                });
-    })
+    })*/
+    
+
+        
+   scope.$on('ForceUpdate',function(){
+        
+        
+        updateMap();
+       
+    }); 
     
     scope.$on('selectedSystemsChanged',function(){
         
         
-        if(+scope.stage===3){
-            nLayer.url=[mapserver+"/${z}/${x}/${y}.png?"+select.map_query];
-            nLayer.redraw();
-        }
+        updateMap();
+       
     });  
     
+    
+    function updateMap(){
+      currentHeat=generateRandom(currentHeat,6);
+        mapserver=urls[currentHeat];
+        
+            nLayer.url=[mapserver+"/${z}/${x}/${y}.png?"+select.map_query];
+            nLayer.redraw();  
+    }
     
     scope.$on('collapse',function($event,id){
          if(infoPop)
@@ -1488,11 +1538,66 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         
         
         
-        
+        ApplyCluster()
         
     })
     
-    $timeout(function(){resize();},100);
+    scope.$on('locationChange',function($event,location){
+          m2loc(location);
+        
+    })
+    
+    scope.$on('addressSelected',function($event,location){
+            if(scope.stage<3){
+                m2loc(location);
+                if(!mrid)
+                    $timeout(rotateMap,400);
+            }
+            selLoc=true;
+            
+        
+    });
+    
+    function m2loc(location,zoom){
+        if(location.location && location.location.long){
+            var llocation=new OpenLayers.LonLat(location.location.long,location.location.lat).transform(
+                    fromProjection,
+                    map.getProjectionObject()
+                );
+        
+        if(map.getExtent().containsLonLat(llocation,{inclusive:true})){
+            map.panTo(llocation);
+                $timeout(function(){
+                    map.zoomTo(zoom||12);
+                },1000);
+        }
+        else{
+            var b=new OpenLayers.Bounds();
+            b.extend(map.getCenter());
+            b.extend(llocation);
+            map.zoomToExtent(b,true);
+            $timeout(function(){
+                map.panTo(llocation);
+                $timeout(function(){
+                    map.zoomTo(12);
+                },1000);
+            },300)
+        }
+    }
+    else if(location.top){
+        var bounds=new OpenLayers.Bounds(location.left, location.bottom,location.right,location.top).transform(
+                    fromProjection,
+                    map.getProjectionObject()
+                );
+        map.zoomToExtent(bounds);
+    }
+    }
+    
+    $timeout(function(){resize();
+    
+    
+    
+    },100);
     
              }
         }
@@ -2520,7 +2625,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             }
         };
     }])
-    .directive('searchingTerm',['$timeout','$http',function($timeout,$http){
+    .directive('searchingTerm',['$timeout','$http','$rootScope',function($timeout,$http,$rootScope){
         return {
             restrict:'C',
             template:'<span  class="search_term {{editable?\'edit\':\'\'}} {{(editable && !valid)?\'error\':\'\'}} {{(!editable && valid)?\'accepted\':\'\'}}" >\
@@ -2692,7 +2797,9 @@ border-top-width: 0;\
                 placeh:'@placeh',
                 elast:'@elast',
                 method:'@method',
-                area:'@area'
+                area:'@area',
+                log:'@log',
+                extra:'@extra'
             },
             link:function(scope,element,attrs,bar){
                 
@@ -2703,11 +2810,11 @@ border-top-width: 0;\
                 };
                
                
-               var call_body={"query":{"query_string":{"query":null}},"highlight":{"fields":{"name":{"content":{"type":"plain"}}}}};
-               
                scope.autoCommit1=!scope.autoCommit || !(!scope.autoCommit.replace(/false/i,''));
                scope.elastic=!scope.elast || !(!scope.elast.replace(/false/i,''));
                var last_forced={id:-1, name:''};
+               var logging=!!scope.log || !(!scope.elast.replace(/false/i,''));
+               
                scope.scats=bar.showCats;
 
                 scope.searching=false;
@@ -2775,6 +2882,9 @@ border-top-width: 0;\
                 }
                 
                 scope.Force=function(id,name){
+                    if(logging){
+                        Log({user_term:scope.value,selected_term:name,selected_term_id:id});
+                    }
                     scope.id=id;
                     scope.value=name;
                     last_forced.id=id;
@@ -2790,7 +2900,18 @@ border-top-width: 0;\
                     scope.editable=false;
                     scope.active=false;
                     input.blur();
+                    if(bar.type === 'addr'){
+                        var split_id=scope.id.split('_');
+                        var lobj={
+                            msa:split_id[0],
+                            location:JSON.parse(split_id[1])
+                        }
+                        $rootScope.$broadcast('addressSelected',lobj)
+                    }
                 }
+                
+                
+                
                 
                 scope.submit=function(){
                     //submit();
@@ -2804,7 +2925,10 @@ border-top-width: 0;\
                 }
                 
                 
-                scope.$watch('value',function(){
+                scope.$watch('value',function(nval,oval){
+                    if(!scope.editable && scope.active)
+                        scope.editable=true;
+                    
                     if(timeHandler){
                         $timeout.cancel(timeHandler);
                         timeHandler=null;
@@ -2832,20 +2956,22 @@ border-top-width: 0;\
                     
                 })
                 
+
+                
+                
+                
                 function Fetch(auto){
                     var l_auto=auto;
                       scope.searching=true;
                       var callconfig={};
                       
-                      //'{"query":{"query_string":{"query":"feline"}},"fields":["meta_"]}'
-                      
-                      var querys='{"fields": ["meta_" ],"query" : {"bool" : {"must" : [{ "match" : {"meta_" : "'+scope.value+'"}}], "should" : [{ "match" : {"msa_short" : "'+scope.area+'"}}],"minimum_should_match" : 0,"boost" : 1.0}},"highlight" : {"fields" : {"*" : {"fragment_size" : 50,"number_of_fragments" : 1}}}}';
+                     var querys='{"fields": ["meta_" ],"query" : {"bool" : {"must" : [{ "match" : {"meta_" : "'+scope.value+'"}}], "should" : [{ "match" : {"msa_short" : "'+scope.area+'"}}],"minimum_should_match" : 0,"boost" : 1.0}},"highlight" : {"fields" : {"*" : {"fragment_size" : 50,"number_of_fragments" : 1}}}}';
                       querys='{"query":{"query_string":{"query":"'+scope.value+'"}},"fields":["meta_"]}';
                       
                       
                       
-                        var val=scope.elastic?querys:scope.value;
-                      callconfig.url=scope.method!='post'?(config.url+val):config.url
+                        var val=scope.elastic?querys:scope.value+(scope.extra?('/'+scope.extra):'');
+                      callconfig.url=scope.method!='post'?(config.url+encodeURI(val.replace(/,/g,'___'))):config.url;
                       callconfig.method=scope.method||'get';
                       if(scope.method && scope.method=='post')
                           callconfig.data=val;
@@ -2863,24 +2989,15 @@ border-top-width: 0;\
                             
                             Validate(l_auto);
                         });
-                      
-                      
-                        /*$http.get(config.url+scope.value).success(function(data){
-                            scope.searching=false;
-                                                   switch(bar.type){
-                                case 'addr':{
-                                      res_list=TranslateAddress(data);
-                                        break;
-                                }
-                                default:{
-                                     res_list=Translate_temp(data);   
-                                }
-                            }
-                            
-                            Validate(l_auto);
-                        })*/
                 }
                 
+                function Log(content){
+                     var callconfig={};
+                      callconfig.url=config.url
+                      callconfig.method='post';
+                      callconfig.data=content;
+                      $http(callconfig);
+                }
                 
                 function Translate(obj){
                     var nObj={};
@@ -2897,10 +3014,10 @@ border-top-width: 0;\
                function Translate_temp(obj){
                     var nObj={"terms":[]};
                     for(var i=0;i<obj.hits.hits.length;i++){
-                        
+                        var lid=$.trim(obj.hits.hits[i]._id).split('-');
                         var nobj={
                             name:$.trim(obj.hits.hits[i].fields.meta_),
-                            id:$.trim(obj.hits.hits[i]._id)
+                            id:+(lid[1]||lid[0])
                             
                         }
                         nObj.terms.push(nobj);
@@ -2916,15 +3033,13 @@ border-top-width: 0;\
                function TranslateAddress(obj){
                     var nObj={"address":[]};
                     for(var i=0;i<obj.hits.hits.length;i++){
-                        var lobj=obj.hits.hits[i]._source;
+                        var lobj=obj.hits.hits[i].fields;
+                        var lloc=(lobj.location && !lobj["location.lon"])?{long:lobj.location[0],lat:lobj.location[1]}:(lobj["location.lon"]?({long:lobj["location.lon"],lat:lobj["location.lat"]}):lobj.bbox_);
+                        
                         var nobj={
-                            name:(lobj.addr+' '+lobj.city16+', '+lobj.state+' '+lobj.zip),
-                            id:lobj.uniq_id,
-                            center:{
-                                lon:lobj.lng,
-                                lat:lobj.lat       
-                            }
-                        }
+                            name:lobj.address||lobj.unit_name||((lobj.state||lobj.name_adm1)?(lobj.msa_name+', '+(lobj.state||lobj.name_adm1)):+lobj.msa_long),
+                            id:lobj.msaid+'_'+JSON.stringify(lloc)
+                           };
                         nObj.address.push(nobj);
                         
                        
@@ -2975,10 +3090,10 @@ border-top-width: 0;\
         return {
             restrict:'C',
             replace:true,
-            template:'<div class="searching_bar"><span class="searching_term"  ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}" elast="{/{elastic}/}" method="{/{method}/}" area="{/{area}/}"></span>\
+            template:'<div class="searching_bar"><span class="searching_term"  ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}" elast="{/{elastic}/}" method="{/{method}/}" area="{/{area}/}" log="{/{log}/}"  extra="{/{extra}/}"></span>\
                        <div class="hidden-terms-cont" ng-show="showHidden">\
                             <div class="arrow"></div>\
-                            <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="true"  elast="{/{elastic}/}" method="{/{method}/}"  area="{/{area}/}"></span>\
+                            <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="true"  elast="{/{elastic}/}" method="{/{method}/}"  area="{/{area}/}"  log="{/{log}/}" extra="{/{extra}/}"></span>\
                         </div></div>',
             scope:{
                 showHidden:"@showHidden",
@@ -2992,17 +3107,21 @@ border-top-width: 0;\
                 lfs:'@lfs',
                 elastic:'@elastic',
                 method:'@method',
-                area:'@area'
+                area:'@area',
+                log:'@log',
+                extra:'@extra'
             },
             controller:function($scope){
                 $scope.showHidden=!$scope.showHidden.replace(/true/i,'');
-                this.searchTerms=$scope.searchTerms=[{id:"0_"+Date.now(),value:"",editable:true,valid:true}];
-                this.hiddenTerms=$scope.hiddenTerms=[];
+                $scope.searchTerms=[];
+                $scope.hiddenTerms=[];
                 $scope.visibleItems=+$scope.visibleItems;
+                var creating=true;
                 var maxSearch=+$scope.maxSearch;
                 maxSearch=maxSearch?maxSearch:1;
                 
                 this.type=$scope.type||'search';
+                this.addr=this.type==='addr';
                 this.delimiter=this.type==="addr"?null:",";
                 
                 this.baseUrl=$scope.baseUrl;
@@ -3010,7 +3129,7 @@ border-top-width: 0;\
                 this.lfs=!$scope.lfs?false:!$scope.lfs.replace(/true/i,'');
                 var stash=[ $scope.searchTerms,  $scope.hiddenTerms];
                 var self=this;
-                this.AddTerm=function(obj){
+                this.AddTerm=function(obj,skip){
                     if(maxSearch>0 && ($scope.hiddenTerms.length+$scope.searchTerms.length)>=maxSearch)
                         return;
                     
@@ -3024,27 +3143,33 @@ border-top-width: 0;\
                     }
                     if($scope.searchTerms.length>=$scope.visibleItems){
                         var overflow=$scope.searchTerms.pop();
-                        $timeout(function(){$scope.hiddenTerms.unshift(overflow);});
+                        $scope.hiddenTerms.unshift(overflow);
                     }
                     
                     
-
+                    //return
                        $scope.searchTerms.unshift(obj);
                          $timeout(function(){
                             var terms=[];
-                            for(var i=0;i<self.searchTerms.length;i++){
-                                if(!self.searchTerms[i].editable && self.searchTerms[i].valid){
-                                    terms.push({name:self.searchTerms[i].value,id:self.searchTerms[i].id});
+                            for(var i=0;i<$scope.searchTerms.length;i++){
+                                if(!$scope.searchTerms[i].editable && $scope.searchTerms[i].valid){
+                                    terms.push({name:$scope.searchTerms[i].value,id:$scope.searchTerms[i].id});
                                 }
                             }
                             
-                            for(var i=0;i<self.hiddenTerms.length;i++){
-                                if(!self.hiddenTerms[i].editable && self.hiddenTerms[i].valid){
-                                    terms.push({name:self.hiddenTerms[i].value,id:self.hiddenTerms[i].id});
+                            for(var i=0;i<$scope.hiddenTerms.length;i++){
+                                if(!$scope.hiddenTerms[i].editable && $scope.hiddenTerms[i].valid){
+                                    terms.push({name:$scope.hiddenTerms[i].value,id:$scope.hiddenTerms[i].id});
                                 }
                             }
-                            if(!this.addr)
-                                $rootScope.$broadcast('searchChanged',terms);
+                            if(!self.addr && !skip){
+                                if( !creating){
+                                    $rootScope.$broadcast('searchChanged',terms);
+                                   
+                                }
+                                else
+                                     creating=false;
+                            }
                         });
                 }
                 
@@ -3060,25 +3185,27 @@ border-top-width: 0;\
                     if($scope.searchTerms.length<$scope.visibleItems && $scope.hiddenTerms.length)
                         $scope.searchTerms.push($scope.hiddenTerms.shift());
                     
+                    //return;
                      $timeout(function(){
                             var terms=[];
-                            for(var i=0;i<self.searchTerms.length;i++){
-                                if(!self.searchTerms[i].editable && self.searchTerms[i].valid){
-                                    terms.push({name:self.searchTerms[i].value,id:self.searchTerms[i].id});
+                            for(var i=0;i<$scope.searchTerms.length;i++){
+                                if(!$scope.searchTerms[i].editable && $scope.searchTerms[i].valid){
+                                    terms.push({name:$scope.searchTerms[i].value,id:$scope.searchTerms[i].id});
                                 }
                             }
                             
-                            for(var i=0;i<self.hiddenTerms.length;i++){
-                                if(!self.hiddenTerms[i].editable && self.hiddenTerms[i].valid){
-                                    terms.push({name:self.hiddenTerms[i].value,id:self.hiddenTerms[i].id});
+                            for(var i=0;i<$scope.hiddenTerms.length;i++){
+                                if(!$scope.hiddenTerms[i].editable && $scope.hiddenTerms[i].valid){
+                                    terms.push({name:$scope.hiddenTerms[i].value,id:$scope.hiddenTerms[i].id});
                                 }
                             }
-                            if(!this.addr)
+                            if(!self.addr)
                                 $rootScope.$broadcast('searchChanged',terms);
                         });
                 }
                 
                 function FindTerm(id){
+                    stash=[ $scope.searchTerms,  $scope.hiddenTerms];
                     var result=null;
                     for(var i=0;i<stash.length;i++){
                         for(var j=0;j<stash[i].length;j++){
@@ -3097,7 +3224,31 @@ border-top-width: 0;\
                         self.AddTerm({value:"",editable:true,valid:true});
                 })
                 
-                if(this.lfs){
+                if(this.type=='addr'){
+                    $scope.$on('takeAddress',function($event,area){
+                        $scope.searchTerms[0].id=area.msaid+'_'+area.lonlat;
+                        $scope.searchTerms[0].value=area.address;
+                        $timeout(function(){
+                            $scope.$broadcast('takeFocus',area.msaid+'_'+area.lonlat);
+                        })
+                        
+                    })
+                }
+                else{
+                    $scope.$on('forceTerms',function($event,terms,verify){
+                        creating=true;
+                        $scope.searchTerms=[];
+                        $scope.hiddenTerms=[];
+                        for(var i=0;i<terms.length;i++){
+                            self.AddTerm({value:terms[i].name,id:terms[i].id,editable:verify,valid:true},true);
+                        }
+                    });
+                }
+                                
+                    
+                
+                
+               /* if(this.lfs){
                 $scope.$watch(function(){return JSON.stringify(SelectionService.activeLifeStyle);},function(){
                     for(var i=0;i<$scope.searchTerms.length;i++){
                         if($scope.searchTerms[i].lifestyle)
@@ -3116,7 +3267,7 @@ border-top-width: 0;\
                         //submit();
                     }
                 })
-                }
+                }*/
             }
         };
     }])    
@@ -3124,7 +3275,7 @@ border-top-width: 0;\
         return {
             restrict:'C',
             replace:true,
-            template:'<span class="g-dropdown"  ng-click="ToggleView($event)" style="cursor:pointer"><div class="icon-holder active_lifestyle_{/{selection.activeLifeStyle.id}/}"></div><span class="header-lifestyle-selector"><span ng-hide="selection.activeLifeStyle.id" >Custom</span>{/{selection.activeLifeStyle.name}/}</span><i class="icon-white icon-chevron-down" ></i><div class="content" ng-show="show_lfs">\
+            template:'<span class="g-dropdown"  ng-click="ToggleView($event)" style="cursor:pointer"><div class="icon-holder active_lifestyle_{/{selection.activeLifeStyle.id}/}"></div><span class="header-lifestyle-selector"><span ng-hide="selection.activeLifeStyle.id" >Custom</span>{/{selection.activeLifeStyle.name}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">\
                         <ul>\
                             <li ng-repeat="lfs in selection.lifestyles" ng-click="$parent.SelectLifeStyle(lfs)" ng-class="{active:(lfs.id===$parent.selection.activeLifeStyle.id)}"><div class="icon-holder {/{(lfs.id===$parent.selection.activeLifeStyle.id)?\'active_\':\'\'}/}lifestyle_{/{lfs.id}/}" ></div>{/{lfs.name}/} <div class="indication_button"></div></li>\
                             <li  ng-click="ClearLifeStyle()" ng-class="{active:(!selection.activeLifeStyle.id)}"><div class="icon-holder {/{(!selection.activeLifeStyle.id)?\'active_\':\'\'}/}lifestyle_" ></div>Custom<div class="indication_button"></div></li>\
@@ -3137,7 +3288,7 @@ border-top-width: 0;\
             link:function(scope,element,attrs){
                 scope.selection=SelectionService;
                 scope.SelectLifeStyle=function(lfs){
-                    $location.search('l',lfs.id);
+                    $rootScope.$broadcast('lifestyleChanged',lfs.id);
                 }
 
                 scope.ClearLifeStyle=function(){
@@ -3154,6 +3305,92 @@ border-top-width: 0;\
                     if(id!=scope.$id)
                         scope.show_lfs=false;
                     
+                })
+            }
+        };
+    }])
+    .directive('collapsable',['$rootScope',function($rootScope){
+        return {
+            restrict:'C',
+             link:function(scope,element,attrs){
+                $(element).children('.state-toggler').on('click',function(){
+                    scope.Toggle();
+                })
+                scope.expanded=!(attrs.exp||'').toString().replace(/true/i,'');
+                var Ggroup=attrs.group;
+                scope.$on('collapse',function($event,id,group){
+                    if(id!==scope.$id && group===Ggroup)
+                        scope.expanded=false;
+                });
+                
+                scope.Toggle=function(){
+                    scope.expanded=!scope.expanded;
+                   
+                }
+                
+                scope.$watch('expanded',function(val){
+                     if(scope.expanded){
+                        $rootScope.$broadcast('collapse',scope.$id,attrs.group);
+                        element.addClass('expanded');
+                        element.removeClass('collapsed');
+                    }
+                    else{
+                        element.removeClass('expanded');
+                        element.addClass('collapsed');
+                    }
+                })
+            }
+        };
+    }])
+    .directive('hotspotCard',['$rootScope',function($rootScope){
+        return {
+            restrict:'C',
+            scope:{
+               spot:"=hotspot"
+            },
+            template:'<i class="state-toggler icon-eye-{/{expanded?\'close\':\'open\'}/}"></i>\
+            <table><tr><td><svg style="width:56px; height:62px;">\
+     <g transform="translate(8,2)">\
+    <path\
+       style="fill:{/{color}/};stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"\
+       d="m 22.86161,57.55804 c 0,0 -22.14286,-19.5534 -22.14286,-33.61953 0,-4.93124 4.10714,-22.4519 22.14286,-22.4519 18.03572,0 22.5,14.0866 22.5,22.5 0,13.47133 -22.5,33.57143 -22.5,33.57143 z"/>\
+    <text\
+       style="font-size:40px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"\
+       x="23"\
+       y="28.450891"\
+       id="text5155"\
+       sodipodi:linespacing="125%"><tspan\
+         x="14"\
+         y="28.450891"\
+         style="font-size:14px">{/{spot.pulse}/}</tspan></text>\
+  </g>\
+    </svg></td><td><h4 style="color:{/{color}/}; display:inline-block; text-align:left; margin-top:-10px;" >{/{spot.name}/}</h4></td></tr></table>\
+    <div class="data-card">\
+        <div ng-repeat="item in spot.scorecard" class="score-spot">\
+            <i class="{/{$parent.map[item.id]}/}"></i>\
+            <h6 >{/{item.name}/}</h6>\
+            <h5 class="score-rank-{/{item.rank}/}">{/{item.value}/}</h5>\
+        </div>\
+        <div class="score-spot">\
+            For even more information about neighborhoods<br>try Premium\
+        </div>\
+    </div>\
+        <a class="redir-links"  target="_blanck" href="http://www.yelp.com/search?find_desc={/{$parent.friendlySerch}/}&find_loc={/{spot.name}/}">Find top-rated atractions with Yelp<i class="icon-white icon-chevron-right"></i></a>\
+        <a class="redir-links" target="_blanck" href="http://www.zillow.com/homes/for_sale/{/{$parent.bbox.top}/},{/{$parent.bbox.right}/},{/{$parent.bbox.bottom}/},{/{$parent.bbox.left}/}_rect">Find a Home in the Area with Zillow<i class="icon-white icon-chevron-right"></i></a>\
+        <a class="redir-links" target="_blanck" href="http://www.hotels.com/search.do?destination={/{spot.name}/}">Find Places to stay with Hotels<i class="icon-white icon-chevron-right"></i></a>\
+        <a class="redir-links" target="_blanck" href="http://jobsearch.monster.com/search/?where={/{spot.name}/}">Find Jobs in the Area with Monster<i class="icon-white icon-chevron-right"></i></a>\
+    ',
+                link:function(scope,element,attrs){
+                
+               scope.map={
+                    hp:'icon-home',
+                    mtrans:'icon-road',
+                    edu:'icon-book',
+                    age:'icon-user',
+                    walk:'icon-random'
+                }
+                scope.$watch(function(){return scope.spot.pulse},function(){
+                     scope.color='#f4'+Math.ceil((255+1.25)-13.75*(scope.spot.pulse)).toString(16)+Math.ceil((133)-10.17*(scope.spot.pulse)).toString(16);
                 })
             }
         };

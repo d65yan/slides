@@ -12,12 +12,12 @@
 
    } 
    
-      .pulse-marker.cluster_2_0{
+   .pulse-marker.cluster_2_0{
        margin-left:-30%;
-       height:55px !important;
        margin-top:10px;
-
    }
+   
+
    
     .pulse-marker.cluster_2_1{
        margin-left:30%;
@@ -77,17 +77,17 @@ top: 29.9%;
         }
         
         .pulse-marker{
-            width:60px !important;
-               height:65px !important;
-            transition: all 0.3s ease;
+            /*width:60px !important;
+               height:65px !important;*/
+            /*transition: all 0.3s ease;*/
             cursor:pointer;
             font-size:85%;
         }
         .pulse-marker .marker-text{
-             transition: all 0s linear;
+             /*transition: all 0s linear;*/
         }
         
-        .pulse-marker:hover{
+       /* .pulse-marker:hover{
             width:100% !important;
             height:100% !important;
             font-size:130%;
@@ -122,7 +122,7 @@ top: 29.9%;
         .pulse-marker.cluster_3_2:hover{
             margin-top:20%;
             margin-left:40%;
-        }
+        }*/
    
     #menu_state_switch{
         cursor:pointer;
@@ -252,7 +252,7 @@ top: 29.9%;
         background-color:white;
  
         border-radius:0 0 3px 3px;
-       
+        position:relative;
         font-size:1em;
         max-height:100%;
         height:auto;
@@ -260,6 +260,16 @@ top: 29.9%;
         border-radius:4px;
 
     }
+    
+    .collapsable .state-toggler{
+        position:absolute;
+        top:10px;
+        right:10px;
+        cursor:pointer;
+        z-index:2000;
+
+    }
+    
     
    /* .nbds_leftbar .main_container.short{
         height:0.85em;
@@ -476,6 +486,9 @@ margin-top: 2px;
             display:inline-block
         }        
         
+ 
+        
+        
         .nbds_leftbar .main_container .searching_bar .search_term.edit .term-cont,.nbds_leftbar .main_container .searching_bar .search_term.edit-add .term-cont{
             position:relative;
             border:solid 1px #ddd;
@@ -641,6 +654,15 @@ border-top-width: 0;
        }
        
        
+        .nbds_leftbar .main_container.collapsed .searching_bar>.search_term, .nbds_leftbar .main_container.collapsed .searching_bar .hidden-terms-cont .arrow, .nbds_leftbar .main_container.collapsed>h3,.nbds_leftbar .main_container.collapsed>img{
+            display:none
+        } 
+       
+       
+        .nbds_leftbar .main_container.collapsed .searching_bar .hidden-terms-cont{
+            margin-top:0px !important;
+        }
+       
        .add-cont{
            color:white;
            
@@ -659,24 +681,116 @@ border-top-width: 0;
            width:100%;
            text-align:center;
        }
+       
+       .hotspot-card.ng-enter{
+           display:none;
+       }
+       
+       .hotspot-card{
+           border: solid #ccc 1px;
+           border-radius:5px;
+           margin-top:5px;
+           margin-bottom:5px;
+           background-color:white;
+           clear:both;
+           position:relative;
+       }
+       
+       .hotspot-card table{
+           margin:5px
+       }
+       
+       .hotspot-card.collapsed .data-card, .hotspot-card.collapsed  .redir-links{
+           display:none;
+       }
+       
+       .data-card{
+           clear:both;
+           height:185px;
+           background-color:#ddd;
+           border:solid #888 1px;
+           border-top:none;
+       }
+       
+      .data-card .score-spot{
+           float:left;
+           width:146px;
+           text-align:center;
+           border-right:solid #888 1px;
+           border-top:solid #888 1px;
+       }
+       
+      .data-card .score-spot:nth-child(3n){
+           border-right:none;
+       }
+       
+       .data-card .score-spot i{
+           margin-top:5px;
+       }
+       .data-card .score-spot h6{
+           margin-left:10px;
+           margin-right:10px;
+           color:#999;
+           border-bottom: solid #777 1px;
+       }
+       
+       .hotspot-card  .redir-links{
+           padding:10px;
+           padding-top:15px;
+           padding-bottom:15px;           
+           display:block;
+           background-color:#555;
+           color:white;
+           font-weight:bold;
+           font-size:18px;
+           clear:both;
+           border-bottom: solid 1px #444;
+           cursor:pointer;
+       }
+       
+       .hotspot-card .redir-links i{
+            float:right;
+       }
+       
+       .hotspot-card  .redir-links:last-child{
+           border-radius:0 0 4px 4px;
+       }
+       
+       .score-rank-2{
+           color:red;
+       }
+       .score-rank-10{
+           color:green;
+       }
+       .score-rank-6{
+           color:#777;
+       }
 </style>
 <!-- with animation skips dimentioning whrn rendered<section  id="nhbd_page" class="content-section scrollable resizeable" global="1" auto="self" height-adjust="header" skip-render="true" style="width:100%; height:600px;">-->
 <div  id="nhbd_page" class="content-section scrollable resizeable take-pos clicktale1" global="1" auto="self" height-adjust="header" style="width:100%; height:600px;" update="{/{updateMapSpace}/}" ng-class="{left_bar_hidden:menu_state==='short'}">
   <div class="shadowtop static_element"></div>
-    <div class="nbds_leftbar {/{menu_state}/} mobile-touch" ng-click="CollapseAll()">
-        <table style="height:100%; margin-left:5px; margin-right:5px">
+    <div class="nbds_leftbar {/{menu_state}/} mobile-touch" ng-click="CollapseAll()" ng-show="stage===3">
+        <table style="height:100%; margin-left:5px; margin-right:5px; width:446px;">
             <tr>
                 <td style="vertical-align:top;padding-top:5px">
-        <div class="main_container" ng-class="{short:menu_state}">
+        <div class="main_container collapsable" expanded="true" group="left-bar">
+            <i class="state-toggler icon-{/{expanded?'minus':'plus'}/}" ></i>
             <!--<span class='list-switcher mobile-touch' prevent="true" id="menu_state_switch" ng-click="$parent.menu_state=(menu_state=='short')?'':'short'"><i class="mapicon_expand_{/{menu_state=='short'?'down':'up'}/} icon-white"></i>{/{menu_state=='short'?'Show':'Hide' }/} List</span>-->
-            <br> 
-            <img src="./img/buttons/wishlist.png">
+            
+            <img src="./img/buttons/wishlist.png" style="margin-top:20px;">
              <h3>Add the amenities & criteria that matters most to you</h3>
-             <div class="search_bar" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="http://api.urban4m.com:9200/_all/_search?pretty=1' -d" auto_commit="false" placeh="e.g starbucks, coffeshops, retiree" lfs="true" elastic="true" method="post" area="{/{area.name}/}"></div>
+             <div class="search_bar" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="api/search/" auto_commit="false" placeh="e.g starbucks, coffeshops, retiree" lfs="false" elastic="false"  log="true" extra="{/{$parent.s.msaid}/}"></div>
         </div>
+             
+                    <div class="collapsable hotspot-card" hotspot="spot" ng-repeat="spot in s.spots track by spot.gid" group="left-bar" exp="false"></div>
+                    
+                    
                 </td>
+                
+            
+                
             </tr>
-            <tr >
+            <!--<tr >
                 <td style="height:80px; background-color:red; vertical-align:top">
                     <div class="add-cont">
                         <h4>Hotels</h4>
@@ -703,7 +817,7 @@ border-top-width: 0;
                     
                     
                 </td>
-            </tr>
+            </tr>-->
         </table>
     </div>
     <div class="filters-bar static_element resizeable"  width_adjust=".nbds_leftbar" ng-if="stage=='pro'"></div>
