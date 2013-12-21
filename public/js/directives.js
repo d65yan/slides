@@ -2853,6 +2853,7 @@ border-top-width: 0;\
         return {
             restrict:'C',
              link:function(scope,element,attrs){
+                 var first=true;
                 $(element).children('.state-toggler').on('click',function(){
                     scope.Toggle();
                 })
@@ -2865,7 +2866,7 @@ border-top-width: 0;\
                 
                 scope.Toggle=function(){
                     scope.expanded=!scope.expanded;
-                   
+                   first=false;
                 }
                 
                 scope.$watch('expanded',function(val){
@@ -2878,13 +2879,53 @@ border-top-width: 0;\
                         element.removeClass('expanded');
                         element.addClass('collapsed');
                     }
+                    
                 })
                 
                 scope.$watch(function(){return attrs.lfs;},function(val){
-                     if(+val>0)
+                     if(+val>0){
+                         
+                         if(first){
+                             scope.expanded=false;
+                             first=false;
+                         }
                          return;
-                     else if(val!==undefined)
+                     }
+                     else if(val!==undefined /*&& !first*/)
                         scope.expanded=true;
+                    
+                });
+            }
+        };
+    }])
+    .directive('flipable',['$rootScope','$timeout',function($rootScope,$timeout){
+        return {
+            restrict:'C',
+             link:function(scope,element,attrs){
+                 var first=true;
+                 scope.count=0;
+                 //$(element).get().style.cursor='pointer';
+                 var count=$(element).children('.sides').length;
+                 var animating=false;
+                 element.addClass("animated");
+                $(element).on('click',function(){
+                    if(animating)
+                        return;
+                    animating=true;
+                    if(!element.hasClass('flipOutY'))
+                    element.addClass('flipOutY');
+                    $timeout(function(){
+                        
+                        element.removeClass('flipOutY');
+                        element.addClass('flipInY');
+                        $timeout(function(){
+                            element.removeClass('flipInY');
+                            animating=false;
+                        },800)
+                        scope.count+=1;
+                        if(scope.count==count)
+                            scope.count=0;
+                    },800)
                 });
             }
         };
@@ -2912,7 +2953,8 @@ border-top-width: 0;\
          style="font-size:14px">{/{spot.pulse}/}</tspan></text>\
   </g>\
     </svg></td><td><h4 style="color:{/{color}/}; display:inline-block; text-align:left; margin-top:-10px;" >{/{spot.name}/}</h4></td></tr></table>\
-    <div class="data-card">\
+    <div class="data-card flipable">\
+    <div class="sides side0" ng-show="count==0">\
         <div ng-repeat="item in spot.scorecard" class="score-spot">\
             <i class="{/{$parent.map[item.id]}/}"></i>\
             <h6 >{/{item.name}/}</h6>\
@@ -2921,6 +2963,17 @@ border-top-width: 0;\
         <div class="score-spot">\
             For even more information about neighborhoods<br><span class="action-text">try Premium</span>\
         </div>\
+</div>\
+<div class="sides side2"  ng-show="count==1">\
+        <div ng-repeat="item in spot.scorecard" class="score-spot">\
+            <i class="{/{$parent.map[item.id]}/}"></i>\
+            <h6 >{/{item.name}/}</h6>\
+            <h5 class="score-rank-{/{item.rank}/}">{/{item.value}/}</h5>\
+        </div>\
+        <div class="score-spot">\
+            backside of the card</span>\
+        </div>\
+</div>\
     </div>\
         <a class="redir-links"  target="_blanck" href="http://www.yelp.com/search?find_desc={/{$parent.friendlySerch}/}&find_loc={/{spot.name}/}">Find top-rated atractions with Yelp<i class="icon-white icon-chevron-right"></i></a>\
         <a class="redir-links" target="_blanck" href="http://www.zillow.com/homes/for_sale/{/{$parent.bbox.top}/},{/{$parent.bbox.right}/},{/{$parent.bbox.bottom}/},{/{$parent.bbox.left}/}_rect">Find a Home in the Area with Zillow<i class="icon-white icon-chevron-right"></i></a>\

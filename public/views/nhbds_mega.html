@@ -741,6 +741,7 @@ border-top-width: 0;
            background-color:#ddd;
            border:solid #888 1px;
            border-top:none;
+           box-shadow:#666 0 0 8px -2px;
        }
        
       .data-card .score-spot{
@@ -866,7 +867,7 @@ border-top-width: 0;
                            <div class="separator"></div>
                        </div>
                     </div>
-        <div class="main_container collapsable" group="left-bar" lfs="{/{$parent.lifeStyle.id}/}">
+        <div class="main_container collapsable" group="left-bar" lfs="{/{lifeStyle.id}/}">
             <i class="state-toggler icon-{/{expanded?'minus':'plus'}/}" ></i>
             <!--<span class='list-switcher mobile-touch' prevent="true" id="menu_state_switch" ng-click="$parent.menu_state=(menu_state=='short')?'':'short'"><i class="mapicon_expand_{/{menu_state=='short'?'down':'up'}/} icon-white"></i>{/{menu_state=='short'?'Show':'Hide' }/} List</span>-->
             
