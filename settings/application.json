@@ -1,0 +1,23 @@
+{
+	"PGHOST": "db.urban4m.com",
+	"PGUSER": "geo",
+	"PGDATABASE": "u",
+	"COMPANY": "Urban4M",
+	"CSRF_COOKIE_NAME": "XSRF-TOKEN",
+	"SECRET_KEY": "FvbCnm32UgE4vFADS7px6CY4mb7HzerbsxsJF4D6Au39aCxSS22aPRMvP5J7J82bG8dEWxi5vzjzELcgiSbzpmHWBTVBZm2v42FFcGdYqXhkF9PXeWQ4gHzbdSx3FG7C",
+	"LOCALE": {
+		"LANGUAGE_CODE": "en-us",
+		"TIME_ZONE": "UTC",
+		"USE_I18N": true,
+		"USE_L10N": true,
+		"USE_TZ": true
+	},
+	"CSR_OPTIONS": {
+		"country": "US",
+		"state": "FL",
+		"locality": "Miami",
+		"organization": "Urban4M",
+		"commonName": "aboutplace.co"
+	}
+
+}

@@ -2,11 +2,14 @@
 /**
  * Module dependencies.
  */
+
+
 var express = require('express')
   , routes = require('./routes')
   , crypt = require('crypto')
   , http = require('http')
-  , path = require('path');
+  , path = require('path')
+  , db=require('./settings/database').db;
 
 var app = express();
 var puerto= process.env.PORT || 2500;
@@ -24,6 +27,7 @@ app.configure(function(){
   app.use('',express.static(path.join(__dirname, 'public')));
   //app.use(express.static(path.join(__dirname, '')));
 });
+
 
 var slides={
     uw:{
@@ -46,12 +50,13 @@ var slides={
     }
 }
 
+var authUrl='http://10.0.0.7:2300';
 app.get('/',function(req, res) {
     
         res.render('index.ejs',{
                  layout:false,
                  locals:{
-                    authServerURL:'',
+                    authServerURL:authUrl,
                     user:JSON.stringify({fremium:false,premium:false,name:'test user'}),
                     logged:true
                 }
@@ -66,7 +71,8 @@ app.get('/api/address/:q',routes.address);
 app.get('/api/hotspot/:id',routes.state);
 app.post('/api/hotspot',routes.hotspot);
 
-
+/*app.get('/api/address/:q',routes.address);
+app.get('/api/hotspot/:id',routes.state);*/
 
 app.get(/\/slides\/[a-z]+/,function(req, res) {
         

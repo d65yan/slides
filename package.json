@@ -1,5 +1,5 @@
 {
-  "name": "ComingSoon",
+  "name": "APDemo",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -8,7 +8,12 @@
   "dependencies": {
     "express": "3.1.0",
     "ejs":"0.8.4",
-    "crypto":"*"
+    "crypto":"*",
+    "bookshelf":"0.6.2",
+    "bookshelf-fields":"0.1.0",
+    "http-signature":"0.9.11",
+    "sqlite3":"2.1.10",
+    "nconf":"0.6.9"
   },
   "engines": {
     "node": "0.8.x",

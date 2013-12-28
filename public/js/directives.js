@@ -795,23 +795,37 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
     map.zoomToExtent(Stage1Bounds,true);
     map.zoomToProxy = map.zoomTo;
     map.zoomTo =  function (zoom,xy){
+        /*if(scope.zooming)
+            return;
+        scope.zooming=true;*/
+            
         if(zoom<min_zoom)
             zoom=min_zoom;
         else if(zoom>max_zoom)
             zoom=max_zoom;
-        map.zoomToProxy(zoom,xy); 
+        
+        var dest=zoom;
+        function zoomify(){
+            var czoom=map.getZoom();
+            if(map.zoom==dest){
+                
+                scope.zooming=false;
+                return;
+            }
+            var delta=(dest-czoom)/Math.abs(dest-czoom);
+            $timeout(zoomify,700);
+            map.zoomToProxy(czoom+delta,xy);
+        }
+        //zoomify();
+        map.zoomToProxy(zoom);
+         
     };
 
     function ApplyCluster(){
         if(!markersSpotArr.length)
             return;
          var clustersArr=[
-                       [
-                           {
-                               idx:0,
-                               marker:markersSpotArr[0]
-                           }
-                       ]
+                       
                    ];
                    $(".pulse-marker").removeClass (function (index, css) {
                             var arr=css.split(" ");
@@ -823,50 +837,57 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                         return clases;
                     });
                    
-                   for(var i=1;i<markersSpotArr.length;i++){
+                   for(var i=0;i<markersSpotArr.length;i++){
                        var matched=false;
-                       var point=markersLayer.getViewPortPxFromLonLat(markersSpotArr[i].lonlat);
+                       
+                       var point=markersSpotArr[i]?markersLayer.getViewPortPxFromLonLat(markersSpotArr[i].lonlat):null;
+                       var llnlt=markersSpotArr[i].lonlat;
                        //new OpenLayers.Geometry.Point(markersSpotArr[i].lonlat.lon,markersSpotArr[i].lonlat.lat);
                        for(var j=0;j<clustersArr.length;j++){
                            //if(point.distanceTo(new OpenLayers.Geometry.Point(clustersArr[j][0].marker.lonlat.lon,clustersArr[j][0].marker.lonlat.lat))<120000){
-                           if(point.distanceTo(markersLayer.getViewPortPxFromLonLat(clustersArr[j][0].marker.lonlat))<60){
-                               clustersArr[j].push({marker:markersSpotArr[i], idx:i});
+                           if(point && point.distanceTo(markersLayer.getViewPortPxFromLonLat(clustersArr[j].center))<60){
+                               clustersArr[j].markers.push({marker:markersSpotArr[i], idx:i});
+                               clustersArr[j].bounds.extend(llnlt);
+                               clustersArr[j].center=clustersArr[j].bounds.getCenterLonLat()
                                matched=true;
                                break;
                            }
                        }
-                       if(!matched){
-                           clustersArr.push([
-                                {
-                                    idx:i,
-                                    marker:markersSpotArr[i]
-                                }
-                            ])
+                       if(!matched && point){
+                           var lbounds= new OpenLayers.Bounds();
+                           lbounds.extend(llnlt);
+                           clustersArr.push({
+                               bounds:lbounds,
+                               center:llnlt,
+                                markers:[
+                                    {
+                                        idx:i,
+                                        marker:markersSpotArr[i]
+                                    }
+                                ]
+                            })
                        }
                    }
                    
                    for(var k=0;k<clustersArr.length;k++){
-                         var len=clustersArr[k].length;
+                         var len=clustersArr[k].markers.length;
                          var alpha=360/(len+2);
                          var beta=alpha/2;
                          var hip=20/Math.sin(beta);
-                         var c=markersLayer.getViewPortPxFromLonLat(clustersArr[k][0].marker.lonlat);
-                        var ref=$.extend({},clustersArr[k][0].marker.lonlat);
-                         clustersArr[k].sort(function(a,b){
-                             /*a calculations*/
-                             var aA=a.marker.lonlat.lon-ref.lon;
-                             var aB=a.marker.lonlat.lat-ref.lat;
-                             var aAng=Math.atan((aA+0.00000000000000000001)/(aB+0.00000000000000000001));
-                             /*b calculations*/
-                             var bA=b.marker.lonlat.lon-ref.lon;
-                             var bB=b.marker.lonlat.lat-ref.lat;
-                             var bAng=Math.atan((bA+0.00000000000000000001)/(bB+0.00000000000000000001));
-                             
-                             return (aAng-bAng)/Math.abs(aAng-bAng);
+                         var c=markersLayer.getViewPortPxFromLonLat(clustersArr[k].center);
+                         clustersArr[k].markers.sort(function(a,b){
+                             return (a.marker.lonlat.lon-b.marker.lonlat.lon)/Math.abs(a.marker.lonlat.lon-b.marker.lonlat.lon)
                          })
                          
+                         for( l=1, llen=clustersArr[k].markers.length-1; l<llen; l++){
+                             if(clustersArr[k].markers[l].marker.lonlat.lat>clustersArr[k].center.lat){
+                                 clustersArr[k].markers.push(clustersArr[k].markers.splice(l,1)[0]);
+                                 llen--;
+                             }
+                         }
+                         
                          for(var l=0; l<len;l++){
-                             var marker=clustersArr[k][l];
+                             var marker=clustersArr[k].markers[l];
                             
                             var angles=[
                                 [0],
@@ -2908,7 +2929,10 @@ border-top-width: 0;\
                  var count=$(element).children('.sides').length;
                  var animating=false;
                  element.addClass("animated");
-                $(element).on('click',function(){
+                 
+                 var clickable=$(element).find('.flipper')[0]?$($(element).find('.flipper')[0]):$(element);
+                 
+                clickable.on('click',function(){
                     if(animating)
                         return;
                     animating=true;
@@ -2940,7 +2964,7 @@ border-top-width: 0;\
             <table><tr><td><svg style="width:56px; height:62px;">\
      <g transform="translate(8,2)">\
     <path\
-       style="fill:{/{color}/};stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"\
+       class="pulse-point"  stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"\
        d="m 22.86161,57.55804 c 0,0 -22.14286,-19.5534 -22.14286,-33.61953 0,-4.93124 4.10714,-22.4519 22.14286,-22.4519 18.03572,0 22.5,14.0866 22.5,22.5 0,13.47133 -22.5,33.57143 -22.5,33.57143 z"/>\
     <text\
        style="font-size:40px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"\
@@ -2953,7 +2977,8 @@ border-top-width: 0;\
          style="font-size:14px">{/{spot.pulse}/}</tspan></text>\
   </g>\
     </svg></td><td><h4 style="color:{/{color}/}; display:inline-block; text-align:left; margin-top:-10px;" >{/{spot.name}/}</h4></td></tr></table>\
-    <div class="data-card flipable">\
+    <div class="data-card flipable" style="position:relative">\
+    <i class="flipper icon-refresh" style="position:absolute; top:5px; right:5px; cursor:pointer"></i>\
     <div class="sides side0" ng-show="count==0">\
         <div ng-repeat="item in spot.scorecard" class="score-spot">\
             <i class="{/{$parent.map[item.id]}/}"></i>\
@@ -2991,6 +3016,7 @@ border-top-width: 0;\
                 }
                 scope.$watch(function(){return scope.spot.pulse},function(){
                      scope.color='#f4'+Math.ceil((255+1.25)-13.75*(scope.spot.pulse)).toString(16)+Math.ceil((133)-10.17*(scope.spot.pulse)).toString(16);
+                     $(element).find('g path.pulse-point').css('fill',scope.color);
                 })
             }
         };

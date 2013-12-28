@@ -1,5 +1,12 @@
 "use strict";
 var crypto = require('crypto');
+var fs=require('fs');
+
+var keys={
+    key:fs.readFileSync('key.pem','ascii'),
+    cert:fs.readFileSync('server.pem','ascii')
+};
+
 
 function respond (res, json) {
 	res.setHeader('Content-Type', 'application/json');
@@ -130,7 +137,7 @@ function hotspots(){
                     rank:2
                 }
             ]
-        }/*,
+        },
         {
             "pulse":(Math.random()*10).toFixed(1),
             "gid":3,
@@ -156,7 +163,7 @@ function hotspots(){
                     "gid":8
                 }
             ]
-        }*/
+        }
            
         
     ]       

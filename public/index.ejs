@@ -839,13 +839,14 @@ height:43px;
                 <!--<span class="sosial-container"><a><img src="img/facebook.png"/></a><a><img src="img/twitter.png"/></a><a><img src="img/pincterest.png"/></a></span>-->
             <span class="header-menus">
                 <ul >
-                <li>Upgrade to Premium</li><li>My Account</li></ul>
+                <li>Upgrade to Premium</li><li ng-if="user && user.id">My Account</li><li ng-if="!user || !user.id" ng-click="ShowPlainAuth('login?srd=app/authsuccess',true)">Sign In</li></ul>
             </span>
             
           <div style="clear:both;"></div>  
 </div>
 <div>
         </header> 
+        <div ng-show="showAuthBox"><iframe class="auth-frame" src="{/{authUrl}/}"></iframe></div>
         <div id="main_view_wrapper">
             <div ng-view  class="move-view"></div>
         </div>

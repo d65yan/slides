@@ -9,7 +9,7 @@
 
 }]);
       
-      function AppController($scope,$window,$http,$timeout,SelectionService,GeograficService,SystemsFilters,$rootScope,$dialog,$routeParams,$location){
+      function AppController($scope,$window,$http,$timeout,SelectionService,GeograficService,SystemsFilters,$rootScope,$dialog,$routeParams,$location,$sce){
           //$scope.logged=false;
           $rootScope.history = [];
           $rootScope.back=false;
@@ -22,7 +22,7 @@
           $scope.prevContent='';
           $scope.footerState='100%';
           $scope.selectedLifeStyle=-1;
-          $scope.authUrl=$scope.authServer+'auth?srd=app/authsuccess&t='+Date.now();
+          $scope.authUrl=$sce.trustAsResourceUrl($scope.authServer+'auth?srd=app/authsuccess&t='+Date.now());
           //$scope.user={};
           $scope.showCities=false;
           $scope.token=null;
@@ -135,7 +135,7 @@
               $scope.showAuthBox=!$scope.showAuthBox &&(!$scope.logged || force);
               $scope.authUrl='';
               $timeout(function(){
-                   $scope.authUrl=$scope.authServer+url;
+                   $scope.authUrl=$sce.trustAsResourceUrl($scope.authServer+url);
                    
                    //$scope.$p
               })
@@ -164,7 +164,7 @@
 
                       $scope.logged=false;
                       $scope.user={};
-                      $scope.authUrl=$scope.authServer+'logout';
+                      $scope.authUrl=$sce.trustAsResourceUrl($scope.authServer+'logout');
                       $window.location.href='/#home';
                   
              });
@@ -286,7 +286,7 @@
            });
 
     }
-      AppController.$inject=['$scope','$window','$http','$timeout','SelectionService','GeograficService','SystemsFilters','$rootScope','$dialog','$routeParams','$location'];
+      AppController.$inject=['$scope','$window','$http','$timeout','SelectionService','GeograficService','SystemsFilters','$rootScope','$dialog','$routeParams','$location','$sce'];
      
      function homeCtrl($scope,$window,$timeout,GeograficService,SystemsFilters,$location,$filter){
          $scope.$parent.footerState='100%'; 
