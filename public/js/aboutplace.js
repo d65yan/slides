@@ -975,25 +975,6 @@
          })
          
 
-       /*review*/
-       $scope.$on('hotSpotClicked',function($event,idx){
-           $scope.hotspotscore=-1;
-           $scope.score_card={
-               hp:285000,
-               education_level:"College Degree",
-               average_age:38,
-               walkability:"High",
-               mass_transit:"Poor"
-           };
-           $scope.$apply();
-           $timeout(
-                   function(){
-                        $scope.hotspotscore=idx;
-                        $scope.$apply();
-                   },
-                   100
-            )
-       });
        
        /*review*/
        $scope.$on('selectedSystemsChanged',function(){

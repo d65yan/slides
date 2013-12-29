@@ -627,6 +627,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     markersLayer.addMarker(marker);
                     //marker.events.register("mouseover", marker, function(){ele.style.cursor = "pointer";});
                     //marker.events.register("mouseout", marker, function(){ele.style.cursor = "default";}); 
+                    
                     return marker;
                 }
         
@@ -639,7 +640,9 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 }
                 
                 function AddSpot(lnlt,text,clase){
-                    markersSpotArr.push(placeMarker(lnlt,"img/pointers/pointer_3_1.png",(text||'?.?'),clase));
+                    var mark=placeMarker(lnlt,"img/pointers/pointer_3_1.png",(text||'?.?'),clase)
+                    markersSpotArr.push(mark);
+                    return mark;
                 }
                 
                 function resize() {
@@ -1092,13 +1095,19 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
         markersSpotArr=[];
         for(var i=0;i<spots.length;i++){
             if(spots[i].center){
-               AddSpot(new OpenLayers.LonLat(spots[i].center.lon,spots[i].center.lat).transform(fromProjection, map.getProjectionObject()),spots[i].pulse,"marker_"+i);
+                var mark=AddSpot(new OpenLayers.LonLat(spots[i].center.lon,spots[i].center.lat).transform(fromProjection, map.getProjectionObject()),spots[i].pulse,"marker_"+i);
+                (function attach(marker,spot){
+                   marker.events.register("click", marker, function(){
+                        $rootScope.$broadcast('hotSpotClicked',spot.gid);
+                    }); 
+                })(mark,spots[i])
+                
             }
         }
         
         
         
-         $(".pulse-marker").on('click',function(){
+       /*  $(".pulse-marker").on('click',function(){
              event.stopPropagation();
              event.preventDefault();
              
@@ -1117,7 +1126,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                  infoPop.panMapIfOutOfView=true;
                  //infoPop.keepInMap=true;
                   map.addPopup(infoPop);
-               });
+               });*/
         
         
         
@@ -3018,7 +3027,13 @@ border-top-width: 0;\
                      scope.color='#f4'+Math.ceil((255+1.25)-13.75*(scope.spot.pulse)).toString(16)+Math.ceil((133)-10.17*(scope.spot.pulse)).toString(16);
                      $(element).find('g path.pulse-point').css('fill',scope.color);
                 })
-            }
+                
+                    scope.$on('hotSpotClicked',function($event,id){
+                        scope.expanded=scope.spot.gid==id;
+                        scope.$apply();
+                    });
+                
+                }
         };
     }])
     .directive('clicktale',['$timeout','$rootScope',function($timeout,$rootScope){
