@@ -857,7 +857,7 @@ border-top-width: 0;
         <table style="height:100%; margin-left:5px; margin-right:5px; width:446px;">
             <tr>
                 <td style="vertical-align:top;padding-top:5px">
-                    <div class="life-style-explorer collapsable" ng-if="lifeStyle.id" group="active-lifestyle">
+                    <div class="life-style-explorer collapsable update-scrolls" node_id="nhbd_page" ng-if="lifeStyle.id" group="active-lifestyle">
                         <i class="state-toggler icon-eye-{/{expanded?'close':'open'}/}"></i>
                        <i class="icon-holder lifestyle_{/{$parent.lifeStyle.id}/}"></i> <h4>{/{$parent.lifeStyle.name}/}</h4>
                        <p>This is a descriptive text about what this lifestyle means and what it contains.</p>
@@ -867,17 +867,17 @@ border-top-width: 0;
                            <div class="separator"></div>
                        </div>
                     </div>
-        <div class="main_container collapsable" group="left-bar" lfs="{/{lifeStyle.id}/}">
+        <div class="main_container collapsable update-scrolls" node_id="nhbd_page" group="left-bar" lfs="{/{lifeStyle.id}/}">
             <i class="state-toggler icon-{/{expanded?'minus':'plus'}/}" ></i>
             <!--<span class='list-switcher mobile-touch' prevent="true" id="menu_state_switch" ng-click="$parent.menu_state=(menu_state=='short')?'':'short'"><i class="mapicon_expand_{/{menu_state=='short'?'down':'up'}/} icon-white"></i>{/{menu_state=='short'?'Show':'Hide' }/} List</span>-->
             
             <img src="./img/buttons/wishlist.png" style="margin-top:20px;">
              <h3>Add a wish list to refine your search</h3>
              <p>Enter the amenities & criteria that matters most to you and watch your place pulce change to match</p>
-             <div class="search_bar" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="api/search/" auto_commit="false" placeh="e.g starbucks, coffeshops, retiree" lfs="false" elastic="false"  log="true" extra="{/{$parent.s.msaid}/}"></div>
+             <div class="search_bar update-scrolls" node_id="nhbd_page" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="api/search/" auto_commit="false" placeh="e.g starbucks, coffeshops, retiree" lfs="false" elastic="false"  log="true" extra="{/{$parent.s.msaid}/}"></div>
         </div>
              
-                    <div class="collapsable hotspot-card" hotspot="spot" ng-repeat="spot in s.spots track by spot.gid" group="left-bar" exp="false"></div>
+                    <div class="collapsable hotspot-card update-scrolls" node_id="nhbd_page" hotspot="spot" ng-repeat="spot in s.spots track by spot.gid" group="left-bar" exp="false"></div>
                     
                     
                 </td>

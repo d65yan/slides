@@ -1447,6 +1447,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     $(attrs.tagName+'.scrollable').perfectScrollbar('update');
                 
                }
+               
+               scope.updateScrolls=update;
                $timeout(function(){update()});
                
                if(attrs.click==='true'){
@@ -2739,8 +2741,10 @@ border-top-width: 0;\
                     /*if(!$scope.hiddenTerms.length && $scope.searchTerms.length==1)
                         return;*/
                     var pos=FindTerm(id);
+                    var reportable=true;
                     if(pos){
                         var elem=stash[pos.arr].splice(pos.pos,1);
+                        reportable=!elem[0].editable;
                         if(elem[0].lifestyle)
                             SelectionService.UnselectLifeStyle(elem[0].id)
                     }
@@ -2761,7 +2765,7 @@ border-top-width: 0;\
                                     terms.push({name:$scope.hiddenTerms[i].value,id:$scope.hiddenTerms[i].id});
                                 }
                             }
-                            if(!self.addr)
+                            if(!self.addr && reportable)
                                 $rootScope.$broadcast('searchChanged',terms);
                         });
                 }
@@ -2784,6 +2788,8 @@ border-top-width: 0;\
                     
                     if($scope.searchTerms &&(!$scope.searchTerms.length || !$scope.searchTerms[0].editable))
                         self.AddTerm({value:"",editable:true,valid:true});
+                    if($scope.updateScrolls)
+                        $scope.updateScrolls();
                 })
                 
                 if(this.type=='addr'){
@@ -2909,7 +2915,8 @@ border-top-width: 0;\
                         element.removeClass('expanded');
                         element.addClass('collapsed');
                     }
-                    
+                   if(scope.updateScrolls)
+                       scope.updateScrolls();
                 })
                 
                 scope.$watch(function(){return attrs.lfs;},function(val){
