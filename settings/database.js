@@ -64,15 +64,14 @@ var sch=db.knex.schema;
 sch.hasTable('users').then(function(exists){
     if(!exists){
         sch.createTable('users',function(table){
-            table.bigIncrements('id');
+            table.bigIncrements('id').primary().unique().notNullable().index();
             table.string('email').unique().notNullable().index();
             table.json('methods').notNullable();
-            table.string('token').unique().notNullable();
+            table.string('token').unique().notNullable().index;
             table.string('f_name').notNullable();
             table.string('l_name');
             table.string('plan');
-            table.dateTime('member_since');
-            table.dateTime('las_visit');
+            table.string('cookie');
              
             
         }).then(function(){

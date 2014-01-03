@@ -2328,7 +2328,7 @@ border-top-width: 0;\
           <span class="term-cont">         \
             <input type="text"  placeholder="{/{placeh}/}" ng-model="value" ng-disabled="searchingrt" class="term"/>\
                 <span class="display">{/{value}/}</span>\
-                <span ng-hide="(!editable || !valid || !active)" class="list" style="z-index:4000">\
+                <span ng-hide="(!editable  || !active)" class="list" style="z-index:4000">\
                     <ul>\
                         <li ng-repeat="cat in filteredList">\
                             <h4 ng-if="scats">{/{cat.name}/}</h4>\
@@ -2519,7 +2519,10 @@ border-top-width: 0;\
                     
                 })
                 
-
+                scope.$on('submitionError',function($address,type){
+                    if(type==="address" && bar.addr)
+                        scope.valid=false;
+                })
                 
                 
                 

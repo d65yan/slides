@@ -298,6 +298,11 @@ margin-right:0px;
             font-size:16px;
             margin-top:7px;
         }
+        
+        header .searching_bar .search_term.error{
+            border:solid 1px red !important;
+            border-radius:6px
+        }
 
         header .searching_bar .search_term i{
            
@@ -804,6 +809,21 @@ height:43px;
 }
 
 
+.auth-box-container{
+    position:absolute;
+    width:300px;
+    height:150px;
+    margin-left:50%;
+    left:-150px;
+    top:150px;
+    z-index:9000;
+    background-color:white;
+}
+
+.auth-box-container iframe{
+    border:solid 1px #888;
+}
+
 </style>
   <script>
       $(document).ready(function(){
@@ -840,14 +860,14 @@ height:43px;
                 <!--<span class="sosial-container"><a><img src="img/facebook.png"/></a><a><img src="img/twitter.png"/></a><a><img src="img/pincterest.png"/></a></span>-->
             <span class="header-menus">
                 <ul >
-                <li>Upgrade to Premium</li><li ng-if="user && user.id">My Account</li><li ng-if="!user || !user.id" ng-click="ShowPlainAuth('login?srd=app/authsuccess',true)">Sign In</li></ul>
+                <li>Upgrade to Premium</li><li ng-if="user && user.token">My Account</li><li ng-if="!user || !user.token" ng-click="ShowPlainAuth('login?srd=authsuccess',true)">Sign In</li></ul>
             </span>
             
           <div style="clear:both;"></div>  
 </div>
 <div>
         </header> 
-        <div ng-show="showAuthBox"><iframe class="auth-frame" src="{/{authUrl}/}"></iframe></div>
+        <div ng-show="showAuthBox" class="auth-box-container"><iframe class="auth-frame" src="{/{authUrl}/}"></iframe></div>
         <div id="main_view_wrapper">
             <div ng-view  class="move-view"></div>
         </div>

@@ -1,8 +1,48 @@
+'use strinct';
+var userWrite=require('../../models/users').userWrite,
+    settings=require('../../settings/application').conf;
+    var vObjQue=settings.get('vObjQue');
+    var authServerURL=settings.get('authUrl'); 
+    var http=require('http')
+    ,keys=settings.get('keys')
+    ,https=require('https')
+    , sign=require('http-signature')
+    ,crypto=require('crypto')
+    ,mypass=settings.get('mypass');
+module.exports=function(app){
+
+
 //AUTHENTICATION PART 1//////////REDIRECTION USING THE PUBLIC TOKEN WICH IS BEING PASSED TO THE CLIENT AND LATER VERIFICATION(is passed to the client to increase signaling and keep the uer informed)
 app.get('/authsuccess',function(req,res){
-            res.send('200','<script>\
-            parent.window.location.href="/login?vid='+req.query.vid+'"\
-        </script>');
+            authenticateUser(req
+            ,function(err,user,cookie){
+                if(err){
+                                    console.log(err)
+                throw err;
+                res.send('200','<script>\
+                    var sc=parent.window.angular.element("#upper_wrapper").scope();\
+                    sc.Toast("authentication failed");\
+                    sc.AuthBoxToggle("");\
+                    </script>');
+                   return;
+                }
+                res.send('200','<script>\
+                    var sc=parent.window.angular.element("#upper_wrapper").scope();\
+                   sc.Login('+JSON.stringify(user)+');\
+                    sc.$apply();\
+                    </script>');
+                    return;
+            },
+            function(err){
+                console.log(err)
+                //throw err;
+                res.send('200','<script>\
+                    var sc=parent.window.angular.element("#upper_wrapper").scope();\
+                    sc.Toast("authentication failed");\
+                    sc.AuthBoxToggle("");\
+                    </script>');
+            })
+            
 });
 
 /////SOCIAL MEDIA//////////CALL MADE BY AUTHSERVER TO INFORM THAT SOCIAL MEDIA AUTHENTICATION HAS FINISHED AND DELIVER THE RESULTS
@@ -70,40 +110,27 @@ app.get('/authenticating',
                       delete user.ip;
                       var id=user.uid
                       //delete user.uid;
-                      var sql0='SELECT uid FROM users WHERE uid="'+id+'"';
-                      db.all(sql0,function(err,row){
-                          if(err){
-                              timeout();
-                              throw err;
-                              return;
-                          }
-                          var sql='';
-                          if(row.length){
-                            console.log('user exists');
-                            msg+='Back ';
-                            sql='UPDATE users SET ';
-                            for(var i in user){
-                                 sql+=i+'="'+user[i]+'",'
-                            }
-                            sql+='last_log='+llog+', cookie="'+cookie+'" WHERE uid="'+id+'"';
-                          }
-                          else{
-                              sql='INSERT INTO users(';
-                              var values=') VALUES(';
-                              for(var i in user){
-                                  sql+=i+',';
-                                  values+='"'+user[i]+'",';
+                      userWrite.forge({id:uid}).fetch().then(function(ruser){
+                              if(ruser){
+                                  for(var i in user)
+                                    ruser.set(i,user[i]);
                               }
-                              sql+='last_log,cookie'+llog+',"'+cookie+'")';
-                          }
-                          console.log(sql);
-                          db.run(sql,function(err){
-                              res.cookie('u4m_r0j3b', cookie);
-                              res.json({msg:msg+user.name,name:user.name,success:1, token:user.token});
-                              timeout(true);
-                          })
-                      })
-
+                              else{
+                                  ruser= userWrite.forge(user);
+                              }
+                              ruser.save().then(function(nuser){
+                                  res.cookie('u4m_r0j3b', cookie);
+                                  res.json({msg:msg+user.name,name:user.name,success:1, token:user.token});
+                                  timeout(true);
+                              },
+                              function(err){
+                                  timeout();
+                                  throw err;
+                                  return;
+                              })
+                      });
+                      
+                      
 
               }
               else{
@@ -129,7 +156,7 @@ app.get('/logout',CheckCookie,function(req,res){
         res.send('404','');
         return;
     }
-    db.run('UPDATE users SET cookie="" WHERE uid="'+req.user.uid+'"',function(err){});
+    userWrite.forge({id:uid}).set('cookie',null).save();
     res.cookie('u4m_r0j3b',null,{expires:new Date(Date.now()-90000)});
     res.send('ok');
 })
@@ -149,26 +176,8 @@ setInterval(function(){
 
 
 
-fs.exists('users.db',function(exists){
- 
-    db=new sqlite.Database('users.db',function(err){
-        
-        if(!exists){
-            db.exec('CREATE TABLE users (uid,token,name,email,methods,last_log,cookie,plan)',function(err){
-                if(err) throw err;
-            })
-        }
-        http.createServer(app).listen(app.get('port'), function(){
-            console.log("Express server listening on port " + app.get('port'));
-        });
-    });
-    
-    
-    
-    
-})
-
 function Verify(token,succ,fail){
+    console.log('going to verify');
     var tout=false;
     var toHandler;
      function timeout(skip){
@@ -178,35 +187,47 @@ function Verify(token,succ,fail){
           fail();
       }
 
-
-
-
+var auth_url=authServerURL.toString().split(':');
+var url=auth_url[1].toString().replace('//',''),
+port=auth_url[2]||2300;
 var options = {
-  host: authServerURL.toString().replace('https://',''),
-  port: 443,
+  host: url,//.replace('https://',''),
+  //port: 443,
+  port:port,
   path: '/verify?t='+token,
   method: 'GET',
-  rejectUnauthorized:false,
+  //rejectUnauthorized:false,
   headers: {}
 };
 
-var request = https.request(options, function(resp){
-    console.log(resp.responseText);
+
+console.log(url+'--->'+port);
+
+var request = http/*s*/.request(options, function(resp){
         var response=resp;
         
         clearTimeout(toHandler);
         if(tout)
             return;
         resp.on('data',function(d){
-            var body=d;
-            try{body=JSON.parse(body);}catch(e){timeout(); console.log(e);return;}
-            if(!body || !body.success){timeout(); console.log(err); return;}
+             
+            var body=JSON.parse(d);
+            console.log(body.success);
+            //try{body=body);}catch(e){timeout(); console.log(e);return;}
+            if(!body || !body.success){timeout(); console.log('err'); return;}
             succ(response,body);
         })
+        
+
        
 
     });
 
+        request.on('error',function(err){
+            console.log(err)
+            //throw err;
+            fail(err);
+        })
 
 sign.sign(request, {
   key: keys.key,
@@ -251,48 +272,37 @@ function Undust(key){
 
 function authenticateUser(req,scallback,fcallback){
      Verify(req.query.vid,function(response,body){
+         console.log('succesfull response')
           delete body.success;
+          var ms=body.member_since;
+          var ll=body.last_log;
+          delete body.member_since;
+          delete body.last_log;
             var exists=false;
             var msg='Welcome ';
             var last_log=new Date().getTime();
             var ip=ip||req.headers['x-forwarded-for']|| req.connection.remoteAddress;
             var cookie=CreateCookie(body.token,last_log,ip);
-            var id=body.uid;
+            var id=body.id;
 
-            var sql0='SELECT uid FROM users WHERE uid="'+id+'"';
-            db.all(sql0,function(err,row){
-                if(err){
-                    timeout();
-                    throw err;
-                    return;
-                }
-                var sql='';
-                if(row.length){
-                    console.log('user exists');
-                    msg+='Back ';
-                    sql='UPDATE users SET ';
-                    for(var i in body){
-                        sql+=i+'="'+body[i]+'",'
-                    }
-                    sql+='last_log='+last_log+', cookie="'+cookie+'" WHERE uid="'+id+'"';
-                }
-                else{
-                    sql='INSERT INTO users(';
-                    var values=') VALUES(';
-                    for(var i in body){
-                        sql+=i+',';
-                        values+='"'+body[i]+'",';
-                    }
-                    sql+='last_log,cookie'+values+last_log+',"'+cookie+'")';
-                }
-                console.log(sql);
-                db.run(sql,function(err){
-                    scallback(err,body,cookie)
-                    /*res.cookie('u4m_r0j3b', cookie, { expires: new Date(Date.now() + (60*60*24*365)) });
-                    res.json({msg:msg+body.name,name:body.name,success:1, token:body.token});*/
-
-                })
-            })
+                      userWrite.forge({token:body.token}).fetch().then(function(ruser){
+                              if(ruser){
+                                  for(var i in body)
+                                    ruser.set(i,body[i]);
+                                    exists=true;
+                                }
+                              else{
+                                  ruser= userWrite.forge(body);
+                              }
+                              ruser.save().then(function(nuser){
+                                  body.new=!exists;
+                                   scallback(null,body,cookie)
+                              },
+                              function(err){
+                                  scallback(err);
+                              })
+                      });
+            
     },function(){fcallback();/*res.json({msg:'The authentication has failed',success:0});*/})
 }
 
@@ -302,19 +312,18 @@ function authenticateUser(req,scallback,fcallback){
 ////////////MIDDLEWARES/////////////////////////
 function CheckCookie(req,res,next){
 delete req.user;
-    db.get('SELECT * FROM users WHERE cookie="'+req.cookies.u4m_r0j3b+'"',function(err,user){
-        if(err || !user){
-            console.log(err+' this should fail');
-            return next();
-        }
-         var ip=ip||req.headers['x-forwarded-for']|| req.connection.remoteAddress;
+    userWrite.forge({cookie:req.cookies.u4m_r0j3b}).fetch().then(function(user){
+        var ip=ip||req.headers['x-forwarded-for']|| req.connection.remoteAddress;
 
-        var hash=CreateCookie(user.token,user.last_log,ip);
+        var hash=CreateCookie(user.get('token'),user.get('last_log'),ip);
         console.log(req.cookies);
         console.log(hash+'!='+req.cookies.u4m_r0j3b);
         if(hash===req.cookies.u4m_r0j3b)
             req.user=user;
         return next();
+    },function(err){
+         console.log(err+' this should fail');
+         return next();
     })
 }
 
@@ -330,6 +339,7 @@ function CheckRequest(req,res,next){
   console.log('header verified');
   return next();
     
+}
 }
 
 

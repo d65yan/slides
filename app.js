@@ -27,7 +27,10 @@ app.configure(function(){
   app.use('',express.static(path.join(__dirname, 'public')));
   //app.use(express.static(path.join(__dirname, '')));
 });
+var set=require('./settings/application').conf;
+var authUrl=set.get('authUrl'); 
 
+//console.log('URL ===>'+set.get('DBFILE'));
 
 var slides={
     uw:{
@@ -50,7 +53,9 @@ var slides={
     }
 }
 
-var authUrl='http://10.0.0.7:2300';
+
+require('./routes/auth')(app);
+
 app.get('/',function(req, res) {
     
         res.render('index.ejs',{

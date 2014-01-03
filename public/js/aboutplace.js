@@ -22,7 +22,7 @@
           $scope.prevContent='';
           $scope.footerState='100%';
           $scope.selectedLifeStyle=-1;
-          $scope.authUrl=$sce.trustAsResourceUrl($scope.authServer+'auth?srd=app/authsuccess&t='+Date.now());
+          $timeout(function(){$scope.authUrl=$sce.trustAsResourceUrl($scope.authServer+'auth?srd=authsuccess&t='+Date.now());});
           //$scope.user={};
           $scope.showCities=false;
           $scope.token=null;
@@ -68,7 +68,14 @@
                   path=path.replace(reg,current.params[i]);
               }
               
-              
+              $scope.Toast=function(msg,time){
+                  time=time||2000;
+                  $scope.status=msg;
+                  if(msg)
+                      $timeout(function(){
+                          $scope.status=''
+                      },time)
+              }
               
               
               $rootScope.history=JSON.parse($rootScope.history);
@@ -85,13 +92,13 @@
                     $rootScope.back=false;
                     $scope.history.push(path);
                     localStorage['u4m.APapp.history']=JSON.stringify($rootScope.history);
-          });
+          }     );
   
           
           
           
 
-          $scope.ShowCities=function(){
+      /*    $scope.ShowCities=function(){
               for(var i=0;i<$scope.geo.regions.length;i++){
                  $scope.geo.regions[i].SelectAll();
               }
@@ -119,7 +126,7 @@
             $scope.searchFailed = function(){
                 $scope.searchDialog.open().then(function(){});
             };
-            
+            */
           
           
           $scope.ShowPlainAuth=function(url,force){
@@ -148,7 +155,7 @@
                  $scope.prevContent=msg; 
                  $scope.showAuthBoxForm=false;
               }
-              $scope.AuthBoxToggle('login?srd=app/authsuccess&full=1');
+              $scope.AuthBoxToggle('login?srd=authsuccess&full=1');
               return false;
           }
           
@@ -170,7 +177,12 @@
              });
           }
 
-          
+          $scope.Login=function(user){
+              var msg='Welcome '+(user.new?'':'back ')+user.f_name;
+              $scope.Toast(msg);
+              $scope.AuthBoxToggle('');
+              $scope.user=user;
+          }
           
           
           $scope.Register=function(m,t){
@@ -1140,7 +1152,7 @@
          $scope.resetUrl='';
          if(!$scope.user|| !$scope.user.token || !$scope.user.token.length || !$scope.user.name || !$scope.user.name.length){
              
-             $scope.$parent.AuthBoxToggle('login?srd=app/authsuccess&full=1');
+             $scope.$parent.AuthBoxToggle('login?srd=authsuccess&full=1');
              $window.history.back();
              return;
              

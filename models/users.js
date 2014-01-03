@@ -9,19 +9,17 @@ var wModel=require('../settings/database').model
 
 var rUser= rModel.extend({
     tableName:'users',
-    idAttribute:'id',
-    
+    idAttribute:'id'
 });
 
 var wUser= wModel.extend({
     tableName:'users',
-    idAttribute:'id',
-    
+    idAttribute:'id'
 });
 
 
 
-fields.fields(rUser,
+/*fields.fields(rUser,
 [fields.intField,'id'],
 [fields.emailField,'email'],
 [fields.jsonField,'methods'],
@@ -31,7 +29,7 @@ fields.fields(rUser,
 [fields.stringField,'plan'],
 [fields.dateTimeField,'member_since'],
 [fields.dateTimeField,'last_visit']
-)
+);
 
 fields.enable_validation(wUser);
 fields.fields(wUser,
@@ -44,8 +42,8 @@ fields.fields(wUser,
 [fields.stringField,'plan'],
 [fields.dateTimeField,'member_since'],
 [fields.dateTimeField,'last_visit']
-)
+);*/
 
-exports userRead=rUser;
-exports userWrite=wUser;
+exports.userRead=rUser;
+exports.userWrite=wUser;
 exports.users=db.Collection.extend({model:wUser});

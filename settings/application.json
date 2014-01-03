@@ -18,6 +18,13 @@
 		"locality": "Miami",
 		"organization": "Urban4M",
 		"commonName": "aboutplace.co"
-	}
-
+	},
+        "vObjQue":{},
+        "authUrl":"http://10.0.0.7:2300",
+        "keys":{
+            "key":"./key.pem",
+            "cert":"./server.pem"
+        },
+        "mypass":"1"
+        
 }
