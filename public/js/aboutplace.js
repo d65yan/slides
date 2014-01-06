@@ -22,7 +22,11 @@
           $scope.prevContent='';
           $scope.footerState='100%';
           $scope.selectedLifeStyle=-1;
-          $timeout(function(){$scope.authUrl=$sce.trustAsResourceUrl($scope.authServer+'auth?srd=authsuccess&t='+Date.now());});
+          $timeout(function(){
+              $scope.authUrl=$sce.trustAsResourceUrl($scope.authServer+'auth?srd=authsuccess&t='+Date.now());
+              $scope.authFacebook=$sce.trustAsResourceUrl($scope.authServer+'facebook?srd=authsuccess');
+              $scope.authGoogle=$sce.trustAsResourceUrl($scope.authServer+'google?srd=authsuccess');
+          });
           //$scope.user={};
           $scope.showCities=false;
           $scope.token=null;

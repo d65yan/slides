@@ -811,8 +811,8 @@ height:43px;
 
 .auth-box-container{
     position:absolute;
-    width:300px;
-    height:150px;
+    width:500px;
+    height:180px;
     margin-left:50%;
     left:-150px;
     top:150px;
@@ -822,6 +822,7 @@ height:43px;
 
 .auth-box-container iframe{
     border:solid 1px #888;
+    float:left;
 }
 
 </style>
@@ -867,7 +868,13 @@ height:43px;
 </div>
 <div>
         </header> 
-        <div ng-show="showAuthBox" class="auth-box-container"><iframe class="auth-frame" src="{/{authUrl}/}"></iframe></div>
+        <div ng-show="showAuthBox" class="auth-box-container">
+            <iframe class="auth-frame" src="{/{authUrl}/}"></iframe>
+            <div class="social">
+                <p ng-click="Register('facebook')">use facebook</p><br/>
+                 <p ng-click="Register('google')">use facebook</p>
+            </div>
+        </div>
         <div id="main_view_wrapper">
             <div ng-view  class="move-view"></div>
         </div>

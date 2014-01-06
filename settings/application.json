@@ -20,7 +20,7 @@
 		"commonName": "aboutplace.co"
 	},
         "vObjQue":{},
-        "authUrl":"http://10.0.0.7:2300",
+        "authUrl":"http://authserver.herokuapp.com",
         "keys":{
             "key":"./key.pem",
             "cert":"./server.pem"

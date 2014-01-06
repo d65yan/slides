@@ -24,7 +24,7 @@ app.configure(function(){
   app.use(express.methodOverride());
   app.use(app.router);
   app.use(express.favicon(__dirname + '/public/images/favicon.ico')); 
-  app.use('',express.static(path.join(__dirname, 'public')));
+  app.use('',express.static(path.join(__dirname, 'public/')));
   //app.use(express.static(path.join(__dirname, '')));
 });
 var set=require('./settings/application').conf;
