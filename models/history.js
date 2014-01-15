@@ -3,7 +3,7 @@
 var database = require("../settings/database");
 
 var history = exports.History = database.model.extend({
-	tableName: "sea.search_detail",
+	tableName: "sea.search_history",
 	idAttribute: "searchid"
 });
 
@@ -13,5 +13,6 @@ var history = exports.History = database.model.extend({
  *
  */
 exports.Historics = database.db.Collection.extend({
-	model: history
+	model: history,
+	comparator: 'term'
 });

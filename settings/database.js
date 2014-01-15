@@ -3,10 +3,10 @@
 var settings = require('./application').conf
 , Bookshelf = require("bookshelf")
 , Fields = require("bookshelf-fields")
-, fs=require('fs')
-, sqlite=require('sqlite3');
+, fs=require('fs')/*
+, sqlite=require('sqlite3')*/;
 
-var dbfile=settings.get("DBFILE");
+/*var dbfile=settings.get("DBFILE");
 fs.exists(dbfile,function(exists){
         if(!exists)
             new sqlite.Database(dbfile,function(err){
@@ -15,7 +15,7 @@ fs.exists(dbfile,function(exists){
     
     
     
-})
+})*/
 
 
 
@@ -25,19 +25,28 @@ exports.fields=Fields;
  *
  *
  */
-var db = exports.db = Bookshelf.DB = Bookshelf.initialize({
+/*var db = exports.db = Bookshelf.DB = Bookshelf.initialize({
 	client: "sqlite3",
 	debug: settings.get("DEBUG"),
 	connection: {
 		filename:dbfile
 	}
-});
+});*/
 
 /**
  *
  *
  *
  */
+var db = exports.db = Bookshelf.DB = Bookshelf.initialize({
+client: "pg",
+	debug: settings.get("DEBUG"),
+	connection: {
+		host: settings.get("PGHOST"),
+		database: settings.get("PGDATABASE"),
+		user: settings.get("PGUSER")
+	}
+});
 
 db.plugin(Fields.plugin);
 
@@ -61,7 +70,7 @@ exports.knex=db.knex;
 //console.log('con-->',db.knex.client.pool);
 
 var sch=db.knex.schema;
-sch.hasTable('users').then(function(exists){
+/*sch.hasTable('users').then(function(exists){
     if(!exists){
         sch.createTable('users',function(table){
             table.bigIncrements('id').primary().unique().notNullable().index();
@@ -82,5 +91,5 @@ sch.hasTable('users').then(function(exists){
     }
     else
         console.log('users table exists');
-})
+})*/
     

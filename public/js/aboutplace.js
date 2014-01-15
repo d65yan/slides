@@ -132,9 +132,17 @@
             };
             */
           
+          $scope.ShowLogIn=function(){
+               $scope.ShowPlainAuth('login?srd=authsuccess',true)
+          };
           
-          $scope.ShowPlainAuth=function(url,force){
+          $scope.ShowSignUp=function(){
+               $scope.ShowPlainAuth('signup?srd=authsuccess',true,true)
+          };
+          
+          $scope.ShowPlainAuth=function(url,force,signup){
             $scope.prevContent='';
+            $scope.newAccount=signup;
             $scope.AuthBoxToggle(url,force);
           }
           
@@ -143,8 +151,10 @@
               if($scope.authInProcess)
                   return;
               
-              $scope.showAuthBox=!$scope.showAuthBox &&(!$scope.logged || force);
+              $scope.showAuthBox=!($scope.user && $scope.user.logged) && force;
               $scope.authUrl='';
+              if(!url)
+                  return;
               $timeout(function(){
                    $scope.authUrl=$sce.trustAsResourceUrl($scope.authServer+url);
                    
@@ -299,6 +309,13 @@
           
           $scope.$on('elementSelected',function($event,elem){
               $scope.selectedLifeStyle=elem.value;
+           });
+
+          $scope.$on('ShowAuthBox',function($event,signup){
+              if(signup)
+                  $scope.ShowSignUp();
+              else
+                $scope.ShowLogIn()
            });
 
     }
@@ -804,19 +821,15 @@
 
 
          var search=$location.search();
-         $scope.lf_id=+search.l;
          $scope.g=GeograficService;
          $scope.s=SelectionService;
          $scope.c=CompareService;
+         $scope.sy=SystemsFilters;
          $scope.msa= $scope.g.GetRegionById(search.m);
 
          $scope.area= $scope.g.GetRegionAreaById($scope.msa,search.c);
          
 
-          
-         if($scope.lf_id){
-             $scope.s.SelectLifeStyle($scope.lf_id);
-         }
          
          $scope.lifeStyle=angular.extend({},$scope.s.activeLifeStyle);
         
@@ -955,13 +968,13 @@
          /*review*/
          $scope.$on('lifestylesLoaded',function(){
              $scope.menu=$scope.sy.groupingMenu;
-             CreateLfList();
-             initMenus();
-             if(!$scope.lifeStyle || !$scope.lifeStyle.id){
+            // CreateLfList();
+             //initMenus();
+             /*if(!$scope.lifeStyle || !$scope.lifeStyle.id){
                 $scope.s.SelectLifeStyle($scope.lf_id);
                 $scope.lifeStyle=angular.extend({},$scope.s.activeLifeStyle);
             }
-            $scope.$apply();
+            $scope.$apply();*/
          });
          
 
@@ -1032,7 +1045,7 @@
                 ltln.coords.longitude=ltln.coords.longitude||ltln.lng
                 var lat = ltln.coords.latitude;
                 var lng = ltln.coords.longitude;
-                $scope.g.LocateArea(lng+","+lat, function(area){
+                $scope.g.LocateArea(lng,lat, function(area){
                     if(!$scope.s.activeSearch)
                         $rootScope.$broadcast('takeAddress',area)
                     $timeout(function(){$scope.$apply();});

@@ -1,9 +1,11 @@
 {
-	"PGHOST": "db.urban4m.com",
+	"PGHOST": "23.22.58.217",
 	"PGUSER": "geo",
 	"PGDATABASE": "u",
 	"COMPANY": "Urban4M",
 	"CSRF_COOKIE_NAME": "XSRF-TOKEN",
+        "TRACKCOOKIE":"AP-track",
+        "TRACKCOOKIE":"AP-track",
 	"SECRET_KEY": "FvbCnm32UgE4vFADS7px6CY4mb7HzerbsxsJF4D6Au39aCxSS22aPRMvP5J7J82bG8dEWxi5vzjzELcgiSbzpmHWBTVBZm2v42FFcGdYqXhkF9PXeWQ4gHzbdSx3FG7C",
 	"LOCALE": {
 		"LANGUAGE_CODE": "en-us",
@@ -20,7 +22,7 @@
 		"commonName": "aboutplace.co"
 	},
         "vObjQue":{},
-        "authUrl":"http://authserver.herokuapp.com",
+        "authUrl":"http://10.1.10.91:2300",
         "keys":{
             "key":"./key.pem",
             "cert":"./server.pem"

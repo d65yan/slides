@@ -1,7 +1,4 @@
 <style>
-
-
-
    .pulse-marker.cluster_gt_4{
        width:30px !important;
        height:30px !important;
@@ -44,12 +41,12 @@
    
        .pulse-marker .marker-text{
         text-align: center;
-font-weight: bold;
-font-size: 180%;
-position: absolute;
-width: 100%;
-left: 0;
-top: 29.9%;
+        font-weight: bold;
+        font-size: 180%;
+        position: absolute;
+        width: 100%;
+        left: 0;
+        top: 29.9%;
     }
    
    .pulse-marker.cluster_gt_4 .marker-text{
@@ -87,42 +84,7 @@ top: 29.9%;
              /*transition: all 0s linear;*/
         }
         
-       /* .pulse-marker:hover{
-            width:100% !important;
-            height:100% !important;
-            font-size:130%;
-            z-index:4100;
-        }
-        
-       .pulse-marker:hover .marker-text{
-            top:35%;
-        }
-        .pulse-marker.cluster_1_0:hover,.pulse-marker.cluster_3_1:hover,.pulse-marker.cluster_4_1:hover{
-            margin-top:-50%;
-            margin-left:-20%;
-            
-        }
-        
-        .pulse-marker.cluster_2_0:hover{
-            margin-top:-25%;
-            margin-left:-55%;
-        }
-        
-        .pulse-marker.cluster_2_1:hover{
-            margin-top:-25%;
-            margin-left:10%;
-        }
-   
-        
-       .pulse-marker.cluster_3_0:hover{
-            margin-top:20%;
-            margin-left:-80%;
-        }
-        
-        .pulse-marker.cluster_3_2:hover{
-            margin-top:20%;
-            margin-left:40%;
-        }*/
+    
    
     #menu_state_switch{
         cursor:pointer;
@@ -152,7 +114,9 @@ top: 29.9%;
         background-color:#e3e3e3;
         padding:0;
         box-shadow: #e3e3e3 1px 1px 10px 1px;
-        
+        left:545px;
+        top:auto !important;
+        bottom:30px;
      }
      
      div.olControlZoom a:hover{
@@ -321,10 +285,7 @@ top: 29.9%;
     
 
     
-    .main_map div.olControlZoom{
-        left:545px;
-        top:40px;
-    }
+
     
    /* .left_bar_hidden .main_map div.olControlZoom{
         left:40px;
@@ -721,7 +682,6 @@ border-top-width: 0;
            border: solid #ccc 1px;
            border-radius:5px;
            margin-top:5px;
-           margin-bottom:5px;
            background-color:white;
            clear:both;
            position:relative;
@@ -787,6 +747,38 @@ border-top-width: 0;
        .hotspot-card  .redir-links:last-child{
            border-radius:0 0 4px 4px;
        }
+       .hotspot-card .title_score h4{
+            display;
+            margin:0;
+            padding-top:10px;
+            margin-left:60px;
+       }
+       .hotspot-card .title_score{
+            position:relative;
+            height:40px
+       }
+       .hotspot-card.collapsed .title_score .before{
+           border-radius:4px  0 0 4px;
+       }
+       
+       .hotspot-card .title_score .before{
+            width:40px;
+            position:absolute;
+            background-color:red;
+            color:white;
+            font-weight:normal;
+            content:"9.1";
+            border-radius:4px  0 0 0;
+            height:30px;
+            top:0px;
+            left:0px;
+            padding-top:10px;
+            text-align:center;
+            font-size:17px;
+            
+                
+       }
+       
        
        .score-rank-2{
            color:red;
@@ -849,6 +841,168 @@ border-top-width: 0;
            
        }
        
+       .dfooter{
+           position:fixed;
+           width:100%;
+           background-color:transparent;
+           bottom:0px;
+           left:0px;
+           z-index:10000;
+           min-height:20px;
+          
+       }
+       
+       .dfooter.content_hidden{
+           
+       }
+       
+       .dfooter .content{
+           background-color:#e6e6e6;
+           height:60px;
+           opacity:1;
+           transition:height 1s, opacity 600ms;
+           overflow:hidden;
+       }
+       
+       .dfooter .content.ng-hide-add-active{
+          opacity:0 !important;
+           height:0px !important;
+       }
+       
+      .dfooter .content.ng-hide{
+          opacity:0 !important;
+           height:0px !important;
+       }
+       
+       .dfooter .content .left-section{
+          float:left;
+       }
+       
+       .dfooter .content .left-section ul{
+          display:block
+       }
+       
+       .dfooter .content .left-section ul li{
+          display:inline;
+          color:#f60
+       }
+       .dfooter .content .left-section p{
+          margin:0;
+          
+       }
+       
+            .dfooter .content .right-section{
+          float:right;
+       }
+       
+       .dfooter .content .left-right .social-icon{
+          height:20px;
+          width:20px;
+          display:inline-block;
+          margin-right:10px;
+          background-color:black;
+       }
+
+       .user_shortcuts{
+           position:absolute;
+           left:552px;
+           top:40px;
+           z-index:3999;
+           
+       }
+       
+       .user_shortcuts .isolate.collapsed .links{
+           display:none;
+       }
+       
+       
+       .user_shortcuts .isolate>i{
+           margin-left:6px !important;
+           margin-top:6px !important;
+       }
+       
+       .user_shortcuts .isolate .links{
+           position:absolute;
+           top:-1px;
+           left:100%;
+           height:26px;
+           background-color:#eee;
+           color:#666;
+           width:250px;
+           font-size:12px;
+           padding-left:5px;
+           border:solid 1px #ccc;
+        }
+        
+       .user_shortcuts .isolate .links .text_as_link{
+           color:#f60;
+        }
+       
+       .user_shortcuts .isolate{
+          position:relative;
+          width:26px;
+          height:26px;
+          overflow:visible;
+          cursor:pointer;
+          border:solid 1px #CCC;
+          background-color:white;
+       }
+       
+       .user_shortcuts .isolate.share{
+           border-bottom:none;
+           border-radius: 3px 0 0 0;
+       }
+       
+       .user_shortcuts .isolate.save{
+           border-top-color:#888;
+           border-radius: 0 0 0 3px;
+       }
+       
+       .user_shortcuts .isolate.share .links{
+           border-radius: 0 3px 0 0;
+       }
+       
+       .user_shortcuts .isolate.save .links{
+           border-top-color:#888;
+           border-radius: 0 0 3px 0;
+       }
+       
+       
+       .user_shortcuts .isolate.share.collapsed{
+           
+           border-radius: 3px 3px 0 0;
+       }
+       
+       .user_shortcuts .isolate.save.collapsed{
+           border-top-color:#888;
+           border-radius: 0 0 3px 3px;
+       }
+       
+       
+       .user_shortcuts .isolate.share .links .img-link{
+          display:inline-block;
+          width:20px;
+          height:20px;
+          background-image:url('img/social_sprite.png');
+          background-repeat:no-repeat;
+          margin-top:2px; margin-left:24px;
+       }
+       
+       .img-link.tw{
+           background-position:-20px 0px;
+       }
+       
+       .img-link.gp{
+           background-position:-40px 0px;
+       }
+
+       .img-link.pn{
+           background-position:-60px 0px;
+       }       
+
+       .img-link.em{
+           background-position:-80px 0px;
+       }       
 </style>
 <!-- with animation skips dimentioning whrn rendered<section  id="nhbd_page" class="content-section scrollable resizeable" global="1" auto="self" height-adjust="header" skip-render="true" style="width:100%; height:600px;">-->
 <div  id="nhbd_page" class="content-section scrollable resizeable take-pos clicktale1" global="1" auto="self" height-adjust="header" style="width:100%; height:600px;" update="{/{updateMapSpace}/}" ng-class="{left_bar_hidden:menu_state==='short'}">
@@ -874,7 +1028,7 @@ border-top-width: 0;
             <img src="./img/buttons/wishlist.png" style="margin-top:20px;">
              <h3>Add a wish list to refine your search</h3>
              <p>Enter the amenities & criteria that matters most to you and watch your place pulce change to match</p>
-             <div class="search_bar update-scrolls" node_id="nhbd_page" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="api/search/" auto_commit="false" placeh="e.g starbucks, coffeshops, retiree" lfs="false" elastic="false"  log="true" extra="{/{$parent.s.msaid}/}"></div>
+             <div class="search_bar update-scrolls" node_id="nhbd_page" show_hidden="true" max_search="-1" visibles="1" show_categories="true" base_url="api/search/" auto_commit="false" placeh="e.g starbucks, coffeshops, retiree" lfs="false" elastic="false"  log="true" extra="{/{s.msaid}/}"></div>
         </div>
              
                     <div class="collapsable hotspot-card update-scrolls" node_id="nhbd_page" hotspot="spot" ng-repeat="spot in s.spots track by spot.gid" group="left-bar" exp="false"></div>
@@ -915,14 +1069,43 @@ border-top-width: 0;
             </tr>-->
         </table>
     </div>
-    <div class="filters-bar static_element resizeable"  width_adjust=".nbds_leftbar" ng-if="stage=='pro'"></div>
-    
+    <div class="filters-bar static_element resizeable"  width_adjust=".nbds_leftbar" ng-if="stage=='pro'" ></div>
+    <div class="user_shortcuts">
+        <div class="share isolate collapsable" group="share-shurtcut" >
+            <i class="icon-share"></i>
+            <div class="links">
+                 <div class="img-link fb"></div><div class="img-link tw"></div><div class="img-link gp"></div><div class="img-link pn"></div><div class="img-link em"></div>
+             </div>
+        </div>
+        <div class="save isolate collapsable" group="save-shurtcut">
+            <i class="icon-heart"></i>
+             <div class="links">
+                 <p ng-hide="$parent.user && $parent.user.logged"><span class="text_as_link" ng-click="root.$broadcast('ShowAuthBox',true)">Sign up</span> to save and revisit your searches</p>
+                 <p ng-show="$parent.user && $parent.user.logged && !$parent.currentSaved"><span class="text_as_link">Save this search for later</span></p>
+                 <p ng-show="$parent.user && $parent.user.logged && $parent.currentSaved">You save this search. <span class="text_as_link">Remove?</span></p>
+             </div>
+        </div>
+    </div>
     
     
                 
                    <div class="main_map static_element" stage="{/{stage}/}" msa="{/{msa_idx}/}" area="{/{area_id}/}" lfs="{/{lf_id}/}"></div>
                 
-    
+                   
+                   <div class="dfooter autohide" ng-mouseover="Display()" ng-mouseleave="Hide()" ng-click="Display()" ng-class="{content_hidden:!show}">
+                       <div class="content" ng-show="show">
+                           <div class=" left-section">
+                               <ul><li>About Us</li><li>PlacePulse</li><li>FAQs</li><li>Blog</li></ul>
+                               <p>see our <a href="" target="_blank">Privacy Policy</a> & <a href="" target="_blank">Terms of Use</a></p>
+                               &copy; URBAN4M 2013
+                           </div>
+                           <div class=" right-section">
+                               <a class="share-icon facebook" href=""></a><a class="share-icon facebook" href=""></a><a class="share-icon facebook" href=""></a><a class="share-icon facebook" href=""></a><a class="share-icon facebook" href=""></a>
+                               <div>Love us? Show your support... <fbutton> <gbutton> and <span>sign up for our email list</span></div>
+                               
+                           </div>
+                       </div> 
+                   </div>   
 </div>
 <!--<div class="legal-links"><a href="http://www.aboutplace.co/tac.html" target="_blanck">Terms of Use</a> <a href="http://www.aboutplace.co/privacy.html" target="_blanck">Privacy</a></div>
 <button class="btn footer-toggler btn-small mobile-touch"  ng-click="toogleFooter()" prevent="true"><i class="icon-chevron-{/{expandedFooter?'right':'left'}/}"></i></button>-->

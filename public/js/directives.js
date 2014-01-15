@@ -1075,8 +1075,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
     
     
     function updateMap(){
-      currentHeat=generateRandom(currentHeat,6);
-        mapserver=urls[currentHeat];
+      /*currentHeat=generateRandom(currentHeat,6);
+        mapserver=urls[currentHeat];*/
         
             nLayer.url=[mapserver+"/${z}/${x}/${y}.png?"+select.map_query];
             nLayer.redraw();  
@@ -2333,7 +2333,7 @@ border-top-width: 0;\
                         <li ng-repeat="cat in filteredList">\
                             <h4 ng-if="scats">{/{cat.name}/}</h4>\
                             <ul>\
-                                <li ng-repeat="term in cat.terms" ng-click="$parent.$parent.Force(term.id,term.name)">{/{term.name}/}</li>\
+                                <li ng-repeat="term in cat.terms" ng-click="$parent.$parent.Force(term.id,term.name,term.type)">{/{term.name}/}</li>\
                             </ul>\
                         </li>\
                     </ul>\
@@ -2356,6 +2356,7 @@ border-top-width: 0;\
                 valid:'=valid',
                 editable:'=editable',
                 active:'=active',
+                type:'=type',
                 autoCommit:'@autoCommit',
                 placeh:'@placeh',
                 elast:'@elast',
@@ -2390,7 +2391,8 @@ border-top-width: 0;\
                 if(scope.active){
                     input.focus();
                 }
-                var res_list=null;
+                var res_list=null,
+                        terms_string='';
                 scope.filteredList=[];
                 
                 function analize(){
@@ -2440,16 +2442,17 @@ border-top-width: 0;\
                 var ForceFirst=function(){
                     if( !scope.filteredList.length)
                         return false;
-                    scope.Force(scope.filteredList[0].elems[0].id,scope.filteredList[0].elems[0].name);
+                    scope.Force(scope.filteredList[0].elems[0].id,scope.filteredList[0].elems[0].name,scope.filteredList[0].elems[0].type);
                     return true;
                 }
                 
-                scope.Force=function(id,name){
+                scope.Force=function(id,name,type){
                     if(logging){
                         Log({user_term:scope.value,selected_term:name,selected_term_id:id});
                     }
                     scope.id=id;
                     scope.value=name;
+                    scope.type=type
                     last_forced.id=id;
                     last_forced.name=name;
                    if(scope.autoCommit1)
@@ -2463,17 +2466,23 @@ border-top-width: 0;\
                     scope.editable=false;
                     scope.active=false;
                     input.blur();
-                    if(bar.type === 'addr'){
-                        var split_id=scope.id.split('_');
-                        var lobj={
-                            msa:split_id[0],
-                            location:JSON.parse(split_id[1])
-                        }
-                        $rootScope.$broadcast('addressSelected',lobj)
+                    var success=(bar.type === 'addr')?AddrDetailsSuccess:null;
+                    if(bar.details){
+                        Details(scope.id,success)
                     }
+                    
+
                 }
                 
-                
+                function AddrDetailsSuccess(data){
+                    var obj=data.results.hits.hits[0];
+                    var loc=obj.fields.location.split(',');
+                    var lobj={
+                            msa:obj.msaid,
+                            location:{long:loc[1],lat:loc[0]}
+                        };
+                        $timeout(function(){$rootScope.$broadcast('addressSelected',lobj)});
+                }
                 
                 
                 scope.submit=function(){
@@ -2501,6 +2510,7 @@ border-top-width: 0;\
                     if(!scope.editable || !scope.value || scope.value.length<config.charsCount){
                         scope.valid=true;
                        res_list={};
+                       terms_string='';
                        scope.filteredList=[];
                         return;
                     }
@@ -2526,7 +2536,7 @@ border-top-width: 0;\
                 
                 
                 
-                function Fetch(auto){
+                function Fetch(auto,complement){
                     var l_auto=auto;
                       scope.searching=true;
                       var callconfig={};
@@ -2536,25 +2546,43 @@ border-top-width: 0;\
                       
                       
                       
-                        var val=scope.elastic?querys:scope.value+(scope.extra?('/'+scope.extra):'');
+                        var val=scope.elastic?querys:(scope.value+(scope.extra?('/'+scope.extra):'')+(complement?('?complements='+terms_str):''));
                       callconfig.url=scope.method!='post'?(config.url+encodeURI(val.replace(/,/g,'___'))):config.url;
                       callconfig.method=scope.method||'get';
                       if(scope.method && scope.method=='post')
                           callconfig.data=val;
                       $http(callconfig).success(function(data){
+                          if(data.failure){
+                              scope.error=true;
+                              res_list={};
+                              return;
+                          }
                             scope.searching=false;
-                                                   switch(bar.type){
+                            switch(bar.type){
                                 case 'addr':{
                                       res_list=TranslateAddress(data);
                                         break;
                                 }
                                 default:{
-                                     res_list=Translate_temp(data);   
+                                     res_list=Translate_temp(data,complement); 
+                                     if((!res_list.terms || ( res_list.terms && res_list.terms.length<10))  && !complement)
+                                         Fetch(l_auto,true);
                                 }
                             }
                             
                             Validate(l_auto);
                         });
+                }
+                
+                function Details(id, fn){
+                    var callconfig={};
+                    callconfig.url=config.url+'123/'+id;
+                      callconfig.method=scope.method||'get';
+                      $http(callconfig).success(function(data){
+                            if(fn && angular.isFunction(fn))
+                                fn(data)
+                        });
+                        
                 }
                 
                 function Log(content){
@@ -2577,37 +2605,60 @@ border-top-width: 0;\
                     return nObj;
                 }
                 
-               function Translate_temp(obj){
+               function Translate_temp(obj,complement){
                     var nObj={"terms":[]};
+                    if(complement)
+                        nObj.terms=res_list.terms;
+                    else
+                       terms_str='';
                     for(var i=0;i<obj.hits.hits.length;i++){
+                        if(!obj.hits.hits[i] || !obj.hits.hits[i].fields || !obj.hits.hits[i].fields)
+                            continue;
                         var lid=$.trim(obj.hits.hits[i]._id).split('-');
                         var nobj={
                             name:$.trim(obj.hits.hits[i].fields.meta_),
-                            id:+(lid[1]||lid[0])
+                            id:+(lid[1]||lid[0])+'',
+                            type:obj.hits.hits[i]._index
                             
-                        }
+                        };
+                       terms_str+=','+nobj.name;
                         nObj.terms.push(nobj);
-                        
+                        if(nObj.terms.length>=10)
+                            break;
                        
                     }
-                    if (!nObj.terms.length)
+                    if (nObj.terms && !nObj.terms.length)
                         delete nObj.terms;
                     return nObj;
                 }
                 
                 
                function TranslateAddress(obj){
+                   var pref=obj.prefix||"";
+                   obj=obj.results;
                     var nObj={"address":[]};
+                    var visited="";
+                    var items=0
                     for(var i=0;i<obj.hits.hits.length;i++){
-                        var lobj=obj.hits.hits[i].fields;
+                        var loobj=obj.hits.hits[i];
+                        var lobj=loobj.fields;
                         var lloc=(lobj.location && !lobj["location.lon"])?{long:lobj.location[0],lat:lobj.location[1]}:(lobj["location.lon"]?({long:lobj["location.lon"],lat:lobj["location.lat"]}):lobj.bbox_);
-                        
+                        var addr=(lobj.street||'')+' '+(lobj.city||'')+' '+(lobj.state||'');
+                        if(visited.indexOf(addr)>=0)
+                            continue;
+                        if(addr)
+                            visited+=addr+"*--*";
                         var nobj={
-                            name:lobj.address||lobj.unit_name||((lobj.state||lobj.name_adm1)?(lobj.msa_name+', '+(lobj.state||lobj.name_adm1)):+lobj.msa_long),
-                            id:lobj.msaid+'_'+JSON.stringify(lloc)
+                            name:(pref||(lobj.range?(lobj.range[0]+' '):''))+(lobj.street?(addr):null)||lobj.unit_name||((lobj.state||lobj.name_adm1)?(lobj.msa_name+', '+(lobj.state||lobj.name_adm1)):+lobj.msa_long)||obj.hits.hits[i]._index.toUpperCase(),
+                            //name:pref+lobj.address||lobj.unit_name||((lobj.state||lobj.name_adm1)?(lobj.msa_name+', '+(lobj.state||lobj.name_adm1)):+lobj.msa_long),
+                            id:loobj._id
                            };
+                           nobj.name=nobj.name||scope.value.toUpperCase();
                         nObj.address.push(nobj);
+                        items++;
                         
+                        if(items>10)
+                            break;
                        
                     }
                     return nObj;
@@ -2617,6 +2668,8 @@ border-top-width: 0;\
                     var terms={};
                     scope.filteredList=[];
                     for(var i in res_list){
+                        if(!res_list[i])
+                            continue;
                         var obj={name:i,terms:res_list[i]}
                             scope.filteredList.push(obj);
                         for(var j=0;j<res_list[i].length;j++){
@@ -2656,11 +2709,11 @@ border-top-width: 0;\
         return {
             restrict:'C',
             replace:true,
-            template:'<div class="searching_bar"><span class="searching_term"  ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}" elast="{/{elastic}/}" method="{/{method}/}" area="{/{area}/}" log="{/{log}/}"  extra="{/{extra}/}"></span>\
+            template:'<div class="searching_bar"><span class="searching_term"  ng-repeat="term in searchTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" type="term.type" active="term.active" auto_commit="{/{autoCommit}/}" placeh="{/{placeh}/}" elast="{/{elastic}/}" method="{/{method}/}" area="{/{area}/}" log="{/{log}/}"  extra="{/{extra}/}"></span>\
                        <div class="hidden-terms-cont" ng-show="showHidden">\
                             <div class="arrow"></div>\
                             <h4 ng-hide="hiddenTerms.length">Add a wish list to refine your search</h4>\
-                            <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active" auto_commit="true"  elast="{/{elastic}/}" method="{/{method}/}"  area="{/{area}/}"  log="{/{log}/}" extra="{/{extra}/}"></span>\
+                            <span class="searching_term" ng-repeat="term in hiddenTerms" value="term.value" editable="term.editable" valid="term.valid" id="term.id" active="term.active"  type="term.type"  auto_commit="true"  elast="{/{elastic}/}" method="{/{method}/}"  area="{/{area}/}"  log="{/{log}/}" extra="{/{extra}/}"></span>\
                         </div></div>',
             scope:{
                 showHidden:"@showHidden",
@@ -2676,10 +2729,12 @@ border-top-width: 0;\
                 method:'@method',
                 area:'@area',
                 log:'@log',
-                extra:'@extra'
+                extra:'@extra',
+                details:'@details'
             },
             controller:function($scope){
                 $scope.showHidden=!$scope.showHidden.replace(/true/i,'');
+                this.details=!($scope.details||'').replace(/true/i,'');
                 $scope.searchTerms=[];
                 $scope.hiddenTerms=[];
                 $scope.visibleItems=+$scope.visibleItems;
@@ -2696,6 +2751,7 @@ border-top-width: 0;\
                 this.lfs=!$scope.lfs?false:!$scope.lfs.replace(/true/i,'');
                 var stash=[ $scope.searchTerms,  $scope.hiddenTerms];
                 var self=this;
+                
                 this.AddTerm=function(obj,skip){
                     if(maxSearch>0 && ($scope.hiddenTerms.length+$scope.searchTerms.length)>=maxSearch)
                         return;
@@ -2720,13 +2776,13 @@ border-top-width: 0;\
                             var terms=[];
                             for(var i=0;i<$scope.searchTerms.length;i++){
                                 if(!$scope.searchTerms[i].editable && $scope.searchTerms[i].valid){
-                                    terms.push({name:$scope.searchTerms[i].value,id:$scope.searchTerms[i].id});
+                                    terms.push({name:$scope.searchTerms[i].value,id:$scope.searchTerms[i].id, type:$scope.searchTerms[i].type});
                                 }
                             }
                             
                             for(var i=0;i<$scope.hiddenTerms.length;i++){
                                 if(!$scope.hiddenTerms[i].editable && $scope.hiddenTerms[i].valid){
-                                    terms.push({name:$scope.hiddenTerms[i].value,id:$scope.hiddenTerms[i].id});
+                                    terms.push({name:$scope.hiddenTerms[i].value,id:$scope.hiddenTerms[i].id, type:$scope.hiddenTerms[i].type});
                                 }
                             }
                             if(!self.addr && !skip){
@@ -2759,13 +2815,13 @@ border-top-width: 0;\
                             var terms=[];
                             for(var i=0;i<$scope.searchTerms.length;i++){
                                 if(!$scope.searchTerms[i].editable && $scope.searchTerms[i].valid){
-                                    terms.push({name:$scope.searchTerms[i].value,id:$scope.searchTerms[i].id});
+                                    terms.push({name:$scope.searchTerms[i].value,id:$scope.searchTerms[i].id, type:$scope.searchTerms[i].type});
                                 }
                             }
                             
                             for(var i=0;i<$scope.hiddenTerms.length;i++){
                                 if(!$scope.hiddenTerms[i].editable && $scope.hiddenTerms[i].valid){
-                                    terms.push({name:$scope.hiddenTerms[i].value,id:$scope.hiddenTerms[i].id});
+                                    terms.push({name:$scope.hiddenTerms[i].value,id:$scope.hiddenTerms[i].id, type:$scope.hiddenTerms[i].type});
                                 }
                             }
                             if(!self.addr && reportable)
@@ -2853,7 +2909,8 @@ border-top-width: 0;\
                         </ul>\
                     </div></span>',
             scope:{
-               options:'=options'
+               options:'=options',
+               type:'@type'
                 
             },
             link:function(scope,element,attrs){
@@ -2870,7 +2927,7 @@ border-top-width: 0;\
                         scope.selName=item.name;
                     
                     }
-                        $rootScope.$broadcast('elementSelected',{id:element.id,value:scope.selId});
+                            $rootScope.$broadcast('elementSelected',{id:element.id,value:scope.selId});
                 }
 
                 
@@ -2881,10 +2938,24 @@ border-top-width: 0;\
                 }
                 
                 scope.$on('collapse',function($event,id){
-                    if(id!=scope.$id)
+                    if(id!==scope.$id)
                         scope.show_lfs=false;
                     
                 })
+                
+                scope.$on('forceSelect',function($event,type,id){
+                    if(type===scope.type)
+                        SelectId(id)
+                    
+                })
+                
+                function SelectId(id){
+                    for(var i=0;i<scope.options.length;i++){
+                        if((scope.options[i].id+'')===(id+''))
+                            scope.SelectItem(scope.options[i])
+                    }
+                }
+                
             }
         };
     }])
@@ -2892,14 +2963,20 @@ border-top-width: 0;\
         return {
             restrict:'C',
              link:function(scope,element,attrs){
+                 scope.root=$rootScope;
                  var first=true;
-                $(element).children('.state-toggler').on('click',function(){
+                 var toggler=$(element).children('.state-toggler');
+                 if(!toggler[0])
+                     toggler=$(element);
+                toggler.on('click',function(){
                     scope.Toggle();
                 })
                 var Ggroup=attrs.group;
                 scope.expanded=false;
+                var all=!!attrs.byall && !attrs.byall.replace('true','');
                 scope.$on('collapse',function($event,id,group){
-                    if(id!==scope.$id && group===Ggroup)
+                    
+                    if((id!==scope.$id && group===Ggroup) || (id===-1 && all))
                         scope.expanded=false;
                 });
                 
@@ -2908,7 +2985,9 @@ border-top-width: 0;\
                    first=false;
                 }
                 
-                scope.$watch('expanded',function(val){
+                scope.$watch(function(){
+                    return scope.expanded;
+                },function(val){
                      if(scope.expanded){
                         $rootScope.$broadcast('collapse',scope.$id,attrs.group);
                         element.addClass('expanded');
@@ -2920,7 +2999,7 @@ border-top-width: 0;\
                     }
                    if(scope.updateScrolls)
                        scope.updateScrolls();
-                })
+                });
                 
                 scope.$watch(function(){return attrs.lfs;},function(val){
                      if(+val>0){
@@ -2980,25 +3059,10 @@ border-top-width: 0;\
                spot:"=hotspot"
             },
             template:'<i class="state-toggler icon-eye-{/{expanded?\'close\':\'open\'}/}"></i>\
-            <table><tr><td><svg style="width:56px; height:62px;">\
-     <g transform="translate(8,2)">\
-    <path\
-       class="pulse-point"  stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"\
-       d="m 22.86161,57.55804 c 0,0 -22.14286,-19.5534 -22.14286,-33.61953 0,-4.93124 4.10714,-22.4519 22.14286,-22.4519 18.03572,0 22.5,14.0866 22.5,22.5 0,13.47133 -22.5,33.57143 -22.5,33.57143 z"/>\
-    <text\
-       style="font-size:40px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"\
-       x="23"\
-       y="28.450891"\
-       id="text5155"\
-       sodipodi:linespacing="125%"><tspan\
-         x="14"\
-         y="28.450891"\
-         style="font-size:14px">{/{spot.pulse}/}</tspan></text>\
-  </g>\
-    </svg></td><td><h4 style="color:{/{color}/}; display:inline-block; text-align:left; margin-top:-10px;" >{/{spot.name}/}</h4></td></tr></table>\
+            <div class="title_score"><div class="before" style="background-color:{/{color}/}">{/{spot.pulse}/}</div><h4 >{/{spot.name}/}</h4></div>\
     <div class="data-card flipable" style="position:relative">\
     <i class="flipper icon-refresh" style="position:absolute; top:5px; right:5px; cursor:pointer"></i>\
-    <div class="sides side0" ng-show="count==0">\
+    <div class="sides side0" ng-show="count==0" >\
         <div ng-repeat="item in spot.scorecard" class="score-spot">\
             <i class="{/{$parent.map[item.id]}/}"></i>\
             <h6 >{/{item.name}/}</h6>\
@@ -3008,7 +3072,7 @@ border-top-width: 0;\
             For even more information about neighborhoods<br><span class="action-text">try Premium</span>\
         </div>\
 </div>\
-<div class="sides side2"  ng-show="count==1">\
+<div class="sides side2"  ng-show="count==1" >\
         <div ng-repeat="item in spot.scorecard" class="score-spot">\
             <i class="{/{$parent.map[item.id]}/}"></i>\
             <h6 >{/{item.name}/}</h6>\
@@ -3025,7 +3089,10 @@ border-top-width: 0;\
         <a class="redir-links" target="_blanck" href="http://jobsearch.monster.com/search/?where={/{spot.name}/}">Find Jobs in the Area with Monster<i class="icon-white icon-chevron-right"></i></a>\
     ',
                 link:function(scope,element,attrs){
-                
+                 scope.sides=[  //TODO find why ng include doesn't work inside this directive
+                    './views/scorecard/side0.html',
+                    './views/scorecard/side2.html'
+                ]
                scope.map={
                     hp:'icon-home',
                     mtrans:'icon-road',
@@ -3035,7 +3102,10 @@ border-top-width: 0;\
                 }
                 scope.$watch(function(){return scope.spot.pulse},function(){
                      scope.color='#f4'+Math.ceil((255+1.25)-13.75*(scope.spot.pulse)).toString(16)+Math.ceil((133)-10.17*(scope.spot.pulse)).toString(16);
-                     $(element).find('g path.pulse-point').css('fill',scope.color);
+                     
+                    var el=$(element).find('.title_score:before');
+                        el.css('background-color',scope.color);
+                        el.css('content',scope.spot.pulse);                        
                 })
                 
                     scope.$on('hotSpotClicked',function($event,id){
@@ -3067,4 +3137,61 @@ var WRInitTime=(new Date()).getTime();\
             }
         };
     }])
+.directive('autohide',['$timeout','$rootScope',function($timeout,$rootScope){
+        return {
+            restrict:'C',
+            scope:{
+
+            },
+            link:function(scope,element,attrs){
+               scope.show=false;
+               var timer=null;
+               scope.Display=function(){
+                   if(timer)
+                       $timeout.cancel(timer);
+                   timer=null;
+                   scope.show=true;
+               }
+               
+               scope.Hide=function(){
+                   timer=$timeout(function(){
+                       scope.show=false;
+                   },800);
+               }
+           }
+        }
+    }])
+.directive('isolate',[function(){
+        return {
+            restrict:'C',
+            scope:{
+
+            },
+            link:function(scope,element,attrs){
+
+           }
+        }
+    }])
 ;
+
+
+
+/*<svg style="width:56px; height:62px;">\
+     <g transform="translate(8,2)">\
+    <path\
+       class="pulse-point"  stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"\
+       d="m 22.86161,57.55804 c 0,0 -22.14286,-19.5534 -22.14286,-33.61953 0,-4.93124 4.10714,-22.4519 22.14286,-22.4519 18.03572,0 22.5,14.0866 22.5,22.5 0,13.47133 -22.5,33.57143 -22.5,33.57143 z"/>\
+    <text\
+       style="font-size:40px;font-style:normal;font-weight:bold;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"\
+       x="23"\
+       y="28.450891"\
+       id="text5155"\
+       sodipodi:linespacing="125%"><tspan\
+         x="14"\
+         y="28.450891"\
+         style="font-size:14px">{/{spot.pulse}/}</tspan></text>\
+  </g>\
+    </svg>*/
+                                                
+                                                
+//<table><tr><td></td><td><h4 style="color:{/{color}/}; display:inline-block; text-align:left; margin-top:-10px;" >{/{spot.name}/}</h4></td></tr></table>\                                                

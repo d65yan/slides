@@ -13,7 +13,14 @@
     "bookshelf-fields":"0.1.0",
     "http-signature":"0.9.11",
     "sqlite3":"2.1.10",
-    "nconf":"0.6.9"
+    "nconf":"0.6.9",
+    "es":"*",
+    "lodash": "2.x",
+    "async":"*",
+    "pg":"2.11.0",
+    "when":"*",
+    "node-phantom":"*"
+    
   },
   "engines": {
     "node": "0.8.x",

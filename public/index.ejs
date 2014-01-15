@@ -357,6 +357,7 @@ top:94% !important;
           margin-top: 11px;
         font-size: 16px;
         color: white;
+        position:relative;
         }
         
         header .header-menus>ul{
@@ -711,31 +712,31 @@ margin-right:3px;
     background-position: 0px -27px;
 }
 
-.active_lifestyle_1201{
+.active_lifestyle_1434{
     background-position: -27px -27px;
 }
 
-.active_lifestyle_1151{
+.active_lifestyle_1144{
     background-position: -54px -27px;
 }
 
-.active_lifestyle_1152{
+.active_lifestyle_1178{
     background-position: -81px -27px;
 }
 
-.active_lifestyle_1150{
+.active_lifestyle_1145{
     background-position: -108px -27px;
 }
 
-.active_lifestyle_1202{
+.active_lifestyle_1179{
     background-position: -135px -27px;
 }
 
-.active_lifestyle_1153{
+.active_lifestyle_1284{
     background-position: -162px -27px;
 }
 
-.active_lifestyle_1325{
+.active_lifestyle_1142{
     background-position: -189px -27px;
 }
 
@@ -744,31 +745,31 @@ margin-right:3px;
 .lifestyle_{
     background-position: 0px 0px;
 }
-.lifestyle_1201{
+.lifestyle_1434{
     background-position: -27px -0px;
 }
 
-.lifestyle_1151{
+.lifestyle_1144{
     background-position: -54px -0px;
 }
 
-.lifestyle_1152{
+.lifestyle_1178{
     background-position: -81px -0px;
 }
 
-.lifestyle_1150{
+.lifestyle_1145{
     background-position: -108px -0px;
 }
 
-.lifestyle_1202{
+.lifestyle_1179{
     background-position: -135px -0px;
 }
 
-.lifestyle_1153{
+.lifestyle_1284{
     background-position: -162px -0px;
 }
 
-.lifestyle_1325{
+.lifestyle_1142{
     background-position: -189px -0px;
 }
 
@@ -810,19 +811,134 @@ height:43px;
 
 
 .auth-box-container{
-    position:absolute;
-    width:500px;
-    height:180px;
+    position: absolute;
+    width: 220px;
+    right:0px;
+    top: 50px;
+
+    z-index: 9000;
+    background-color: white;
+    border-radius:4px 4px 0 0;
+    padding-left:5px; 
+    padding-right:5px
+}
+
+.auth-box-container .arrow{
+    border: solid 11px transparent;
+    border-bottom-color:white !important;
+    top:-22px;
+    width:0px;
+    height:0px;
     margin-left:50%;
-    left:-150px;
-    top:150px;
-    z-index:9000;
+    left:-6px;
+    position:absolute;
+}
+
+.auth-box-container.signup .arrow{
+    margin-left:0;
+    left:180px;
+
+}
+
+
+.auth-box-container .arrow:after{
+    position: absolute;
+    display: block;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    position: absolute;
+    top:1px;
+    display: block;
+    width: 0;
+    height: 0;
+    border-color: transparent;
+    border-style: solid;
+    border-width: 10px;
+    content: "";
+    bottom: 1px;
+    margin-left: -10px;
+    border-bottom-color: white !important;
+    border-top-width: 0;
+    position:absolute;
+}
+
+.auth-box-container>h3{
+    color:#f60;
+    text-align:left;
+    font-size:18px;
+}
+
+
+.auth-box-container .social{
+margin-top:5px;
+padding-top:5px;
+position:relative;
+    
+}
+
+.auth-box-container .social button{
+    width:100%;
+    color:white;
+    font-weight:bold;
+    margin-bottom:10px;
+    
+}
+
+.auth-box-container .social .or{
+    color:black;
+    position:absolute;
+    width:30px;
+    text-align:center;
+    margin-left:50%;
+    left:-15px;
+    top:-20px;
     background-color:white;
 }
 
+.auth-box-container .advice{
+    position:absolute;
+    width:100%;
+    top:100%;
+    left:0px;
+    border-radius: 0 0 4px 4px;
+    background-color:#eee;
+    color:#999;
+    font-size:13px;
+}
+
+.auth-box-container .advice p{
+    margin-right:20px
+}
+
+.text_as_link{
+    text-decoration:underline;
+    cursor:pointer
+}
+
 .auth-box-container iframe{
-    border:solid 1px #888;
-    float:left;
+    border:none;
+    width:220px;
+    border-bottom:solid 1px #ddd;
+    
+}
+
+.auth-box-container.login iframe{
+    height:200px;
+    
+}
+
+.auth-box-container.signup iframe{
+    height:250px;
+    
+}
+
+.rt-close{
+    position:absolute;
+    right:10px;
+    top:10px;
+    cursor:pointer;
 }
 
 </style>
@@ -842,7 +958,7 @@ height:43px;
 
   
 </head>
-<body   ng-controller="AppController" ng-init="authServer='<%= authServerURL %>/'; user=<%= user %>; logged=<%= logged %>" ng-click="CollapseAll()" class="mobile-touch" > 
+<body   ng-controller="AppController" ng-init="authServer='<%= authServerURL %>/'" ng-click="CollapseAll()" class="mobile-touch" > 
 
     
 <div id="upper_wrapper"  class="main_app1" ng-cloack update="{/{state}/}">
@@ -851,30 +967,40 @@ height:43px;
     <div class="header-cell" >
             <table style="float:left" cellpadding="0" cell spacing="0" border="0"><tr><td><span id="main-logo-container"><a href="#/home" class="mobile-touch" message="Let's Start all over again!!"><img id="main-logo" src="img/logo.png"></a></span></td>
 
-                  <td style="vertical-align:top">  <div style="width:250px; display:inline-block;" type="addr" class="search_bar"  ng-class="{covered:$parent.coverAll}" show_hidden="false" max_search="1" visibles="1" show_categories="false" base_url="api/address/" placeh="Address, City or Zip code" elastic="false"></div></td>
-                  <td style="vertical-align:top"><span class="g-drop" id="header-lifestyle-selector_dropdown" ng-class="{covered:$parent.coverAll}" options="selection.lifestyles"></span> </td>
+                  <td style="vertical-align:top">  <div style="width:250px; display:inline-block;" type="addr" class="search_bar"  ng-class="{covered:$parent.coverAll}" show_hidden="false" max_search="1" visibles="1" show_categories="false" base_url="api/address/" placeh="Address, City or Zip code" elastic="false" details="true"></div></td>
+                  <td style="vertical-align:top"><span class="g-drop" id="header-lifestyle-selector_dropdown" ng-class="{covered:$parent.coverAll}" options="selection.lifestyles" type="lifestyle"></span> </td>
                   <td style="vertical-align:top">
                         <div class="global-search-submit-button" ng-click="UpdateSpots()" ng-class="{covered:coverAll}"></div></span>
                   </td>
                   </tr>
                   </table>
-                <!--<span class="sosial-container"><a><img src="img/facebook.png"/></a><a><img src="img/twitter.png"/></a><a><img src="img/pincterest.png"/></a></span>-->
+                
             <span class="header-menus">
                 <ul >
-                <li>Upgrade to Premium</li><li ng-if="user && user.token">My Account</li><li ng-if="!user || !user.token" ng-click="ShowPlainAuth('login?srd=authsuccess',true)">Sign In</li></ul>
+                <li ng-if="user && user.token">Upgrade to Premium</li><li ng-if="user && user.token">My Account</li><li ng-if="!user || !user.token" ng-click="ShowLogIn()">Log In</li><li ng-if="!user || !user.token" ng-click="ShowSignUp()">Sign Up</li></ul>
+            
+                <div ng-show="showAuthBox" class="auth-box-container" ng-class="{login:!newAcount, signup:newAccount}">
+                    <div class="arrow"></div>
+                    <h3>{/{newAccount?'Sign Up':'Log In'}/}</h3><i class="icon-remove rt-close" ng-click="ShowPlainAuth()"></i>
+                    <iframe class="auth-frame" src="{/{authUrl}/}"></iframe>
+                    <div class="social">
+<div class="or">or</div>
+                        <button class="btn btn-primary" ng-click="Register('facebook')">{/{newAccount?'Sign Up':'Log In'}/} with Facebook</button><br/>
+                        <button class="btn btn-danger" ng-click="Register('google')">{/{newAccount?'Sign Up':'Log In'}/} with Google+</button>
+                    </div>
+                <div class="advice">
+                    <p ng-show="newAccount">Already have an account <span class="text_as_link" ng-click="ShowPlainAuth('login?srd=authsuccess',true)">Log In</span><p>
+                    <p ng-show="!newAccount">Don't have an account <span class="text_as_link" ng-click="ShowPlainAuth('signup?srd=authsuccess',true,true)">Sign Up</span><p>
+                </div>
+                </div>
+
             </span>
             
           <div style="clear:both;"></div>  
 </div>
 <div>
         </header> 
-        <div ng-show="showAuthBox" class="auth-box-container">
-            <iframe class="auth-frame" src="{/{authUrl}/}"></iframe>
-            <div class="social">
-                <p ng-click="Register('facebook')">use facebook</p><br/>
-                 <p ng-click="Register('google')">use facebook</p>
-            </div>
-        </div>
+
         <div id="main_view_wrapper">
             <div ng-view  class="move-view"></div>
         </div>

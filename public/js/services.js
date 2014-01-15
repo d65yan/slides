@@ -33,7 +33,7 @@ angular.module('LocalServices',[])
         
         SystemsFilters.GetTree=function(f){
             $http({
-                url:'api/menu',
+                url:'api/lifestyles',
                 method:'get'
             }).success(function(tree){
                 
@@ -109,11 +109,11 @@ angular.module('LocalServices',[])
                         
                         
      
-                          /*ls.groups[g.code]={uid:g.uid, mapname:g.mapname, code:g.code};
-                        for(var k=0;k<g.subsystems.length;k++){
-                            g.systems[k]={mapname:lSystems[g.subsystems[k]],code:g.subsystems[k],uid:g.subsystems[k]};
-                            ls.systems[g.systems[k].code]={uid:g.systems[k].uid,mapname:g.systems[k].mapname,code:g.systems[k].code,active:true};
-                        }*/
+                     //     ls.groups[g.code]={uid:g.uid, mapname:g.mapname, code:g.code};
+                      //  for(var k=0;k<g.subsystems.length;k++){
+                      //      g.systems[k]={mapname:lSystems[g.subsystems[k]],code:g.subsystems[k],uid:g.subsystems[k]};
+                      //      ls.systems[g.systems[k].code]={uid:g.systems[k].uid,mapname:g.systems[k].mapname,code:g.systems[k].code,active:true};
+                     //   }
                     }
                     ls.type='relocate';
                     if(ls.name.match(/travel/i)){
@@ -131,6 +131,7 @@ angular.module('LocalServices',[])
 
         }
      
+  
    
        
         return SystemsFilters;
@@ -152,8 +153,10 @@ angular.module('LocalServices',[])
         SelectionService.lastQuery="";
         SelectionService.spots=[];
         SelectionService.actualSystems=[];
-        SelectionService.terms=[];
+        SelectionService.terms={};
+        var searchTerms=[];
         var activeRequest=0;
+        var sys=SystemsFilters;
         
         SelectionService.Clear=function(){
                         for(var i=0;i<SelectionService.cities.length;i++)
@@ -200,7 +203,8 @@ angular.module('LocalServices',[])
                 UpdateQuery();
                 $rootScope.$broadcast('selectedSystemsChanged');
             }
-             $rootScope.$broadcast('lifestylesUpdated');
+             
+            $rootScope.$broadcast('lifestylesUpdated');
             return SelectionService.activeLifeStyle;
         }
 
@@ -335,16 +339,21 @@ angular.module('LocalServices',[])
                 var q=data.query;
                 SelectionService.actualSystems=q.actualSystems||[];
                 SelectionService.usedSystems=q.usedsystems||[];
-                SelectionService.terms=q.terms||[];
-                SelectionService.SelectLifeStyle(data.lifestyleid,true);
+                translateSearchTerms(q.terms);
+                
                 $rootScope.$broadcast("PlacesReceived",SelectionService.spots);
                 q.bounds.msa=data.msaid;
+                SelectionService.msaid=data.msaid;
                 UpdateQuery();
                 $timeout(function(){
                     $rootScope.$broadcast("locationChange",q.bounds);
+                    $rootScope.$broadcast("addressSelected",q.bounds);
+                    SelectionService.SelectLifeStyle(data.lifestyleid+'',true);
                 },100);
                 $rootScope.$broadcast("forceUpdate");
-                $rootScope.$broadcast("forceTerms",q.terms);
+                $rootScope.$broadcast("forceTerms",searchTerms);
+                $rootScope.$broadcast("forceSelect",'lifestyle',data.lifestyleid);
+                
                 
             });
             
@@ -366,7 +375,7 @@ angular.module('LocalServices',[])
                bounds:SelectionService.boundBox,
                usedSystems:SelectionService.usedSystems,
                actualSystems:SelectionService.actualSystems,
-               terms:SelectionService.terms,
+               terms:searchTerms,
                lifestyle:SelectionService.activeLifeStyle.id||-1
            }
             
@@ -499,32 +508,63 @@ angular.module('LocalServices',[])
             return selected;
         }
  
-        
-        
-        
-        
+       
         $rootScope.$on('searchChanged',function($event,terms){
-            SelectionService.terms=[];
-            SelectionService.terms=terms;
+            translateSearchTerms(terms);
             UpdateSystems();
             SelectionService.RequestPlaces();
             $rootScope.$broadcast('ForceUpdate');
             
         });
+        
+        function translateSearchTerms(terms){
+            searchTerms=terms;
+            SelectionService.terms={};
+            for(var i=0; i<terms.length;i++){
+                if(terms[i].type!="grouping" && terms[i].type!="lifestyle")
+                    SelectionService.terms[terms[i].id]=terms[i].name;
+                else if(terms[i].type==="grouping"){
+                    for(var j=0; j<sys.groupingMenu.length;j++)
+                        if(sys.groupingMenu[j].id===terms[i].id){
+                            var gs=sys.groupingMenu[j].children;
+                            for(var k=0;k<gs.length;k++){
+                                SelectionService.terms[gs[k].uid]=gs[k].name;
+                            }
+                        }
+                }
+                else if(terms[i].type==="lifestyle"){
+                    for(var j=0;j< SelectionService.lifestyles.length;j++){
+                        if(terms[i].id===SelectionService.lifestyles[j].id){
+                            var lf=SelectionService.lifestyles[j];
+                            for(var k in lf.systems ){
+                                if(k!='type' && !k.match(/proto/))
+                                    SelectionService.terms[k]=lf.mapname
+                            }
+                                
+                        }
+                        
+                    }
+                        
+                }
+            }
+        }
 
         function UpdateSystems(){
             SelectionService.actualSystems=SelectionService.usedSystems.slice(0,SelectionService.usedSystems.length);
-            for(var i=0;i<SelectionService.terms.length; i++){
-                if(SelectionService.actualSystems.indexOf(SelectionService.terms[i].id)<0)
-                    SelectionService.actualSystems.push(SelectionService.terms[i].id);
+
+            for(var i in SelectionService.terms){
+                if(SelectionService.actualSystems.indexOf(i)<0)
+                     SelectionService.actualSystems.push(i);
             }
+            
+           
         }
 
         $rootScope.$on('boundboxChanged',function($event,bound){
             SelectionService.boundBox=bound;
         })
         
-        $rootScope.$on('locationChange',function($event,loc){
+        $rootScope.$on('addressSelected',function($event,loc){
             SelectionService.msaid=loc.msa;
         })
        
@@ -556,11 +596,22 @@ angular.module('LocalServices',[])
 
         }   
             
-        GeograficService.LocateArea= function(lnlt,fn){
-            $http.get('api/geocoder.json?lnlt='+lnlt).success(function(res){
-                    if(res.msaid){
+        GeograficService.LocateArea= function(lon,lat,fn){
+            var lnlt=lon+','+lat;
+            $http.get('api/reverse/'+lon+'/'+lat).success(function(resp){
+                var res=resp.results.hits.hits[0];
+                var rfields=res?res.fields:{};
+                    if(rfields.street){
+                        var area={
+                            msa:null,
+                            msaid:null,
+                            address:(rfields.range[0]?(rfields.range[0]+' '):'')+rfields.street+(rfields.city?(rfields.city+' '):'')+(rfields.state?(rfields.state+' '):''),
+                            lonlat:lnlt
+                        }
+                           
+                        
                        if(fn && angular.isFunction(fn))
-                           fn(res);
+                           fn(area);
                     }
                         
                 }
