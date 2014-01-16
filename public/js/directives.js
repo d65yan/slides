@@ -2151,16 +2151,16 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                
         };
     }])
-    .directive('shareItem',['$timeout',function($timeout){
+    .directive('shareItem',['$timeout','$http',function($timeout,$http){
         return {
             restrict:'C',
             scope:{
-                title:'@titulo',
                 key:'@key',
                 service:'@service',
                 note:'@note',
                 tags:'@tags',
-                link:'@lnk'
+                link:'@lnk',
+                rid:'@resourceid'
                 
             },
             link:function(scope,element,attrs){
@@ -2168,17 +2168,21 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 var services={
                     "5":{title:"FaceBook", args:'width=200,height=100'},
                     "7":{title:"Twitter", args:'width=462,height=504'},
-                    "309":{title:'Pinterest', args:'width=200,height=100'}
+                    "309":{title:'Pinterest', args:'width=200,height=100'},
+                    "304":{title:'Google Plus +1', args:'width=200,height=100'}
                 }
                 
+                 
                 $(element).attr('title','Share With '+services[scope.service].title);
                 scope.Share=function($event){
+                    $http.get('api/share/'+scope.rid);
                     if($event){
                         $event.preventDefault();
                         $event.stopPropagation();
                         $event.stopImmediatePropagation();
                     }
-                    var url="http://www.shareaholic.com/api/share/?v=1&apitype=1&apikey="+scope.key+"&service="+scope.service+"&title="+encodeURIComponent(scope.title)+"&link="+scope.link;
+                    var url="http://www.shareaholic.com/api/share/?v=1&apitype=1&apikey="+scope.key+"&service="+scope.service+"&title="+encodeURIComponent(scope.title)+"&notes="+encodeURIComponent('These guys Rock!!!')+"&link="+encodeURIComponent(scope.link)+'&template=These guys Rock!!! ${link}&media=http://hhhhold.com/200';
+                    //var url="http://www.shareaholic.com/api/share/?v=1&apitype=1&apikey="+scope.key+"&service="+scope.service+"&title="+encodeURIComponent(scope.title)+"&notes="+encodeURIComponent('These guys Rock!!!')+"&link="+encodeURIComponent('http://hhhhold.com/200')+'&template=These guys Rock!!! ${link}&media=http://hhhhold.com/200';
                 
                     window.open(url,scope.title,services[scope.service].args);
                 };
@@ -2902,10 +2906,10 @@ border-top-width: 0;\
         return {
             restrict:'C',
             replace:true,
-            template:'<span class="g-dropdown"  ng-click="ToggleView($event)" style="cursor:pointer"><div class="icon-holder active_lifestyle_{/{selId}/}"></div><span class="header-lifestyle-selector"><span ng-hide="selId" >Custom</span>{/{selName}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">\
+            template:'<span class="g-dropdown"  ng-click="ToggleView($event)" style="cursor:pointer"><div class="icon-holder active_lifestyle_{/{selId}/}"></div><span class="header-lifestyle-selector"><span ng-hide="selId>=0" >Custom Lifestyle</span><span ng-hide="selId" >Select a Lifestyle</span>{/{selName}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">\
                         <ul>\
                             <li ng-repeat="opt in options" ng-click="$parent.SelectItem(opt)" ng-class="{active:(opt.id===$parent.selId)}"><div class="icon-holder {/{(lfs.id===$parent.selId)?\'active_\':\'\'}/}lifestyle_{/{opt.id}/}" ></div>{/{opt.name}/} <div class="indication_button"></div></li>\
-                            <li  ng-click="SelectItem()" ng-class="{active:(!selId)}"><div class="icon-holder {/{(!selId)?\'active_\':\'\'}/}lifestyle_" ></div>Custom<div class="indication_button"></div></li>\
+                            <li  ng-click="SelectItem()" ng-class="{active:(selId<0)}"><div class="icon-holder {/{(!selId)?\'active_\':\'\'}/}lifestyle_" ></div>Custom Lifestyle<div class="indication_button"></div></li>\
                         </ul>\
                     </div></span>',
             scope:{
@@ -2918,7 +2922,7 @@ border-top-width: 0;\
                 scope.selId=null;
                 scope.SelectItem=function(item){
                     if(!item){
-                        scope.selId=null;
+                        scope.selId=-1;
                         scope.selName='';
                     }
                     else{
@@ -2945,14 +2949,14 @@ border-top-width: 0;\
                 
                 scope.$on('forceSelect',function($event,type,id){
                     if(type===scope.type)
-                        SelectId(id)
+                        SelectId(id);
                     
                 })
                 
                 function SelectId(id){
                     for(var i=0;i<scope.options.length;i++){
                         if((scope.options[i].id+'')===(id+''))
-                            scope.SelectItem(scope.options[i])
+                            scope.SelectItem(scope.options[i]);
                     }
                 }
                 

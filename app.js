@@ -76,12 +76,14 @@ app.get('/',util.attachAuthCookies,function(req, res) {
 
 app.get('/api/search/:q/:msa',util.sanitize,search.search());
 app.post('/api/search',util.sanitize,search.log);
+app.get('/api/share/:id',util.sanitize,search.share);
 app.get('/api/address/:q',util.sanitize,search.address());
 app.get('/api/address/:q/:id',util.sanitize,search.address());
 app.get('/api/reverse/:lon/:lat',util.sanitize,search.reverse);
 app.get('/api/hotspot/:id',util.sanitize,hotspots.state);
 app.post('/api/hotspot',util.sanitize,hotspots.hotspot);
 app.get('/api/lifestyles',util.sanitize,require('./controllers/uimenu').GetMenu);
+app.get('/score/:id',util.sanitize,hotspots.score);
 
 /*app.get('/api/address/:q',routes.address);
 app.get('/api/hotspot/:id',routes.state);*/

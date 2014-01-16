@@ -7,6 +7,12 @@ var history = exports.History = database.model.extend({
 	idAttribute: "searchid"
 });
 
+var hotspot = exports.Hotspot = database.model.extend({
+	tableName: "aboutplace.hotty",
+	idAttribute: "gid",
+        
+});
+
 /**
  *
  *
@@ -14,4 +20,8 @@ var history = exports.History = database.model.extend({
  */
 exports.Historics = database.db.Collection.extend({
 	model: history
+});
+
+exports.Hotspots = database.db.Collection.extend({
+	model: hotspot
 });

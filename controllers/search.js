@@ -5,6 +5,7 @@ var async=require('async');
 var region=require('../models/geographies').BoundaryRegion;
 var historic=require('../models/history').History;
 var db= require('../settings/database')
+,   fs=require('fs')
 ,   queries=require('../lib/queries')
 ,   util=require('../lib/utils')
 ,   phantom=require('node-phantom');
@@ -39,12 +40,18 @@ var es=elastic(config);
 var es_addr=elastic(config_addr);
 
 exports.share=function(req,res){
-if(req.query.id || !req.query.method){
+if(!req.params.id){
         util.notfound(res);
         return;
     }
-    
- var url='http://localhost:'+(process.env.PORT||2600)+'/score?id='+req.query.id
+    var filename='score_card__'+req.params.id+'.png';
+    fs.exists('./public/shared/images/'+filename,function(exists){
+        if(exists){
+            util.success(res,{success:1});
+            return;
+        }
+        
+         var url='http://localhost:'+(process.env.PORT||2600)+'/score/'+req.params.id;
     var errTimeout=null;
 
     phantom.create(function(error,ph){
@@ -66,22 +73,25 @@ if(req.query.id || !req.query.method){
             
             page.open(url,function(er,status){
                if(er){
-            console.log(er);
-            util.notfound(res);
-            return;
-        }
+                    console.log(er);
+                    util.notfound(res);
+                    return;
+                }
             console.log('foto taken');
-            var filename='score_card__'+req.query.id+'.png';
+            
              page.render('./public/shared/images/'+filename,function(e){
                 if(e) console.log(e);
                 ph.exit();
-                res.json({success:1,link:'public/maps/'+filename});
-            })
+                res.json({success:1,link:'shared/images/'+filename});
+            });
 
-            })
+            });
         });
         });
     });
+        
+    });
+
 
 };
 

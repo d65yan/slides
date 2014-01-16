@@ -1,7 +1,15 @@
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+"use strict";
+
+var database = require("../settings/database");
+
+var pulse = exports.Pulse = database.model.extend({
+	tableName: "aboutplace.scorecard",
+});
+/**
+ *
+ *
+ *
  */
-
-
+exports.Pulses = database.db.Collection.extend({
+	model: pulse
+});

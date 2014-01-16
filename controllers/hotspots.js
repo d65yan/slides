@@ -2,6 +2,9 @@
 var _=require('lodash');
 var async=require('async');
 var historic=require('../models/hotspots').History;
+var hotspot=require('../models/hotspots').Hotspot;
+var hSpots=require('../models/hotspots').Hotspots;
+var database=require('../settings/database')
 var util=require('../lib/utils');
 
 
@@ -124,10 +127,16 @@ function hotspots(){
 
 
 exports.hotspot =  function (req, res) {
-
-
-
-            new historic({msaid:req.body.msa,lifestyleid:req.body.lifestyle,query:JSON.stringify(req.body)}).save().then(function(model){
+    var b=req.body.bounds;
+    var bounds="array["+b.left+","+b.bottom+","+b.right+","+b.top+"]";
+    var syst='array[';
+    
+    for(var i =0;i<req.body.actualSystems.length;i++)
+        syst+=req.body.actualSystems[i]+',';
+    syst=syst.substr(0,syst.length-1)+']';
+    //+JSON.stringify(req.body.actualSystems).replace('\"',"'");
+    database.db.knex.raw('select * from aboutplace.scorecard('+bounds+','+syst+') limit 3;').then(function(collection){
+        new historic({msaid:req.body.msa,lifestyleid:req.body.lifestyle,query:JSON.stringify(req.body)}).save().then(function(model){
                 new historic({searchid:model.get('searchid')}).fetch({columns:['shortname']}).then(function(model){
                             var h=hotspots();
                             h.hotspots.sort(function(b,a){return((a.pulse-b.pulse)/Math.abs(a.pulse-b.pulse))});
@@ -137,8 +146,14 @@ exports.hotspot =  function (req, res) {
                     
                 
             },util.dberror(res));
+    },
+    util.dberror(res)
+    )
+    
+
+            
 	
-            };
+};
 
 
 exports.state=function (req, res) {
@@ -147,3 +162,9 @@ exports.state=function (req, res) {
             util.success(res,model);
         },util.dberror(res));
  }
+
+exports.score=function(req,res){
+    res.render('scorecard.ejs',{
+          layout:false
+    });
+}
