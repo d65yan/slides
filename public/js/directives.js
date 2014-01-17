@@ -2151,7 +2151,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                
         };
     }])
-    .directive('shareItem',['$timeout','$http',function($timeout,$http){
+    .directive('shareItem',['$timeout','User','$http',function($timeout,$http,User){
         return {
             restrict:'C',
             scope:{
@@ -2172,10 +2172,22 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                     "304":{title:'Google Plus +1', args:'width=200,height=100'}
                 }
                 
+                if(scope.service==='309'){
+                    scope.$watch('rid',function(){
+                        $(element).html('');
+                        $(element).append('<a  href="//www.pinterest.com/pin/create/button/?media=http://www.aboutplace.co/img/couple.jpg&description=check this out!!" data-pin-do="buttonPin"  data-pin-shape="round"><img src="//assets.pinterest.com/images/pidgets/pinit_fg_en_round_red_16.png" /></a>');
+                        $('body').find('#pincscript').remove();
+                        $('body').append('<script type="text/javascript" async src="//assets.pinterest.com/js/pinit.js" id="pincscript"></script>');
+                        return;
+                    })
+                    
+                }
+                
+                
                  
                 $(element).attr('title','Share With '+services[scope.service].title);
                 scope.Share=function($event){
-                    $http.get('api/share/'+scope.rid);
+                    $http.get('api/share/'+scope.rid,{headers:{'TOKEN':User.getToken()}});
                     if($event){
                         $event.preventDefault();
                         $event.stopPropagation();
@@ -2189,7 +2201,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
             }
         };
     }])
-    .directive('searchingTerm',['$timeout','$http','$rootScope',function($timeout,$http,$rootScope){
+    .directive('searchingTerm',['$timeout','$http','$rootScope','User',function($timeout,$http,$rootScope,User){
         return {
             restrict:'C',
             template:'<span  class="search_term {{editable?\'edit\':\'\'}} {{(editable && !valid)?\'error\':\'\'}} {{(!editable && valid)?\'accepted\':\'\'}}" >\
@@ -2543,7 +2555,9 @@ border-top-width: 0;\
                 function Fetch(auto,complement){
                     var l_auto=auto;
                       scope.searching=true;
-                      var callconfig={};
+                      var callconfig={
+                          headers:{'TOKEN':User.getToken()}
+                      };
                       
                      var querys='{"fields": ["meta_" ],"query" : {"bool" : {"must" : [{ "match" : {"meta_" : "'+scope.value+'"}}], "should" : [{ "match" : {"msa_short" : "'+scope.area+'"}}],"minimum_should_match" : 0,"boost" : 1.0}},"highlight" : {"fields" : {"*" : {"fragment_size" : 50,"number_of_fragments" : 1}}}}';
                       querys='{"query":{"query_string":{"query":"'+scope.value+'"}},"fields":["meta_"]}';
@@ -2579,7 +2593,9 @@ border-top-width: 0;\
                 }
                 
                 function Details(id, fn){
-                    var callconfig={};
+                    var callconfig={
+                        headers:{'TOKEN':User.getToken()}
+                    };
                     callconfig.url=config.url+'123/'+id;
                       callconfig.method=scope.method||'get';
                       $http(callconfig).success(function(data){
@@ -2590,7 +2606,9 @@ border-top-width: 0;\
                 }
                 
                 function Log(content){
-                     var callconfig={};
+                     var callconfig={
+                         headers:{'TOKEN':User.getToken()}
+                     };
                       callconfig.url=config.url
                       callconfig.method='post';
                       callconfig.data=content;
@@ -2906,7 +2924,7 @@ border-top-width: 0;\
         return {
             restrict:'C',
             replace:true,
-            template:'<span class="g-dropdown"  ng-click="ToggleView($event)" style="cursor:pointer"><div class="icon-holder active_lifestyle_{/{selId}/}"></div><span class="header-lifestyle-selector"><span ng-hide="selId>=0" >Custom Lifestyle</span><span ng-hide="selId" >Select a Lifestyle</span>{/{selName}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">\
+            template:'<span class="g-dropdown"  ng-click="ToggleView($event)" style="cursor:pointer" ng-class="{covered:$parent.coverAll,error:error}"><div class="icon-holder active_lifestyle_{/{selId}/}"></div><span class="header-lifestyle-selector"><span ng-hide="selId>=0" >Custom Lifestyle</span><span ng-hide="selId" >Select a Lifestyle</span>{/{selName}/}</span><i class="icon-chevron-down" ></i><div class="content" ng-show="show_lfs">\
                         <ul>\
                             <li ng-repeat="opt in options" ng-click="$parent.SelectItem(opt)" ng-class="{active:(opt.id===$parent.selId)}"><div class="icon-holder {/{(lfs.id===$parent.selId)?\'active_\':\'\'}/}lifestyle_{/{opt.id}/}" ></div>{/{opt.name}/} <div class="indication_button"></div></li>\
                             <li  ng-click="SelectItem()" ng-class="{active:(selId<0)}"><div class="icon-holder {/{(!selId)?\'active_\':\'\'}/}lifestyle_" ></div>Custom Lifestyle<div class="indication_button"></div></li>\
@@ -2920,6 +2938,7 @@ border-top-width: 0;\
             link:function(scope,element,attrs){
                 scope.selection=SelectionService;
                 scope.selId=null;
+                scope.error=false;
                 scope.SelectItem=function(item){
                     if(!item){
                         scope.selId=-1;
@@ -2931,6 +2950,7 @@ border-top-width: 0;\
                         scope.selName=item.name;
                     
                     }
+                            scope.error=false;
                             $rootScope.$broadcast('elementSelected',{id:element.id,value:scope.selId});
                 }
 
@@ -2953,12 +2973,19 @@ border-top-width: 0;\
                     
                 })
                 
+                scope.$on('submitionError',function($event,type){
+                    if(type==='lifestyle')
+                        scope.error=true;
+                })
+                
                 function SelectId(id){
                     for(var i=0;i<scope.options.length;i++){
                         if((scope.options[i].id+'')===(id+''))
                             scope.SelectItem(scope.options[i]);
                     }
                 }
+                
+                
                 
             }
         };
@@ -3149,16 +3176,33 @@ var WRInitTime=(new Date()).getTime();\
             },
             link:function(scope,element,attrs){
                scope.show=false;
-               var timer=null;
+               var timerO=null,timerI=null;
+               $(element).on('mouseover',function(){
+                   scope.Display();
+               })
+               
+               $(element).on('mouseout',function(){
+                   scope.Hide();
+               })
+               
+               $(element).on('mousedown',function(){
+                   scope.Display();
+               })
+               
                scope.Display=function(){
-                   if(timer)
-                       $timeout.cancel(timer);
-                   timer=null;
-                   scope.show=true;
+                   if(timerO)
+                       $timeout.cancel(timerO);
+                   timerO=null;
+                   timerI=$timeout(function(){
+                       scope.show=true;
+                   },300);
                }
                
                scope.Hide=function(){
-                   timer=$timeout(function(){
+                   if(timerI)
+                       $timeout.cancel(timerI);
+                   timerI=null;
+                   timerO=$timeout(function(){
                        scope.show=false;
                    },800);
                }

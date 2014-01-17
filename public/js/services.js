@@ -1,5 +1,5 @@
-angular.module('LocalServices',[])
-    .factory('SystemsFilters', ['$rootScope','$http',function($rootScope,$http) {
+var ServMod=angular.module('LocalServices',[])
+    .factory('SystemsFilters', ['$rootScope','$http','User',function($rootScope,$http,User) {
         var SystemsFilters = {};
         SystemsFilters.geoFilters=[];
         SystemsFilters.addons=[];
@@ -32,9 +32,11 @@ angular.module('LocalServices',[])
         
         
         SystemsFilters.GetTree=function(f){
+           var token=User.getToken();
             $http({
                 url:'api/lifestyles',
-                method:'get'
+                method:'get',
+                headers:{'TOKEN':token}
             }).success(function(tree){
                 
                 var lSystems={};
@@ -106,14 +108,6 @@ angular.module('LocalServices',[])
                                 ls.systems[sg]=ls.systems[sg]||{uid:g.map[sg].uid,mapname:g.map[sg].name,code:g.map[sg].code,active:true,parent:g.id};
                             }
                         }
-                        
-                        
-     
-                     //     ls.groups[g.code]={uid:g.uid, mapname:g.mapname, code:g.code};
-                      //  for(var k=0;k<g.subsystems.length;k++){
-                      //      g.systems[k]={mapname:lSystems[g.subsystems[k]],code:g.subsystems[k],uid:g.subsystems[k]};
-                      //      ls.systems[g.systems[k].code]={uid:g.systems[k].uid,mapname:g.systems[k].mapname,code:g.systems[k].code,active:true};
-                     //   }
                     }
                     ls.type='relocate';
                     if(ls.name.match(/travel/i)){
@@ -136,7 +130,7 @@ angular.module('LocalServices',[])
        
         return SystemsFilters;
     }])
-    .factory('SelectionService',['SystemsFilters','$http','$timeout','$rootScope','$location',function(SystemsFilters,$http,$timeout,$rootScope,$location) {
+    .factory('SelectionService',['SystemsFilters','$http','$timeout','$rootScope','$location','User',function(SystemsFilters,$http,$timeout,$rootScope,$location,User) {
         var SelectionService = {};
         SelectionService.cities={};  
         SelectionService.area;  
@@ -331,7 +325,7 @@ angular.module('LocalServices',[])
         };
         
         SelectionService.FetchId=function(id){
-            return $http.get('api/hotspot/'+encodeURIComponent(id)).success(function(data){
+            return $http.get('api/hotspot/'+encodeURIComponent(id),{headers:{'TOKEN':User.getToken()}}).success(function(data){
                 if(data.failure)
                     return;
                 mergeHotspots(data.hotspots||[]);
@@ -382,7 +376,8 @@ angular.module('LocalServices',[])
             $http({
                 url:'api/hotspot',
                 method:'post',
-                data:reqObj
+                data:reqObj,
+                headers:{'TOKEN':User.getToken()}
             }).success(function(data){
                 var spots=data.hotspots;
                     
@@ -578,7 +573,7 @@ angular.module('LocalServices',[])
        
         return SelectionService;
     }])
-    .factory('GeograficService',['$rootScope','SelectionService','SystemsFilters','$timeout','$http',function($rootScope,SelectionService,SystemsFilters,$timeout,$http){////////////////////////SERVICE USED MOSTLY IN HOME //////////////////
+    .factory('GeograficService',['$rootScope','SelectionService','SystemsFilters','$timeout','$http','User',function($rootScope,SelectionService,SystemsFilters,$timeout,$http,User){////////////////////////SERVICE USED MOSTLY IN HOME //////////////////
         var GeograficService = {};
         GeograficService.regions=[];
         
@@ -598,7 +593,7 @@ angular.module('LocalServices',[])
             
         GeograficService.LocateArea= function(lon,lat,fn){
             var lnlt=lon+','+lat;
-            $http.get('api/reverse/'+lon+'/'+lat).success(function(resp){
+            $http.get('api/reverse/'+lon+'/'+lat,{headers:{'TOKEN':User.getToken()}}).success(function(resp){
                 var res=resp.results.hits.hits[0];
                 var rfields=res?res.fields:{};
                     if(rfields.street){
@@ -624,7 +619,7 @@ angular.module('LocalServices',[])
         GeograficService.GetRegions=function(f){
             
             
-            $http.get('http://10.1.10.91:3000/places/regions').success(function(data){
+            $http.get('http://10.1.10.91:3000/places/regions',{headers:{'TOKEN':user.getToken()}}).success(function(data){
                 if(data.result)
                     data=data.result;
                 for(var i=0;i<data.length;i++){
@@ -644,6 +639,7 @@ angular.module('LocalServices',[])
               if(!angular.isUndefined (f) && angular.isFunction(f))
                 f(data)
             });
+        
         }
         
         $rootScope.$on('filtersLoaded',function(){
@@ -1176,5 +1172,24 @@ angular.module('LocalServices',[])
 
   return CompareService;
 }])
-    
+    .factory('User',['$timeout','$http',function($timeout,$http){
+            var lUser={};
+            var u={
+                setUser:function(obj){
+                    for(var i in obj){
+                        if(!angular.isObject(i) && !angular.isFunction(i))
+                            lUser[i]=obj[i];
+                        
+                        ServMod.run(function($http) {
+                            $http.defaults.headers.common['token'] = lUser.token;
+                        });
+                        
+                    }
+                },
+                getToken:function(){
+                    return lUser.token;
+                }
+            }
+            return u;
+    }])
    

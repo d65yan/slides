@@ -9,8 +9,9 @@
 
 }]);
       
-      function AppController($scope,$window,$http,$timeout,SelectionService,GeograficService,SystemsFilters,$rootScope,$dialog,$routeParams,$location,$sce){
+      function AppController($scope,$window,$http,$timeout,SelectionService,GeograficService,SystemsFilters,$rootScope,$dialog,$routeParams,$location,$sce,User){
           //$scope.logged=false;
+          
           $rootScope.history = [];
           $rootScope.back=false;
           $rootScope.same=false;
@@ -21,7 +22,7 @@
           $scope.authInProcess=false;
           $scope.prevContent='';
           $scope.footerState='100%';
-          $scope.selectedLifeStyle=-1;
+          $scope.selectedLifeStyle=null;
           $timeout(function(){
               $scope.authUrl=$sce.trustAsResourceUrl($scope.authServer+'auth?srd=authsuccess&t='+Date.now());
               $scope.authFacebook=$sce.trustAsResourceUrl($scope.authServer+'facebook?srd=authsuccess');
@@ -47,7 +48,12 @@
                  $scope.$broadcast('submitionError','address');
                  return;
               }
-                  
+                 
+              if(!$scope.selectedLifeStyle){
+                 $scope.$broadcast('submitionError','lifestyle');
+                 return;
+              }
+              
                $scope.selection.SelectLifeStyle($scope.selectedLifeStyle);
                if($scope.addressChanged)
                 $rootScope.$broadcast('locationChange',$scope.geoLoc);
@@ -273,11 +279,15 @@
 
          // $scope.status='Loading Application Data';
          $scope.status='';
+         
+          $timeout(function(){
+              User.setUser($scope.user);
 
-          SystemsFilters.GetTree(function(){
+            SystemsFilters.GetTree(function(){
                 $rootScope.$broadcast('lifestylesLoaded');
                 
-           });
+            });
+          })
           
          /*GeograficService.GetRegions(function(){
                     $rootScope.$broadcast('regionsLoaded');
@@ -319,7 +329,7 @@
            });
 
     }
-      AppController.$inject=['$scope','$window','$http','$timeout','SelectionService','GeograficService','SystemsFilters','$rootScope','$dialog','$routeParams','$location','$sce'];
+      AppController.$inject=['$scope','$window','$http','$timeout','SelectionService','GeograficService','SystemsFilters','$rootScope','$dialog','$routeParams','$location','$sce','User'];
      
      function homeCtrl($scope,$window,$timeout,GeograficService,SystemsFilters,$location,$filter){
          $scope.$parent.footerState='100%'; 

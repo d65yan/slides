@@ -2,9 +2,12 @@
 	"PGHOST": "23.22.58.217",
 	"PGUSER": "geo",
 	"PGDATABASE": "u",
+        "PGHOST1": "ec2-54-235-246-73.compute-1.amazonaws.com",
+	"PGUSER1": "qikqktghawygfk",
+	"PGPASS1": "D5JBeWrAJ1Lr7qGadA2_Jy1zSC",        
+	"PGDATABASE1": "dcvb56tpokt82h",
 	"COMPANY": "Urban4M",
 	"CSRF_COOKIE_NAME": "XSRF-TOKEN",
-        "TRACKCOOKIE":"AP-track",
         "TRACKCOOKIE":"AP-track",
 	"SECRET_KEY": "FvbCnm32UgE4vFADS7px6CY4mb7HzerbsxsJF4D6Au39aCxSS22aPRMvP5J7J82bG8dEWxi5vzjzELcgiSbzpmHWBTVBZm2v42FFcGdYqXhkF9PXeWQ4gHzbdSx3FG7C",
 	"LOCALE": {

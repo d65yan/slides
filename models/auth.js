@@ -8,19 +8,16 @@ var database = require("../settings/database");
  *
  */
 
-var ruser=database.readonly.extend({
-		tableName : "sea.user",
+var ruser=database.hreadonly.extend({
+		tableName : "public.users",
 		idAttribute : 'id'
 	});
 
 
-var wuser=database.model.extend({
-		tableName : "a.user",
-		idAttribute : 'gid',
-                areas:function(){
-                    return this.hasMany(BoundaryRegionArea,'regionid');
-                }
-	});
+var wuser=database.hmodel.extend({
+		tableName : "public.users",
+		idAttribute : 'id',
+});
 
 
 

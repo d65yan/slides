@@ -948,6 +948,10 @@ position:relative;
     cursor:pointer;
 }
 
+#header-lifestyle-selector_dropdown.error{
+    border:solid 1px red !important;
+}
+
 </style>
   <script>
       $(document).ready(function(){
@@ -965,7 +969,7 @@ position:relative;
 
   
 </head>
-<body   ng-controller="AppController" ng-init="authServer='<%= authServerURL %>/'" ng-click="CollapseAll()" class="mobile-touch" > 
+<body   ng-controller="AppController" ng-init="authServer='<%= authServerURL %>/'; user=<%= user %>;" ng-click="CollapseAll()" class="mobile-touch" > 
 
     
 <div id="upper_wrapper"  class="main_app1" ng-cloack update="{/{state}/}">
@@ -975,7 +979,7 @@ position:relative;
             <table style="float:left" cellpadding="0" cell spacing="0" border="0"><tr><td><span id="main-logo-container"><a href="#/home" class="mobile-touch" message="Let's Start all over again!!"><img id="main-logo" src="img/logo.png"></a></span></td>
 
                   <td style="vertical-align:top">  <div style="width:250px; display:inline-block;" type="addr" class="search_bar"  ng-class="{covered:$parent.coverAll}" show_hidden="false" max_search="1" visibles="1" show_categories="false" base_url="api/address/" placeh="Address, City or Zip code" elastic="false" details="true"></div></td>
-                  <td style="vertical-align:top"><span class="g-drop" id="header-lifestyle-selector_dropdown" ng-class="{covered:$parent.coverAll}" options="selection.lifestyles" type="lifestyle"></span> </td>
+                  <td style="vertical-align:top"><span class="g-drop" id="header-lifestyle-selector_dropdown"  options="selection.lifestyles" type="lifestyle"></span> </td>
                   <td style="vertical-align:top">
                         <div class="global-search-submit-button" ng-click="UpdateSpots()" ng-class="{covered:coverAll}"></div></span>
                   </td>

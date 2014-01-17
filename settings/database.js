@@ -48,6 +48,19 @@ client: "pg",
 	}
 });
 
+var udb = exports.udb = Bookshelf.UDB = Bookshelf.initialize({
+client: "pg",
+	debug: settings.get("DEBUG"),
+	connection: {
+		host: settings.get("PGHOST1"),
+		database: settings.get("PGDATABASE1"),
+		user: settings.get("PGUSER1"),
+                password: settings.get("PGPASS1"),
+                ssl:true
+	}
+});
+
+
 db.plugin(Fields.plugin);
 
 var Model= db.Model.extend({});
@@ -59,6 +72,21 @@ exports.model = Model;
  *
  */
 exports.readonly = Model.extend({
+	allowedToEdit: function () {
+		return false;
+	}
+});
+
+
+var hModel= udb.Model.extend({});
+exports.hmodel = hModel;
+
+/**
+ *
+ *
+ *
+ */
+exports.hreadonly = hModel.extend({
 	allowedToEdit: function () {
 		return false;
 	}

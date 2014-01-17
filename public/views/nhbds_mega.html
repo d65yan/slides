@@ -1000,6 +1000,17 @@ border-top-width: 0;
            background-position:-60px 0px;
        }       
 
+       .img-link.pn a{
+           display:block !important;
+           width:100%;
+           height:100%;
+           opacity:0;    
+       } 
+       
+       .img-link.pn a span{
+           visibility:hidden;
+       } 
+       
        .img-link.em{
            background-position:-80px 0px;
        }       
@@ -1074,7 +1085,12 @@ border-top-width: 0;
         <div class="share isolate collapsable" group="share-shurtcut" >
             <i class="icon-share"></i>
             <div class="links">
-                 <div class="img-link fb share_item"  key="8943b7fd64cd8b1770ff5affa9a9437b" service="5" lnk="http://aboutplace.co/#?s={/{$parent.s.activeSearch}/}" resourceid="{/{$parent.s.activeSearch}/}" ng-click="Share($event)"></div><div class="img-link tw share_item" key="8943b7fd64cd8b1770ff5affa9a9437b" service="7" lnk="http://aboutplace.co/#?s={/{$parent.s.activeSearch}/}" resourceid="{/{$parent.s.activeSearch}/}" ng-click="Share($event)"></div><div class="img-link gp share_item" key="8943b7fd64cd8b1770ff5affa9a9437b" service="304" lnk="http://aboutplace.co/#?s={/{$parent.s.activeSearch}/}" resourceid="{/{$parent.s.activeSearch}/}" ng-click="Share($event)"></div><div class="img-link pn share_item" key="8943b7fd64cd8b1770ff5affa9a9437b" service="309" lnk="http://aboutplace.co/shared/images/{/{$parent.s.activeSearch}/}.png" resourceid="{/{$parent.s.activeSearch}/}" ng-click="Share($event)"></div><div class="img-link em"></div>
+                 <div class="img-link fb share_item"  key="8943b7fd64cd8b1770ff5affa9a9437b" service="5" lnk="http://aboutplace.co/#?s={/{$parent.s.activeSearch}/}" resourceid="{/{$parent.s.activeSearch}/}" ng-click="Share($event)"></div>
+                 <div class="img-link tw share_item" key="8943b7fd64cd8b1770ff5affa9a9437b" service="7" lnk="http://aboutplace.co/#?s={/{$parent.s.activeSearch}/}" resourceid="{/{$parent.s.activeSearch}/}" ng-click="Share($event)"></div>
+                 <div class="img-link gp share_item" key="8943b7fd64cd8b1770ff5affa9a9437b" service="304" lnk="http://aboutplace.co/#?s={/{$parent.s.activeSearch}/}" resourceid="{/{$parent.s.activeSearch}/}" ng-click="Share($event)"></div>
+                 <div class="img-link pn share_item" key="8943b7fd64cd8b1770ff5affa9a9437b" service="309" lnk="http://aboutplace.co/shared/images/{/{$parent.s.activeSearch}/}.png" resourceid="{/{$parent.s.activeSearch}/}" ng-click="Share($event)"></div>
+                 
+                 <div class="img-link em"></div>
              </div>
         </div>
         <div class="save isolate collapsable" group="save-shurtcut">
@@ -1092,7 +1108,7 @@ border-top-width: 0;
                    <div class="main_map static_element" stage="{/{stage}/}" msa="{/{msa_idx}/}" area="{/{area_id}/}" lfs="{/{lf_id}/}"></div>
                 
                    
-                   <div class="dfooter autohide" ng-mouseover="Display()" ng-mouseleave="Hide()" ng-click="Display()" ng-class="{content_hidden:!show}">
+                   <div class="dfooter autohide" n g-class="{content_hidden:!show}">
                        <div class="content" ng-show="show">
                            <div class=" left-section">
                                <ul><li>About Us</li><li>PlacePulse</li><li>FAQs</li><li>Blog</li></ul>
