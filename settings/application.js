@@ -6,7 +6,7 @@ var conf = require("nconf")
 	.file('package', { file: './package.json' })
         .defaults({
             DBFILE:'./db/mydb.db',
-            DEBUG:true
+            DEBUG:false
         });
 
 var keys=conf.get('keys');

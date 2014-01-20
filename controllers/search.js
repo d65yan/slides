@@ -56,28 +56,28 @@ if(!req.params.id){
 
     phantom.create(function(error,ph){
         if(error){
-            console.log(error);
+            //console.log(error);
             util.notfound(res);
             return;
         }
-        console.log('phantom created');
+        //console.log('phantom created');
         ph.createPage(function(err,page){
             if(err){
-            console.log(err);
+            //console.log(err);
             util.notfound(res);
             return;
         }
             console.log('pagecreated');
             page.set('viewportSize',{width:200,height:200},function(err){
-            console.log(err);    
+            //console.log(err);    
             
             page.open(url,function(er,status){
                if(er){
-                    console.log(er);
+                   // console.log(er);
                     util.notfound(res);
                     return;
                 }
-            console.log('foto taken');
+            //console.log('foto taken');
             
              page.render('./public/shared/images/'+filename,function(e){
                 if(e) console.log(e);
@@ -98,7 +98,7 @@ if(!req.params.id){
 
 
 exports.log=  function (req, res) {
-            console.log(req.body);
+            //console.log(req.body);
                if(!req.body.user_term || !req.body.selected_term || !req.body.selected_term_id){
                     util.dberror(res)({error:'invalid parameters'});
                     return;
@@ -115,7 +115,7 @@ exports.log=  function (req, res) {
 exports.search = function() {
 	return function (req, res) {
               
-            console.log('hitted');
+            //console.log('hitted');
             var reqs=1;
             var addrReq=false;
             var success=false;
@@ -167,7 +167,7 @@ exports.search = function() {
                             return;
                         }
                         //console.log(data);
-                        console.log('got response');
+                        //console.log('got response');
                         iterate(data)
                     }
                 
@@ -177,8 +177,8 @@ exports.search = function() {
               
             
             function cb(err){
-                if(err)
-                    console.log(err)
+                if(err){}
+                   // console.log(err)
             }
             
 
@@ -191,15 +191,15 @@ exports.search = function() {
                     result=resp2;
                 else{
                     _.extend(result,resp1);
-                    console.log(result);
+                   // console.log(result);
                     result.hits.total+=resp2.hits.total;
                     async.each(resp2.hits.hits,function(item,cb){
-                        console.log(item.fields.meta_);
+                       // console.log(item.fields.meta_);
                         result.hits.hits.unshift(item);
                         cb();
                     },function(err){
-                        if(err)
-                            console.log(err);
+                        if(err){}
+                            //console.log(err);
                         if(_.isFunction(fn))
                             fn.call(_self,result);
                     })
@@ -313,10 +313,10 @@ exports.address = function() {
                             return
                         }
                         var obj=data.hits.hits[0];
-                       console.log(obj);
+                       //console.log(obj);
                         region.forge().query({where:db.knex.raw('ST_Covers(ST_Transform(shape,4326),ST_SetSRID(ST_Point('+obj.fields['location.lon']+','+obj.fields['location.lat']+'),4326))=TRUE')}).fetch({columns:["name","regionid"]}).then(function(model){
                             if(model){
-                                console.log(model);
+                                //console.log(model);
                                 data.hits.hits[0].msaid=model.get('regionid');
                                 data.hits.hits[0].msa_name=model.get('name');
                             }
@@ -376,7 +376,7 @@ function reverse(req, res,max) {
     },
     "size":200
 };
-console.log('before search');
+//console.log('before search');
                 es_addr.search(search_query
                         /*{
                             "query":{

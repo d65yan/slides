@@ -3,41 +3,11 @@
 var settings = require('./application').conf
 , Bookshelf = require("bookshelf")
 , Fields = require("bookshelf-fields")
-, fs=require('fs')/*
-, sqlite=require('sqlite3')*/;
-
-/*var dbfile=settings.get("DBFILE");
-fs.exists(dbfile,function(exists){
-        if(!exists)
-            new sqlite.Database(dbfile,function(err){
-                if(err)console.log('creation error');
-            })
-    
-    
-    
-})*/
-
+, fs=require('fs');
 
 
 exports.fields=Fields;
-/**
- *
- *
- *
- */
-/*var db = exports.db = Bookshelf.DB = Bookshelf.initialize({
-	client: "sqlite3",
-	debug: settings.get("DEBUG"),
-	connection: {
-		filename:dbfile
-	}
-});*/
 
-/**
- *
- *
- *
- */
 var db = exports.db = Bookshelf.DB = Bookshelf.initialize({
 client: "pg",
 	debug: settings.get("DEBUG"),
@@ -77,7 +47,7 @@ exports.readonly = Model.extend({
 	}
 });
 
-
+//////////////////////////////////////////
 var hModel= udb.Model.extend({});
 exports.hmodel = hModel;
 
