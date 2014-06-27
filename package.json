@@ -1,5 +1,5 @@
 {
-  "name": "APDemo",
+  "name": "Presentations",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -7,19 +7,7 @@
   },
   "dependencies": {
     "express": "3.1.0",
-    "ejs":"0.8.4",
-    "crypto":"*",
-    "bookshelf":"0.6.2",
-    "bookshelf-fields":"0.1.0",
-    "http-signature":"0.9.11",
-    "sqlite3":"2.1.10",
-    "nconf":"0.6.9",
-    "es":"*",
-    "lodash": "2.x",
-    "async":"*",
-    "pg":"2.11.0",
-    "when":"*",
-    "node-phantom":"*"
+    "ejs":"0.8.4"
     
   },
   "engines": {

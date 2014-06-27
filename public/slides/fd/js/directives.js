@@ -216,8 +216,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 
                 
                 //var usProjection   = new OpenLayers.Projection("EPSG:U4M");
-                var mapserver='http://demo-maps.aboutplace.co/';
-                //var mapserver='http://geo.urban4m.com/';
+	 	var mapserver='http://basemap.aboutplace.co/';
                 var strTFS,prtTFS=null;
 
                                 
@@ -598,7 +597,7 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 map = new OpenLayers.Map($(element).find('#main-map')[0], mapOpt);
                 if(base==='own'){
                 nLayer=new OpenLayers.Layer.OSM('U4M',[
-                    mapserver+"heat/${z}/${x}/${y}.png"
+                    mapserver+"base/${z}/${x}/${y}.png"
                     
                     ],{
                         isBaseLayer:true,

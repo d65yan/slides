@@ -22,8 +22,8 @@ angular.module('Directives',['LocalServices'/*,'MapModule'*/])
                 var citiesFt=[], cityCenterLayer,citiesLayer,markersLayer,cityMarker;
                 var highlightCtrl,selectCtrl,transfCtrl=null;
                 var self=this;
-                var mapserver='http://demo-maps.aboutplace.co/heat';
-                //var mapserver='http://geo.urban4m.com/heat';
+                var mapserver='http://basemap.aboutplace.co/base';
+                
                 var hoveredCity=-1;
                 var select = function(e) {
                         if(!e.layer)

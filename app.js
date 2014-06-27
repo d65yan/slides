@@ -6,15 +6,9 @@
 
 var express = require('express')
   , routes = require('./routes')
-  , lifestyle=require('./controllers/lifestyles')
   , crypt = require('crypto')
   , http = require('http')
   , path = require('path')
-  , db=require('./settings/database').db
-  , search=require('./controllers/search')
-  , hotspots=require('./controllers/hotspots')
-  , util=require('./lib/utils')
-  , settings=require('./settings/application').conf
   ;
 
 var app = express();
@@ -22,7 +16,6 @@ var puerto= process.env.PORT || 2600;
 app.configure(function(){
   app.set('port',puerto);
   app.set('views', __dirname + '/public');
- // app.set('views', __dirname + '/public/uw');
   app.use(express.favicon());
   app.use(express.logger('dev'));
   app.use(express.cookieParser());
@@ -33,10 +26,6 @@ app.configure(function(){
   app.use('',express.static(path.join(__dirname, 'public/')));
   //app.use(express.static(path.join(__dirname, '')));
 });
-var authUrl=settings.get('authUrl'); 
-
-//console.log('URL ===>'+set.get('DBFILE'));
-
 var slides={
     uw:{
         name:"United Way",
@@ -58,36 +47,6 @@ var slides={
     }
 }
 
-
-require('./routes/auth')(app);
-
-app.get('/',util.attachAuthCookies,function(req, res) {
-    
-   
-       res.render('index.ejs',{
-                 layout:false,
-                 locals:{
-                    authServerURL:authUrl,
-                    user:JSON.stringify(req.user)
-                }
-        }
-    );
-    return;
-});
-
-app.get('/api/search/:q/:msa',util.sanitize,search.search());
-app.post('/api/search',util.sanitize,search.log);
-app.get('/api/share/:id',util.sanitize,search.share);
-app.get('/api/address/:q',util.sanitize,search.address());
-app.get('/api/address/:q/:id',util.sanitize,util.limit('address geolocation',3,10),search.address());
-app.get('/api/reverse/:lon/:lat',util.sanitize,search.reverse);
-app.get('/api/hotspot/:id',util.sanitize,hotspots.state);
-app.post('/api/hotspot',util.sanitize,hotspots.hotspot);
-app.get('/api/lifestyles',util.sanitize,require('./controllers/uimenu').GetMenu);
-app.get('/score/:id',util.sanitize,hotspots.score);
-
-/*app.get('/api/address/:q',routes.address);
-app.get('/api/hotspot/:id',routes.state);*/
 
 app.get(/\/slides\/[a-z]+/,function(req, res) {
         
